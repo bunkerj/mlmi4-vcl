@@ -39,9 +39,8 @@ class NeuralTrainer():
                 self.train_step.zero_grad()
                 loss.backward()
                 self.train_step.step()
-                c = loss.item()
                 # Compute average loss
-                avg_cost += c / total_batch
+                avg_cost += loss / total_batch
             if epoch % display_epoch == 0:
                 print("Epoch:", '%04d' % (epoch+1), "cost=", \
                     "{:.9f}".format(avg_cost))
