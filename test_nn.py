@@ -44,6 +44,6 @@ class TestNN(nn.Module):
         values = torch.from_numpy(values).type(torch.cuda.FloatTensor)
         return values
 
-    def loss(output, labels): 
+    def loss(self, output, labels):
         criterion = nn.CrossEntropyLoss()
         return criterion(output, labels)
