@@ -34,12 +34,12 @@ class VanillaNN(nn.Module):
         for layerIndex, layerName in enumerate(layerNames):
             outputSize, inputSize = self._getLayerDimensions(layerIndex)
             layer = nn.Linear(outputSize, inputSize)
-            # size_weight = layer.weight.size()
-            # size_bias = layer.bias.size()
-            # layer.weight = torch.nn.Parameter(self._getTruncatedNormal(size_weight, 0.02))
-            # layer.bias = torch.nn.Parameter(self._getTruncatedNormal(size_bias, 0.02))
-            layer.weight = torch.nn.Parameter(torch.rand(outputSize, inputSize))
-            layer.bias = torch.nn.Parameter(torch.rand(outputSize))
+            size_weight = layer.weight.size()
+            size_bias = layer.bias.size()
+            layer.weight = torch.nn.Parameter(self._getTruncatedNormal(size_weight, 0.02))
+            layer.bias = torch.nn.Parameter(self._getTruncatedNormal(size_bias, 0.02))
+            # layer.weight = torch.nn.Parameter(torch.rand(outputSize, inputSize))
+            # layer.bias = torch.nn.Parameter(torch.rand(outputSize))
             setattr(VanillaNN, layerName, layer)
 
     def forward(self, x):
