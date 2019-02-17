@@ -43,3 +43,7 @@ class TestNN(nn.Module):
         values = truncnorm.rvs(-threshold, threshold, size=size)
         values = torch.from_numpy(values).type(torch.cuda.FloatTensor)
         return values
+
+    def loss(output, labels): 
+        criterion = nn.CrossEntropyLoss()
+        return criterion(output, labels)
