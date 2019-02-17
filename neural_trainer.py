@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-
 class NeuralTrainer():
     def __init__(self, neuralNetwork):
         # Create random Tensors to hold input and output
@@ -40,7 +39,7 @@ class NeuralTrainer():
                 self.train_step.zero_grad()
                 loss.backward()
                 self.train_step.step()
-                c = loss.data.item()
+                c = loss.item()
                 # Compute average loss
                 avg_cost += c / total_batch
             if epoch % display_epoch == 0:
