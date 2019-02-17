@@ -17,7 +17,7 @@ class NeuralTrainer():
         N = x_train.shape[0]
         if batch_size > N:
             batch_size = N
-        # training cycle
+        # Training cycle
         costs = [];
         for epoch in range(no_epochs):
             perm_inds = list(range(x_train.shape[0]))
@@ -41,12 +41,13 @@ class NeuralTrainer():
                 self.train_step.step()
                 # Compute average loss
                 avg_cost += loss / total_batch
-            if epoch % display_epoch == 0:
-                print("Epoch:", '%04d' % (epoch+1), "cost=", \
-                    "{:.9f}".format(avg_cost))
+                if (i+1) % display_epoch == 0:
+                    print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
+                        .format(epoch+1, no_epochs, i+1, total_batch, avg_cost))
             costs.append(avg_cost)
         print("Optimization Finished!")
         return costs
+
 
     def getWeights(self):
         weights = self.neuralNetwork.parameters()
