@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torchvision
@@ -36,21 +37,26 @@ test_loader = torch.utils.data.DataLoader(dataset = test_dataset,
 model = TestNN(input_size, hidden_size, num_classes).to(device)
 
 # Loss and Optimizer
-criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
 
 # Train the model
+
+def _onehot(labels):
+    y_onehot = labels.numpy()
+    y_onehot = (np.arange(num_classes) == y_onehot[:,None]).astype(np.float32)
+    y_onehot = torch.from_numpy(y_onehot).to(device)
+    return y_onehot
 
 total_step = len(train_loader)
 for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(train_loader):
         # Move tensors to the configured device
         images = images.reshape(-1, 28*28).to(device)
-        labels = labels.to(device)
+        labels = _onehot(labels)
 
         # Forward pass
         output = model(images)
-        loss = criterion(output, labels)
+        loss = model.loss(output, labels)
 
         # backwards and optimize (to get loss value)
         optimizer.zero_grad()
