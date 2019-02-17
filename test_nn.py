@@ -45,5 +45,5 @@ class TestNN(nn.Module):
         return values
 
     def loss(self, output, labels):
-        criterion = nn.CrossEntropyLoss()
+        criterion = nn.MultiLabelSoftMarginLoss()
         return criterion(output, labels)
