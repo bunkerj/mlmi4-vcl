@@ -10,7 +10,7 @@ class VanillaNN(nn.Module):
         self.networkHiddenSize = networkHiddenSize
         self.numLayers = numLayers
         self.numClasses = numClasses
-        self._constructArchitecture()
+        self.moduleList = nn.ModuleList(self._constructArchitecture())
 
     def _getLayerName(self, layerIndex):
         return 'fc{}'.format(layerIndex)
@@ -31,16 +31,19 @@ class VanillaNN(nn.Module):
 
     def _constructArchitecture(self):
         layerNames = self._getLayerNames()
+        moduleList = []
         for layerIndex, layerName in enumerate(layerNames):
             outputSize, inputSize = self._getLayerDimensions(layerIndex)
             layer = nn.Linear(outputSize, inputSize)
-            size_weight = layer.weight.size()
-            size_bias = layer.bias.size()
-            layer.weight = torch.nn.Parameter(self._getTruncatedNormal(size_weight, 0.02))
-            layer.bias = torch.nn.Parameter(self._getTruncatedNormal(size_bias, 0.02))
-            # layer.weight = torch.nn.Parameter(torch.rand(outputSize, inputSize))
-            # layer.bias = torch.nn.Parameter(torch.rand(outputSize))
+            # size_weight = layer.weight.size()
+            # size_bias = layer.bias.size()
+            # layer.weight = torch.nn.Parameter(self._getTruncatedNormal(size_weight, 0.02))
+            # layer.bias = torch.nn.Parameter(self._getTruncatedNormal(size_bias, 0.02))
+            layer.weight = torch.nn.Parameter(torch.rand(outputSize, inputSize))
+            layer.bias = torch.nn.Parameter(torch.rand(outputSize))
             setattr(VanillaNN, layerName, layer)
+            moduleList.append(layer)
+        return moduleList
 
     def forward(self, x):
         layerNames = self._getLayerNames()
@@ -71,4 +74,3 @@ if __name__ == '__main__':
         numClasses = 9)
     input = torch.randn(1, 5)
     out = net(input)
-    print(out)

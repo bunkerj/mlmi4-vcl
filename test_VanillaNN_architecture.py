@@ -10,6 +10,8 @@ from vanilla_nn import VanillaNN
 # device configuration
 device = torch.device('cuda')
 
+torch.set_default_tensor_type('torch.cuda.FloatTensor')
+
 # Hyperparameters
 input_size = 784
 hidden_size = 500
