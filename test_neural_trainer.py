@@ -49,4 +49,5 @@ for i, (images, labels) in enumerate(train_loader):
         y_onehot = _onehot(labels)
         testNN = TestNN(input_size, hidden_size, num_classes)
         neuralTrainer = NeuralTrainer(testNN)
-        neuralTrainer.train(images, y_onehot, batch_size = 25)
+        neuralTrainer.train(images, y_onehot, no_epochs = 100, batch_size = 25)
+        break;
