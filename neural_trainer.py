@@ -8,7 +8,7 @@ class NeuralTrainer():
     def __init__(self, neuralNetwork):
         # Create random Tensors to hold input and output
         self.neuralNetwork = neuralNetwork
-        
+
     def _assignOptimizer(self, learning_rate = 0.001):
         self.train_step = torch.optim.Adam(self.neuralNetwork.parameters(), lr = learning_rate)
 
