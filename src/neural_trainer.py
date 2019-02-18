@@ -29,11 +29,11 @@ class NeuralTrainer():
             for i in range(totalBatch):
                 startInd = i*batchSize
                 endInd = np.min([(i+1)*batchSize, N])
-                batchX = curxTrain[startInd:endInd, :]
-                batchY = curyTrain[startInd:endInd, :]
+                xBatch = curxTrain[startInd:endInd, :]
+                yBatch = curyTrain[startInd:endInd, :]
                 # Run optimization op (backprop) and cost op (to get loss value)
-                yPred = self.neuralNetwork(batchX)
-                loss = self.neuralNetwork.loss(yPred, batchY)
+                yPred = self.neuralNetwork(xBatch)
+                loss = self.neuralNetwork.loss(yPred, yBatchS)
                 self._assignOptimizer()
                 self.train_step.zero_grad()
                 loss.backward()
