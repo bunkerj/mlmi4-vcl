@@ -48,9 +48,9 @@ for i, (images, labels) in enumerate(train_loader):
         # Move tensors to the configured device
         images = images.reshape(-1, 28*28).to(device)
         y_onehot = _onehot(labels)
-        testNN = VanillaNN(input_size, hidden_size, num_layers, num_classes)
-        neuralTrainer = NeuralTrainer(testNN)
-        neuralTrainer.train(images, y_onehot, no_epochs = 20, batch_size = 200, display_epoch = 20)
+        vanillaNN = VanillaNN(input_size, hidden_size, num_layers, num_classes)
+        neuralTrainer = NeuralTrainer(vanillaNN)
+        neuralTrainer.train(images, y_onehot, no_epochs = 5, batch_size = 200, display_epoch = 20)
 
 with torch.no_grad():
     correct = 0;
