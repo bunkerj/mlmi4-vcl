@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
+
 
 class NeuralTrainer():
     def __init__(self, neuralNetwork):
