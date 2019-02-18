@@ -46,8 +46,3 @@ class NeuralTrainer():
             costs.append(avg_cost)
         print("Optimization Finished!")
         return costs
-
-
-    def getWeights(self):
-        weights = self.neuralNetwork.parameters()
-        return weights
