@@ -70,7 +70,7 @@ class VanillaNN(nn.Module):
         for index, layer in enumerate(self.moduleList):
             weight, bias = parameters[index]
             layer.weight = weight
-            layer.bias =  bias
+            layer.bias = bias
 
 if __name__ == '__main__':
     net = VanillaNN(
