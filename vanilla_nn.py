@@ -34,13 +34,10 @@ class VanillaNN(nn.Module):
         moduleList = []
         for layerIndex, layerName in enumerate(layerNames):
             outputSize, inputSize = self._getLayerDimensions(layerIndex)
-            layer = nn.Linear(outputSize, inputSize)
-            # size_weight = layer.weight.size()
-            # size_bias = layer.bias.size()
-            # layer.weight = torch.nn.Parameter(self._getTruncatedNormal(size_weight, 0.02))
-            # layer.bias = torch.nn.Parameter(self._getTruncatedNormal(size_bias, 0.02))
-            layer.weight = torch.nn.Parameter(torch.rand(outputSize, inputSize))
-            layer.bias = torch.nn.Parameter(torch.rand(outputSize))
+
+            layer = nn.Linear(inputSize, outputSize)
+            layer.weight = torch.nn.Parameter(self._getTruncatedNormal([outputSize, inputSize], 0.02))
+            layer.bias = torch.nn.Parameter(self._getTruncatedNormal([outputSize], 0.02))
             setattr(VanillaNN, layerName, layer)
             moduleList.append(layer)
         return moduleList
@@ -72,5 +69,5 @@ if __name__ == '__main__':
         networkHiddenSize = 7,
         numLayers = 3,
         numClasses = 9)
-    input = torch.randn(1, 5)
+    input = torch.randn(1, 5).type(torch.cuda.FloatTensor)
     out = net(input)
