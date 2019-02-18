@@ -63,8 +63,14 @@ class VanillaNN(nn.Module):
         criterion = nn.MultiLabelSoftMarginLoss()
         return criterion(output, labels)
 
-    def getWeights(self):
+    def getParameters(self):
         return [(layer.weight, layer.bias) for layer in self.moduleList]
+
+    def setParameters(self, parameters):
+        for index, layer in enumerate(self.moduleList):
+            weight, bias = parameters[index]
+            layer.weight = weight
+            layer.bias =  bias
 
 if __name__ == '__main__':
     net = VanillaNN(

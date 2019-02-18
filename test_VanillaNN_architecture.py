@@ -51,6 +51,8 @@ for i, (images, labels) in enumerate(train_loader):
         vanillaNN = VanillaNN(input_size, hidden_size, num_layers, num_classes)
         neuralTrainer = NeuralTrainer(vanillaNN)
         neuralTrainer.train(images, y_onehot, no_epochs = 5, batch_size = 200, display_epoch = 20)
+        parameters = vanillaNN.getParameters()
+        vanillaNN.setParameters(parameters)
 
 with torch.no_grad():
     correct = 0;
@@ -59,7 +61,7 @@ with torch.no_grad():
     for images, labels in test_loader:
         images = images.reshape(-1, 28*28).to(device)
         labels = labels.to(device)
-        outputs = testNN(images)
+        outputs = vanillaNN(images)
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
