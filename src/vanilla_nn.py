@@ -76,6 +76,11 @@ class VanillaNN(nn.Module):
             layer.weight = weight
             layer.bias = bias
 
+    def prediction(self, x_test):
+        outputs = self.forward(x_test)
+        _, predicted = torch.max(outputs.data, 1)
+        return predicted 
+
 if __name__ == '__main__':
     net = VanillaNN(
         netWorkInputSize = 5,
