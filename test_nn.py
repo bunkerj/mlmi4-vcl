@@ -11,12 +11,10 @@ class TestNN(nn.Module):
         super(TestNN, self).__init__()
 
         self.fc1 = nn.Linear(input_size, hidden_size)
-
         size_weight = self.fc1.weight.size()
         size_bias = self.fc1.bias.size()
         self.fc1.weight = torch.nn.Parameter(self._truncated_normal(size_weight,0.02))
         self.fc1.bias = torch.nn.Parameter(self._truncated_normal(size_bias,0.02))
-        self.relu = nn.ReLU()
 
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         size_weight = self.fc2.weight.size()
@@ -24,12 +22,13 @@ class TestNN(nn.Module):
         self.fc2.weight = torch.nn.Parameter(self._truncated_normal(size_weight,0.02))
         self.fc2.bias = torch.nn.Parameter(self._truncated_normal(size_bias,0.02))
 
-        self.relu = nn.ReLU();
         self.fc3 = nn.Linear(hidden_size, num_classes)
         size_weight = self.fc3.weight.size()
         size_bias = self.fc3.bias.size()
         self.fc3.weight = torch.nn.Parameter(self._truncated_normal(size_weight,0.02))
         self.fc3.bias = torch.nn.Parameter(self._truncated_normal(size_bias,0.02))
+
+        self.relu = nn.ReLU()
 
     def forward(self, x):
         out = self.fc1(x)
