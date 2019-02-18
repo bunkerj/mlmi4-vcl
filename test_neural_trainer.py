@@ -9,6 +9,7 @@ from test_nn import TestNN
 
 # device configuration
 device = torch.device('cuda')
+torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
 # Hyperparameters
 input_size = 784
@@ -45,10 +46,10 @@ for i, (images, labels) in enumerate(train_loader):
         # Move tensors to the configured device
         images = images.reshape(-1, 28*28).to(device)
         y_onehot = _onehot(labels)
-        testNN = TestNN(input_size, hidden_size, num_classes)
+        testNN = TestNN(input_size, hidden_size, num_classes).cuda()
+        print(testNN.parameters())
         neuralTrainer = NeuralTrainer(testNN)
-        neuralTrainer.train(images, y_onehot, no_epochs = 40, batch_size = 200, display_epoch = 20)
-        break;
+        neuralTrainer.train(images, y_onehot, no_epochs = 10, batch_size = 200, display_epoch = 20)
 
 with torch.no_grad():
     correct = 0;
