@@ -11,9 +11,14 @@ from neural_trainer import NeuralTrainer
 from vanilla_nn import VanillaNN
 
 # device configuration
-device = torch.device('cuda')
 
-torch.set_default_tensor_type('torch.cuda.FloatTensor')
+device = (
+        torch.device('cuda')
+        if torch.cuda.is_available()
+        else torch.device('cpu'))
+
+if torch.cuda.is_available():
+    torch.set_default_tensor_type('torch.cuda.FloatTensor') 
 
 # Hyperparameters
 input_size = 784
