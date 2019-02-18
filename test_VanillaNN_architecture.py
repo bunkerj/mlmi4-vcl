@@ -16,7 +16,7 @@ torch.set_default_tensor_type('torch.cuda.FloatTensor')
 input_size = 784
 hidden_size = 500
 num_classes = 10
-num_layers = 2
+num_layers = 3
 batch_size = 100
 learning_rate = 0.001
 
