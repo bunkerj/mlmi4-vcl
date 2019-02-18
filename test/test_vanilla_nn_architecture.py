@@ -1,4 +1,5 @@
 import sys
+sys.path.append('../')
 sys.path.append('../src')
 
 import numpy as np
@@ -9,16 +10,7 @@ import torchvision.transforms as transforms
 
 from neural_trainer import NeuralTrainer
 from vanilla_nn import VanillaNN
-
-# device configuration
-
-device = (
-        torch.device('cuda')
-        if torch.cuda.is_available()
-        else torch.device('cpu'))
-
-if torch.cuda.is_available():
-    torch.set_default_tensor_type('torch.cuda.FloatTensor') 
+from constants import Device
 
 # Hyperparameters
 input_size = 784
@@ -48,13 +40,13 @@ test_loader = torch.utils.data.DataLoader(dataset = test_dataset,
 def _onehot(labels):
     y_onehot = labels.numpy()
     y_onehot = (np.arange(num_classes) == y_onehot[:,None]).astype(np.float32)
-    y_onehot = torch.from_numpy(y_onehot).to(device)
+    y_onehot = torch.from_numpy(y_onehot).to(Device)
     return y_onehot
 
 
 for i, (images, labels) in enumerate(train_loader):
         # Move tensors to the configured device
-        images = images.reshape(-1, 28*28).to(device)
+        images = images.reshape(-1, 28*28).to(Device)
         y_onehot = _onehot(labels)
         vanillaNN = VanillaNN(input_size, hidden_size, num_layers, num_classes)
         neuralTrainer = NeuralTrainer(vanillaNN)
@@ -67,8 +59,8 @@ with torch.no_grad():
     total = 0;
 
     for images, labels in test_loader:
-        images = images.reshape(-1, 28*28).to(device)
-        labels = labels.to(device)
+        images = images.reshape(-1, 28*28).to(Device)
+        labels = labels.to(Device)
         outputs = vanillaNN(images)
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)

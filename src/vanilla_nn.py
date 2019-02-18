@@ -1,7 +1,11 @@
+import sys
+sys.path.append('../')
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from scipy.stats import truncnorm
+from constants import FloatTensor
 
 class VanillaNN(nn.Module):
     def __init__(self, netWorkInputSize, networkHiddenSize, numLayers, numClasses):
@@ -56,7 +60,7 @@ class VanillaNN(nn.Module):
 
     def _getTruncatedNormal(self, size, threshold=1):
         values = truncnorm.rvs(-threshold, threshold, size=size)
-        values = torch.from_numpy(values).type(torch.cuda.FloatTensor)
+        values = torch.from_numpy(values).type(FloatTensor)
         return values
 
     def loss(self, output, labels):
@@ -78,5 +82,5 @@ if __name__ == '__main__':
         networkHiddenSize = 7,
         numLayers = 3,
         numClasses = 9)
-    input = torch.randn(1, 5).type(torch.cuda.FloatTensor)
+    input = torch.randn(1, 5).type(FloatTensor)
     out = net(input)
