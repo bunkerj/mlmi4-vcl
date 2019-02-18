@@ -19,7 +19,7 @@ class VanillaNN(nn.Module):
     def _getLayerName(self, layerIndex):
         return 'fc{}'.format(layerIndex)
 
-    def _getLayerDimensions(self, layerIndex):
+    def getLayerDimensions(self, layerIndex):
         inputSize = (
             self.netWorkInputSize
             if layerIndex == 0
@@ -37,7 +37,7 @@ class VanillaNN(nn.Module):
         layerNames = self._getLayerNames()
         moduleList = []
         for layerIndex, layerName in enumerate(layerNames):
-            outputSize, inputSize = self._getLayerDimensions(layerIndex)
+            outputSize, inputSize = self.getLayerDimensions(layerIndex)
 
             layer = nn.Linear(inputSize, outputSize)
             layer.weight = torch.nn.Parameter(self._getTruncatedNormal([outputSize, inputSize], 0.02))
@@ -79,7 +79,7 @@ class VanillaNN(nn.Module):
     def prediction(self, x_test):
         outputs = self.forward(x_test)
         _, predicted = torch.max(outputs.data, 1)
-        return predicted 
+        return predicted
 
 if __name__ == '__main__':
     net = VanillaNN(
