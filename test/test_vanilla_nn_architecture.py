@@ -61,8 +61,7 @@ with torch.no_grad():
     for images, labels in test_loader:
         images = images.reshape(-1, 28*28).to(Device)
         labels = labels.to(Device)
-        outputs = vanillaNN(images)
-        _, predicted = torch.max(outputs.data, 1)
+        predicted = vanillaNN.prediction(images)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
     print('Accuracy of the network on the 10000 test images: {} %'.format(100 * correct / total))
