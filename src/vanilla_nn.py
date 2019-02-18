@@ -60,8 +60,8 @@ class VanillaNN(nn.Module):
         return values
 
     def loss(self, output, labels):
-        criterion = nn.MultiLabelSoftMarginLoss()
-        return criterion(output, labels)
+        loss = torch.sum(- labels * F.log_softmax(output, -1), -1)
+        return loss.mean()
 
     def getParameters(self):
         return [(layer.weight, layer.bias) for layer in self.moduleList]
