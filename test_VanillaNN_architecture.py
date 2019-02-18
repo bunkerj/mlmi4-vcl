@@ -50,7 +50,7 @@ for i, (images, labels) in enumerate(train_loader):
         y_onehot = _onehot(labels)
         testNN = VanillaNN(input_size, hidden_size, num_layers, num_classes)
         neuralTrainer = NeuralTrainer(testNN)
-        neuralTrainer.train(images, y_onehot, no_epochs = 40, batch_size = 200, display_epoch = 20)
+        neuralTrainer.train(images, y_onehot, no_epochs = 20, batch_size = 200, display_epoch = 20)
 
 with torch.no_grad():
     correct = 0;
