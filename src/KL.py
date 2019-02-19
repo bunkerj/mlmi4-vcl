@@ -10,7 +10,7 @@ class KL:
     def _getKL(self, m, v, m0, v0, parId):
         constTerm = ( - 0.5 * m.size()[0] * m.size()[1] if parId == WEIGHT
                         else -0.5 * m.size()[0])
-        logStdDiff = 0.5 * torch.sum(torch.log(v0) - v)
+        logStdDiff = torch.sum(torch.log(v0) - torch.log(v))
         muDiffTerm = 0.5 * torch.sum((v + (m0 - m)**2) / v0)
         return constTerm + logStdDiff + muDiffTerm
 
@@ -38,7 +38,6 @@ class KL:
             v = qpos.getHead(BIAS, VARIANCE, taskId)[layerId]
             m0 = qpri.getHead(BIAS, MEAN, taskId)[layerId]
             v0 = qpri.getHead(BIAS, VARIANCE, taskId)[layerId]
-            kl += self._getKL(m, v, m0, v0, WEIGHT)
-
+            kl += self._getKL(m, v, m0, v0, BIAS)
 
         return kl
