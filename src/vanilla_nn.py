@@ -70,11 +70,11 @@ class VanillaNN(nn.Module):
     def getParameters(self):
         return [(layer.weight, layer.bias) for layer in self.moduleList]
 
-    def setParameters(self, parameters):
+    def setParameters(self, parameters, taskId):
         for index, layer in enumerate(self.moduleList):
-            weight, bias = parameters[index]
-            layer.weight = weight
-            layer.bias = bias
+            if index == taskId:
+                layer.weight = parameters[0]
+                layer.bias = parameters[1]
 
     def prediction(self, x_test):
         outputs = self.forward(x_test)
