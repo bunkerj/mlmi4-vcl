@@ -8,14 +8,18 @@ PARAMETER_TYPES = [WEIGHT, BIAS]
 STATISTICS = [MEAN, VARIANCE]
 
 class ParametersDistribution:
-    def __init__(self, sharedDim, headDim, headCount):
+    def __init__(self, sharedWeightDim, headWeightDim, headCount):
         self.shared = {}
         self.hidden = {}
         self.headCount = headCount
+        sharedBiasDim = tuple(sharedWeightDim[:-1])
+        headBiasDim = tuple(headWeightDim[:-1])
         for parameterType in PARAMETER_TYPES:
             self.shared[parameterType] = {}
             self.hidden[parameterType] = {}
             for statistic in STATISTICS:
+                sharedDim = sharedWeightDim if parameterType == WEIGHT else sharedBiasDim
+                headDim = headWeightDim if parameterType == WEIGHT else headBiasDim
                 self.shared[parameterType][statistic] = \
                     torch.rand(sharedDim).type(FloatTensor)
                 self.hidden[parameterType][statistic] = {}
