@@ -4,13 +4,14 @@ sys.path.append('../')
 import numpy as np
 import torch
 import torch.nn as nn
+from constants import MEAN, VARIANCE, WEIGHT, BIAS
 
 class KL:
-    def _getKL(self, m, v, m0, v0, layerId, parId):
+    def _getKL(self, m, v, m0, v0, parId):
         constTerm = ( - 0.5 * m.size()[0] * m.size()[1] if parId == WEIGHT
                         else -0.5 * m.size()[0])
-        logStdDiff = 0.5 * torch.sum(np.log(v0) - v)
-        muDiffTerm = 0.5 * torch.sum((torch.exp(v) + (m0 - m)**2) / v0)
+        logStdDiff = 0.5 * torch.sum(torch.log(v0) - v)
+        muDiffTerm = 0.5 * torch.sum((v + (m0 - m)**2) / v0)
         return constTerm + logStdDiff + muDiffTerm
 
     def computeKL(self, taskId, qpos, qpri):
