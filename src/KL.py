@@ -4,50 +4,43 @@ import torch.nn as nn
 
 class KL():
     def __init__(self, qPos, qPri):
-        super(cost, self).__init__(neuralNetwork)
-        self.qPos = qPos
-        self.qPri = qPri
-        self.wPos = self.qPos.weight
-        self.bPos = self.qPos.bias
-        self.wPri = self.qPri.weight
-        self.bPri = self.qPri.bias
+        pass
 
-    def _getMeanAndVariance(self, layerId, parId, taskId):
-
-        posPar, priPar = ( self.wPos[taskId], self.wPri[taskId] if taskId is not None
-                            else self.wPos, self.wPri)
-        parId = (0 if parId == "weight"
-                 else 1)
-        m, v = posPar[layerId][parId]['mean'], posPar[layerId][parId]['sigma']
-        m0, v0 = priPar['mean'][layerId], priPar['sigma'][layerId]
-        return {'m':m, 'v':v ,'m0':mo, 'v0': v0}
-
-
-    def _getklUpdate(self, layerId, parId, taskId):
-
-        outputSize, inputSize = self.getLayerDimensions(layerId)
-        constTerm = ( - 0.5 * outputSize * inputSize if parId == "weight"
-                        else -0.5 * dout)
-        par = _getMeanAndVariance(layerId, parId, taskId)
-        logStdDiff = 0.5 * torch.sum(np.log(par['v0']) - par['v'])
-        muDiffTerm = 0.5 * torch.sum((torch.exp(par['v']) + (par['m0']) - par['m']))**2) / par['v0']))
+    def _getKL(self, m, v, m0, v0, layerId, parId):
+        outputSize, inputSize = m.size()
+        constTerm = ( - 0.5 * outputSize * inputSize if parId == WEIGHT
+                        else -0.5 * outputSize)
+        logStdDiff = 0.5 * torch.sum(np.log(v0) - v)
+        muDiffTerm = 0.5 * torch.sum((torch.exp(v) + (m0 - m)**2) / v0)
         return constTerm + logStdDiff + muDiffTerm
-
 
     def klTerm(self):
         kl = 0
-        for layerId in range(self.numLayersShell):
-            # computing the weight term
-            kl += self._getklUpdate(layerId,"weight", taskId = None)
-            # computing the bias term
-            kl += self._getklUpdate(layerId,"bias", taskId = None)
+        for layerId, m in enumerate(qpos.getShared(WEIGHT,MEAN)):
+            v = qpos.getShared(WEIGHT, VARIANCE)[layerId]
+            m0 = qpri.getShared(WEIGHT, MEAN)[layerId]
+            v0 = qpri.getShared(WEIGHT, VARIANCE)[layerId]
+            kl += self._getKL(m, v, m0, v0, WEIGHT)
 
-        for layerId in range(self.numLayersHeads):
-            noTasks = len(_getMeanAndVariance(layerId + self.numLayersShell, "weight", taskId = None)['m'])
-            for taskId in range(noTasks):
-                # computing the weight term
-                kl += self._getklUpdate(layerId + self.numLayersShell, "weight", taskId)
-                # computing the bias term
-                kl += self._getklUpdate(layerId + self.numLayersShell, "bias", taskId)
+        for layerId, m in enumerate(qpos.getShared(BIAS,MEAN)):
+            v = qpos.getShared(BIAS, VARIANCE)[layerId]
+            m0 = qpri.getShared(BIAS, MEAN)[layerId]
+            v0 = qpri.getShared(BIAS, VARIANCE)[layerId]
+            kl += self._getKL(m, v, m0, v0, BIAS)
+
+        for taskId in range(qpos.getTaskCount()):
+            for layerId, m in enumerate(qpos.getHead(WEIGHT, MEAN, taskId)):
+                v = qpos.getHead(WEIGHT, VARIANCE, taskId)[layerId]
+                m0 = qpri.getHead(WEIGHT, MEAN, taskId)[layerId]
+                v0 = qpri.getHead(WEIGHT, VARIANCE, taskId)[layerId]
+                kl += self._getKL(m, v, m0, v0, WEIGHT)
+
+        for taskId in range(qpos.getTaskCount()):
+            for layerId, m in enumerate(qpos.getHead(BIAS, MEAN, taskId)):
+                v = qpos.getHead(BIAS, VARIANCE, taskId)[layerId]
+                m0 = qpri.getHead(BIAS, MEAN, taskId)[layerId]
+                v0 = qpri.getHead(BIAS, VARIANCE, taskId)[layerId]
+                kl += self._getKL(m, v, m0, v0, WEIGHT)
+
 
         return kl
