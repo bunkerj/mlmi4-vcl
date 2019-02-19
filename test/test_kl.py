@@ -14,5 +14,4 @@ qPrior = ParametersDistribution(sharedDim, headDim, headCount)
 qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
 
 kl = KL()
-# qPosterior.overwrite(qPrior)
-print(kl.computeKL(2, qPrior, qPrior))
+print(kl.computeKL(2, qPosterior, qPrior))
