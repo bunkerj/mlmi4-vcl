@@ -33,7 +33,7 @@ class NeuralTrainer():
                 yBatch = curyTrain[startInd:endInd, :]
                 # Run optimization op (backprop) and cost op (to get loss value)
                 yPred = self.neuralNetwork(xBatch)
-                loss = self.neuralNetwork.loss(yPred, yBatchS)
+                loss = self.neuralNetwork.loss(yPred, yBatch)
                 self._assignOptimizer()
                 self.train_step.zero_grad()
                 loss.backward()
