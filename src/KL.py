@@ -12,41 +12,42 @@ class KL():
         self.wPri = self.qPri.weight
         self.bPri = self.qPri.bias
 
-    def KLTerm(self):
+    def _getMeanAndVariance(self, layerId, parId, taskId):
+
+        posPar, priPar = ( self.wPos[taskId], self.wPri[taskId] if taskId is not None
+                            else self.wPos, self.wPri)
+        parId = (0 if parId == "weight"
+                 else 1)
+        m, v = posPar[layerId][parId]['mean'], posPar[layerId][parId]['sigma']
+        m0, v0 = priPar['mean'][layerId], priPar['sigma'][layerId]
+        return {'m':m, 'v':v ,'m0':mo, 'v0': v0}
+
+
+    def _getklUpdate(self, layerId, parId, taskId):
+
+        outputSize, inputSize = self.getLayerDimensions(layerId)
+        constTerm = ( - 0.5 * outputSize * inputSize if parId == "weight"
+                        else -0.5 * dout)
+        par = _getMeanAndVariance(layerId, parId, taskId)
+        logStdDiff = 0.5 * torch.sum(np.log(par['v0']) - par['v'])
+        muDiffTerm = 0.5 * torch.sum((torch.exp(par['v']) + (par['m0']) - par['m']))**2) / par['v0']))
+        return constTerm + logStdDiff + muDiffTerm
+
+
+    def klTerm(self):
         kl = 0
         for layerId in range(self.numLayersShell):
-            outputSize, inputSize = self.getLayerDimensions(i)
-            constTerm = [- 0.5 * outputSize * inputSize, -0.5 * dout]
             # computing the weight term
-            m, v = self.wPos.mean[layerId], self.wPos.sigma[layerId]
-            m0, v0 = self.wPri.mean[layerId], self.wPri.sigma[layerId]
-            logStdDiff = 0.5 * torch.sum(np.log(v0) - v)
-            muDiffTerm = 0.5 * torch.sum((torch.exp(v) + (m0 - m)**2) / v0)
-            kl += constTerm[0] + logStdDiff + muDiffTerm
+            kl += self._getklUpdate(layerId,"weight", taskId = None)
             # computing the bias term
-            m, v = self.bPos.mean[layerId], self.bPos.sigma[layerId]
-            m0, v0 = self.bPri.mean[layerId], self.bPri.sigma[layerId]
-            logStdDiff = 0.5 * torch.sum(np.log(v0) - v)
-            muDiffTerm = 0.5 * torch.sum((torch.exp(v) + (m0 - m)**2) / v0)
-            kl += constTerm[1] + logStdDiff + muDiffTerm
-
+            kl += self._getklUpdate(layerId,"bias", taskId = None)
 
         for layerId in range(self.numLayersHeads):
-            outputSize, inputSize = self.getLayerDimensions(layerId + self.numLayersShell)
-            constTerm = [- 0.5 * outputSize * inputSize, -0.5 * dout]
-            noTasks = len(self.wPos.mean[layerId])
+            noTasks = len(_getMeanAndVariance(layerId + self.numLayersShell, "weight", taskId = None)['m'])
             for taskId in range(noTasks):
                 # computing the weight term
-                m, v = self.wPos.mean[layerId][taskId], self.wPos.sigma[layerId][taskId]
-                m0, v0 = self.wPri.mean[layerId][taskId], self.wPri.sigma[layerId][taskId]
-                logStdDiff = 0.5 * torch.sum(np.log(v0) - v)
-                muDiffTerm = 0.5 * torch.sum((tf.exp(v) + (m0 - m)**2) / v0)
-                kl += constTerm[0] + logStdDiff + muDiffTerm
+                kl += self._getklUpdate(layerId + self.numLayersShell, "weight", taskId)
                 # computing the bias term
-                m, v = self.bPos.mean[layerId][taskId], self.bPos.sigma[layerId][taskId]
-                m0, v0 = self.bPri.mean[layerId][taskId], self.bPri.sigma[layerId][taskId]
-                logStdDiff = 0.5 * torch.sum(np.log(v0) - v)
-                muDiffTerm = 0.5 * torch.sum((tf.exp(v) + (m0 - m)**2) / v0)
-                kl += constTerm[1] + logStdDiff + muDiffTerm
+                kl += self._getklUpdate(layerId + self.numLayersShell, "bias", taskId)
 
         return kl
