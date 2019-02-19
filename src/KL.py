@@ -7,7 +7,6 @@ class KL():
         pass
 
     def _getKL(self, m, v, m0, v0, layerId, parId):
-
         constTerm = ( - 0.5 * m.size()[0] * m.size()[1] if parId == WEIGHT
                         else -0.5 * outputSize)
         logStdDiff = 0.5 * torch.sum(np.log(v0) - v)
