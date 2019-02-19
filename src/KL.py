@@ -14,30 +14,30 @@ class KL:
         muDiffTerm = 0.5 * torch.sum((v + (m0 - m)**2) / v0)
         return constTerm + logStdDiff + muDiffTerm
 
-    def computeKL(self, taskId, qpos, qpri):
+    def computeKL(self, taskId, qPos, qPri):
         kl = 0
-        for layerId, m in enumerate(qpos.getShared(WEIGHT,MEAN)):
-            v = qpos.getShared(WEIGHT, VARIANCE)[layerId]
-            m0 = qpri.getShared(WEIGHT, MEAN)[layerId]
-            v0 = qpri.getShared(WEIGHT, VARIANCE)[layerId]
+        for layerId, m in enumerate(qPos.getShared(WEIGHT,MEAN)):
+            v = qPos.getShared(WEIGHT, VARIANCE)[layerId]
+            m0 = qPri.getShared(WEIGHT, MEAN)[layerId]
+            v0 = qPri.getShared(WEIGHT, VARIANCE)[layerId]
             kl += self._getKL(m, v, m0, v0, WEIGHT)
 
-        for layerId, m in enumerate(qpos.getShared(BIAS,MEAN)):
-            v = qpos.getShared(BIAS, VARIANCE)[layerId]
-            m0 = qpri.getShared(BIAS, MEAN)[layerId]
-            v0 = qpri.getShared(BIAS, VARIANCE)[layerId]
+        for layerId, m in enumerate(qPos.getShared(BIAS,MEAN)):
+            v = qPos.getShared(BIAS, VARIANCE)[layerId]
+            m0 = qPri.getShared(BIAS, MEAN)[layerId]
+            v0 = qPri.getShared(BIAS, VARIANCE)[layerId]
             kl += self._getKL(m, v, m0, v0, BIAS)
 
-        for layerId, m in enumerate(qpos.getHead(WEIGHT, MEAN, taskId)):
-            v = qpos.getHead(WEIGHT, VARIANCE, taskId)[layerId]
-            m0 = qpri.getHead(WEIGHT, MEAN, taskId)[layerId]
-            v0 = qpri.getHead(WEIGHT, VARIANCE, taskId)[layerId]
+        for layerId, m in enumerate(qPos.getHead(WEIGHT, MEAN, taskId)):
+            v = qPos.getHead(WEIGHT, VARIANCE, taskId)[layerId]
+            m0 = qPri.getHead(WEIGHT, MEAN, taskId)[layerId]
+            v0 = qPri.getHead(WEIGHT, VARIANCE, taskId)[layerId]
             kl += self._getKL(m, v, m0, v0, WEIGHT)
 
-        for layerId, m in enumerate(qpos.getHead(BIAS, MEAN, taskId)):
-            v = qpos.getHead(BIAS, VARIANCE, taskId)[layerId]
-            m0 = qpri.getHead(BIAS, MEAN, taskId)[layerId]
-            v0 = qpri.getHead(BIAS, VARIANCE, taskId)[layerId]
+        for layerId, m in enumerate(qPos.getHead(BIAS, MEAN, taskId)):
+            v = qPos.getHead(BIAS, VARIANCE, taskId)[layerId]
+            m0 = qPri.getHead(BIAS, MEAN, taskId)[layerId]
+            v0 = qPri.getHead(BIAS, VARIANCE, taskId)[layerId]
             kl += self._getKL(m, v, m0, v0, BIAS)
 
         return kl
