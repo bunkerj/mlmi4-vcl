@@ -22,11 +22,11 @@ class ParametersDistribution:
                 sharedDim = sharedWeightDim if parameterType == WEIGHT else sharedBiasDim
                 headDim = headWeightDim if parameterType == WEIGHT else headBiasDim
                 self.shared[parameterType][statistic] = \
-                    torch.rand(sharedDim).type(FloatTensor)
+                    autograd.Variable(torch.rand(sharedDim).type(FloatTensor), requires_grad = True)
                 self.hidden[parameterType][statistic] = {}
                 for head in range(headCount):
                     self.hidden[parameterType][statistic][head] = \
-                        torch.rand(headDim).type(FloatTensor)
+                        autograd.Variable(torch.rand(headDim).type(FloatTensor), requires_grad = True)
 
     def getShared(self, parameterType, statistic):
         return self.shared[parameterType][statistic]
