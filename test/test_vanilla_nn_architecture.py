@@ -13,43 +13,43 @@ from vanilla_nn import VanillaNN
 from constants import Device
 
 # Hyperparameters
-input_size = 784
-hidden_size = 500
-num_classes = 10
-num_layers = 3
-learning_rate = 0.001
+inputSize = 784
+hiddenSize = 500
+numClasses = 10
+numLayers = 3
+learningRate = 0.001
 
 # Loading MNIST dataset
-train_dataset = torchvision.datasets.MNIST(root = '../../data',
+trainDataset = torchvision.datasets.MNIST(root = '../../data',
                                             train = True,
                                             transform = transforms.ToTensor(),
                                             download = True)
-test_dataset = torchvision.datasets.MNIST(root = '../../data',
+testDataset = torchvision.datasets.MNIST(root = '../../data',
                                             train = False,
                                             transform = transforms.ToTensor())
 
 # Data Loader
-train_loader = torch.utils.data.DataLoader(dataset = train_dataset,
+trainLoader = torch.utils.data.DataLoader(dataset = trainDataset,
                                             batch_size = 600000,
                                             shuffle = True)
-test_loader = torch.utils.data.DataLoader(dataset = test_dataset,
+testLoader = torch.utils.data.DataLoader(dataset = testDataset,
                                             batch_size = 600000,
                                             shuffle = False)
 
 def _onehot(labels):
-    y_onehot = labels.numpy()
-    y_onehot = (np.arange(num_classes) == y_onehot[:,None]).astype(np.float32)
-    y_onehot = torch.from_numpy(y_onehot).to(Device)
-    return y_onehot
+    yOneHot = labels.numpy()
+    yOneHot = (np.arange(numClasses) == yOneHot[:,None]).astype(np.float32)
+    yOneHot = torch.from_numpy(yOneHot).to(Device)
+    return yOneHot
 
 
-for i, (images, labels) in enumerate(train_loader):
+for i, (images, labels) in enumerate(trainLoader):
         # Move tensors to the configured device
         images = images.reshape(-1, 28*28).to(Device)
-        y_onehot = _onehot(labels)
-        vanillaNN = VanillaNN(input_size, hidden_size, num_layers, num_classes)
+        yOneHot = _onehot(labels)
+        vanillaNN = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
         neuralTrainer = NeuralTrainer(vanillaNN)
-        neuralTrainer.train(images, y_onehot, noEpochs = 5, batchSize = 200, displayEpoch = 20)
+        neuralTrainer.train(images, yOneHot, noEpochs = 5, batchSize = 200, displayEpoch = 20)
         parameters = vanillaNN.getParameters()
         vanillaNN.setParameters(parameters)
 
@@ -57,7 +57,7 @@ with torch.no_grad():
     correct = 0;
     total = 0;
 
-    for images, labels in test_loader:
+    for images, labels in testLoader:
         images = images.reshape(-1, 28*28).to(Device)
         labels = labels.to(Device)
         predicted = vanillaNN.prediction(images)
