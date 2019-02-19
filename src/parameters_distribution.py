@@ -17,11 +17,11 @@ class ParametersDistribution:
             self.hidden[parameterType] = {}
             for statistic in STATISTICS:
                 self.shared[parameterType][statistic] = \
-                    torch.randn(sharedDim).type(FloatTensor)
+                    torch.rand(sharedDim).type(FloatTensor)
                 self.hidden[parameterType][statistic] = {}
                 for head in range(headCount):
                     self.hidden[parameterType][statistic][head] = \
-                        torch.randn(headDim).type(FloatTensor)
+                        torch.rand(headDim).type(FloatTensor)
 
     def getShared(self, parameterType, statistic):
         return self.shared[parameterType][statistic]
