@@ -2,6 +2,7 @@ import sys
 sys.path.append('../')
 
 import torch
+import torch.autograd as autograd
 from constants import FloatTensor, MEAN, VARIANCE, WEIGHT, BIAS
 
 PARAMETER_TYPES = [WEIGHT, BIAS]
@@ -30,8 +31,16 @@ class ParametersDistribution:
     def getShared(self, parameterType, statistic):
         return self.shared[parameterType][statistic]
 
+    def setSharedAutograd(self, parameterType, statistic):
+         self.shared[parameterType][statistic] = \
+            autograd.Variable(self.shared[parameterType][statistic], requires_grad = True)
+
     def getHead(self, parameterType, statistic, head):
         return self.hidden[parameterType][statistic][head]
+
+    def setHeadAutograd(self, parameterType, statistic, head):
+         self.hidden[parameterType][statistic][head] = \
+            autograd.Variable(self.hidden[parameterType][statistic][head], requires_grad = True)
 
     def overwrite(self, q):
         for parameterType in PARAMETER_TYPES:
