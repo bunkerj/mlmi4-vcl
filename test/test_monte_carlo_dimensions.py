@@ -15,6 +15,8 @@ print("Wv: {}".format(Wv.get_shape()))
 Bm = tf.random_normal((1, 500), 0, 1, dtype=tf.float32)
 print("Bm: {}".format(Bm.get_shape()))
 Bv = tf.random_normal((1, 500), 0, 1, dtype=tf.float32)
+
+
 print("Bv: {}".format(Bv.get_shape()))
 epsW = tf.random_normal((10, 784, 500), 0, 1, dtype=tf.float32)
 print("epsW: {}".format(epsW.get_shape()))
