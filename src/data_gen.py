@@ -100,3 +100,12 @@ class PermutedMnistGen(Mnist):
             self.cur_iter += 1
 
             return next_x_train, next_y_train, next_x_test, next_y_test
+
+# NotMnist Data Loader
+class NotMnist()
+    def __init__(self):
+        # Define number of tasks
+        self.X_train = torch.load('../data/MNIST_X_train.pt').reshape(-1, 28*28)
+        self.Y_train = torch.load('../data/MNIST_Y_train.pt')
+        self.X_test = torch.load('../data/MNIST_X_test.pt').reshape(-1, 28*28)
+        self.Y_test = torch.load('../data/MNIST_Y_test.pt')
