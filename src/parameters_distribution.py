@@ -11,23 +11,35 @@ STATISTICS = [MEAN, VARIANCE]
 class ParametersDistribution:
     def __init__(self, sharedWeightDim, headWeightDim, headCount):
         # sharedWeightDim = (# layers, input, output)
+        # headWeightDim = (# layers, input, output)
         self.shared = {}
         self.hidden = {}
         self.headCount = headCount
-        sharedBiasDim = (sharedWeightDim[0], sharedWeightDim[2])
-        headBiasDim = (headWeightDim[0], headWeightDim[2])
         for parameterType in PARAMETER_TYPES:
             self.shared[parameterType] = {}
             self.hidden[parameterType] = {}
             for statistic in STATISTICS:
-                sharedDim = sharedWeightDim if parameterType == WEIGHT else sharedBiasDim
-                headDim = headWeightDim if parameterType == WEIGHT else headBiasDim
-                self.shared[parameterType][statistic] = \
-                    autograd.Variable(torch.rand(sharedDim).type(FloatTensor), requires_grad=True)
+                sharedDim, headDim = self.getDimensions(sharedWeightDim, headWeightDim, parameterType)
+                self.shared[parameterType][statistic] = self.createTensor(sharedDim)
                 self.hidden[parameterType][statistic] = {}
                 for head in range(headCount):
-                    self.hidden[parameterType][statistic][head] = \
-                        autograd.Variable(torch.rand(headDim).type(FloatTensor), requires_grad=True)
+                    self.hidden[parameterType][statistic][head] = self.createTensor(headDim)
+
+    def createTensor(self, dimension):
+        return autograd \
+            .Variable(torch.rand(dimension) \
+            .type(FloatTensor), requires_grad=True)
+
+    def getDimensions(self, sharedWeightDim, headWeightDim, parameterType):
+        if parameterType == WEIGHT:
+            return sharedWeightDim, \
+                   headWeightDim
+        else:
+            return self.getBiasDimensions(sharedWeightDim), \
+                   self.getBiasDimensions(headWeightDim)
+
+    def getBiasDimensions(self, weightDim):
+        return (weightDim[0], weightDim[2])
 
     def getShared(self, parameterType, statistic):
         return self.shared[parameterType][statistic]
