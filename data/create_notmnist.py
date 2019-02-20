@@ -10,14 +10,18 @@ import torch
 data = loadmat('notMNIST_small.mat')
 
 # extract images & labels
-# data['images'] has shape of (28, 28, 18724)
-# so it is reshaped properly
-X = data['images'].reshape(28*28, -1).T
+X = data['images']
 Y = data['labels']
 
 # Transform numpy arrays into tensors
 X = torch.from_numpy(X)
 Y = torch.from_numpy(Y)
+
+# X is reshaped from (28, 28, 18724) to (28*28, 18724)
+X = X.reshape(28*28, -1).T
+
+# the dtype of Y is changed from float to int (necessary for one-hot-encoding)
+Y = Y.type(torch.int64)
 
 # for reproducibility
 torch.manual_seed(0)
