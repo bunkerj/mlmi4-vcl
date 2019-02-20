@@ -13,10 +13,19 @@ sharedDim = (3, 3, 3)
 headDim = (2, 3, 1)
 headCount = 3
 qPrior = ParametersDistribution(sharedDim, headDim, headCount)
-qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
+qPosterior1 = ParametersDistribution(sharedDim, headDim, headCount)
+qPosterior2 = ParametersDistribution(sharedDim, headDim, headCount)
 
 kl = KL()
-parameters = qPosterior.getFlattenedParameters(2)
+
+parameters = qPosterior1.getFlattenedParameters(2)
 optimizer = torch.optim.Adam(parameters, lr = 0.001)
-lossArgs = (2, qPosterior, qPrior)
+lossArgs = (2, qPosterior1, qPrior)
+minimizeLoss(1000, optimizer, kl.computeKL, lossArgs)
+
+print('\n--------- Change initialization ---------\n')
+
+parameters = qPosterior2.getFlattenedParameters(2)
+optimizer = torch.optim.Adam(parameters, lr = 0.001)
+lossArgs = (2, qPosterior2, qPrior)
 minimizeLoss(1000, optimizer, kl.computeKL, lossArgs)
