@@ -10,11 +10,12 @@ STATISTICS = [MEAN, VARIANCE]
 
 class ParametersDistribution:
     def __init__(self, sharedWeightDim, headWeightDim, headCount):
+        # sharedWeightDim = (# layers, input, output)
         self.shared = {}
         self.hidden = {}
         self.headCount = headCount
-        sharedBiasDim = tuple(sharedWeightDim[:-1])
-        headBiasDim = tuple(headWeightDim[:-1])
+        sharedBiasDim = tuple(sharedWeightDim[0], sharedWeightDim[2])
+        headBiasDim = tuple(headWeightDim[0], headWeightDim[2])
         for parameterType in PARAMETER_TYPES:
             self.shared[parameterType] = {}
             self.hidden[parameterType] = {}
@@ -22,11 +23,11 @@ class ParametersDistribution:
                 sharedDim = sharedWeightDim if parameterType == WEIGHT else sharedBiasDim
                 headDim = headWeightDim if parameterType == WEIGHT else headBiasDim
                 self.shared[parameterType][statistic] = \
-                    autograd.Variable(torch.rand(sharedDim).type(FloatTensor), requires_grad = True)
+                    autograd.Variable(torch.rand(sharedDim).type(FloatTensor), requires_grad=True)
                 self.hidden[parameterType][statistic] = {}
                 for head in range(headCount):
                     self.hidden[parameterType][statistic][head] = \
-                        autograd.Variable(torch.rand(headDim).type(FloatTensor), requires_grad = True)
+                        autograd.Variable(torch.rand(headDim).type(FloatTensor), requires_grad=True)
 
     def getShared(self, parameterType, statistic):
         return self.shared[parameterType][statistic]
