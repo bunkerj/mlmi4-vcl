@@ -13,7 +13,7 @@ class MonteCarlo():
         self.neuralNetwork = neuralNetwork
 
     def _computeParameters(m, v, eps):
-        return torch.sum(torch.add(torch.matmul(eps, torch.exp(0.5*v)), m), dim = 0)
+        return torch.sum(torch.add(torch.mul(eps, torch.exp(0.5*v)), m), dim = 0)
 
     def computeMonteCarlo(self, inputs, qPos, taskId, numSamples):
         act = inputs.unsqueeze(0).repeat(numSamples, 1, 1)
