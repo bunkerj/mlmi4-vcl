@@ -131,7 +131,7 @@ class NotMnistGen(NotMnist):
             return next_x_train, next_y_train, next_x_test, next_y_test
 
 # Split NotMnist Generator
-class SplitNotMnistGen(Mnist):
+class SplitNotMnistGen(NotMnist):
     # use the original order unless specified
     def __init__(self, set0 = ['A', 'B', 'C', 'D', 'E'], set1 = ['F', 'G', 'H', 'I', 'J']):
         super().__init__()
@@ -162,5 +162,32 @@ class SplitNotMnistGen(Mnist):
             next_y_test = torch.cat([next_y_test, 1-next_y_test])
 
             self.curIter += 1
+
+            return next_x_train, next_y_train, next_x_test, next_y_test
+
+# Permuted NotMnist Generator
+class PermutedNotMnistGen(NotMnist):
+    def __init__(self, maxIter = 10):
+        super().__init__()
+        self.maxIter = maxIter
+        self.curIter = 0
+
+    def get_dims(self):
+        return self.X_train.shape[1], 10
+
+    def next_task(self):
+        if self.curIter >= self.maxIter:
+            raise Exception('Task finished!')
+        else:
+            torch.manual_seed(self.curIter)
+            idx = torch.randperm(self.X_train.shape[1])
+
+            next_x_train = deepcopy(self.X_train)[:,idx]
+            next_y_train = torch.eye(10)[self.Y_train]
+
+            next_x_test = deepcopy(self.X_test)[:,idx]
+            next_y_test = torch.eye(10)[self.Y_test]
+
+            self.cur_iter += 1
 
             return next_x_train, next_y_train, next_x_test, next_y_test
