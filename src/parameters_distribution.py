@@ -14,8 +14,8 @@ class ParametersDistribution:
         self.shared = {}
         self.hidden = {}
         self.headCount = headCount
-        sharedBiasDim = tuple(sharedWeightDim[0], sharedWeightDim[2])
-        headBiasDim = tuple(headWeightDim[0], headWeightDim[2])
+        sharedBiasDim = (sharedWeightDim[0], sharedWeightDim[2])
+        headBiasDim = (headWeightDim[0], headWeightDim[2])
         for parameterType in PARAMETER_TYPES:
             self.shared[parameterType] = {}
             self.hidden[parameterType] = {}
