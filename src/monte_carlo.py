@@ -30,9 +30,9 @@ class MonteCarlo():
             act = self.neuralNetwork(act)
 
         for layerId, mW in enumerate(qPos.getHead(WEIGHT,MEAN)):
-                vW = qPos.getHead(WEIGHT, VARIANCE)[layerId]
-                mB = qPos.getHead(BIAS, MEAN)[layerId]
-                vB = qPos.getHead(BIAS, VARIANCE)[layerId]
+                vW = qPos.getHead(WEIGHT, VARIANCE, taskId)[layerId]
+                mB = qPos.getHead(BIAS, MEAN, taskId)[layerId]
+                vB = qPos.getHead(BIAS, VARIANCE, taskId)[layerId]
 
                 epsW = torch.randn((numSamples, mW.size()[1], mW.size()[0]))
                 epsB = torch.randn((numSamples, 1, mB.size()[0]))
