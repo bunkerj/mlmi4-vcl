@@ -13,7 +13,7 @@ class MonteCarlo():
         self.neuralNetwork = neuralNetwork
 
     def _computeParameters(m, v, eps):
-        return torch.add(torch.multiply(eps, torch.exp(0.5*v)), m)
+        return torch.sum(torch.add(torch.matmul(eps, torch.exp(0.5*v)), m), dim = 0)
 
     def computeMonteCarlo(self, inputs, qPos, taskId, numSamples):
         act = inputs.unsqueeze(0).repeat(numSamples, 1, 1)
@@ -36,9 +36,8 @@ class MonteCarlo():
 
                 epsW = torch.randn((numSamples, mW.size()[1], mW.size()[0]))
                 epsB = torch.randn((numSamples, 1, mB.size()[0]))
-
                 weights = _computeParameters(mW, vW, epsW)
                 biases = _computeParameters(mB, vB, epsB)
                 self.neuralNetwork.setParameters((weights, biases), layerId)
                 act = self.neuralNetwork(act)
-        return act  
+        return act
