@@ -31,16 +31,15 @@ class ParametersDistribution:
     def getShared(self, parameterType, statistic):
         return self.shared[parameterType][statistic]
 
-    def setSharedAutograd(self, parameterType, statistic):
-         self.shared[parameterType][statistic] = \
-            autograd.Variable(self.shared[parameterType][statistic], requires_grad = True)
-
     def getHead(self, parameterType, statistic, head):
         return self.hidden[parameterType][statistic][head]
 
-    def setHeadAutograd(self, parameterType, statistic, head):
-         self.hidden[parameterType][statistic][head] = \
-            autograd.Variable(self.hidden[parameterType][statistic][head], requires_grad = True)
+    def getFlattenedParameters(self, head):
+        return [
+            self.getShared(WEIGHT, MEAN),
+            self.getShared(BIAS, MEAN),
+            self.getHead(WEIGHT, MEAN, head),
+            self.getHead(BIAS, MEAN, head)]
 
     def overwrite(self, q):
         for parameterType in PARAMETER_TYPES:
