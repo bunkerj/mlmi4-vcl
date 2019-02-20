@@ -37,12 +37,17 @@ class MnistGen(Mnist):
 
             return next_x_train, next_y_train, next_x_test, next_y_test
 
+
+data_gen = SplitMnistGen()
+next_x_train, next_y_train, next_x_test, next_y_test = data_gen.next_task()
+
+
 # Split Mnist Generator
 class SplitMnistGen(Mnist):
     # use the original order unless specified
     def __init__(self, set0 = [0, 2, 4, 6, 8], set1 = [1, 3, 5, 7, 9]):
         super().__init__()
-        self.maxIter = 5
+        self.maxIter = len(set0)
         self.curIter = 0
         self.sets_0 = set0
         self.sets_1 = set1
@@ -135,7 +140,7 @@ class SplitNotMnistGen(NotMnist):
     # use the original order unless specified
     def __init__(self, set0 = ['A', 'B', 'C', 'D', 'E'], set1 = ['F', 'G', 'H', 'I', 'J']):
         super().__init__()
-        self.maxIter = 5
+        self.maxIter = len(set0)
         self.curIter = 0
         self.sets_0 = list(map(lambda x: ord(x) - 65, set0))
         self.sets_1 = list(map(lambda x: ord(x) - 65, set1))
