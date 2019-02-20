@@ -10,8 +10,7 @@ STATISTICS = [MEAN, VARIANCE]
 
 class ParametersDistribution:
     def __init__(self, sharedWeightDim, headWeightDim, headCount):
-        # sharedWeightDim = (# layers, input, output)
-        # headWeightDim = (# layers, input, output)
+        """ dimension: (# layers, input size, output size) """
         self.shared = {}
         self.hidden = {}
         self.headCount = headCount
