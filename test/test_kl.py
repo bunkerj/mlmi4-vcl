@@ -20,12 +20,12 @@ kl = KL()
 
 parameters = qPosterior1.getFlattenedParameters(2)
 optimizer = torch.optim.Adam(parameters, lr = 0.001)
-lossArgs = (2, qPosterior1, qPrior)
+lossArgs = (qPosterior1, qPrior, 2)
 minimizeLoss(1000, optimizer, kl.computeKL, lossArgs)
 
 print('\n--------- Change initialization ---------\n')
 
 parameters = qPosterior2.getFlattenedParameters(2)
 optimizer = torch.optim.Adam(parameters, lr = 0.001)
-lossArgs = (2, qPosterior2, qPrior)
+lossArgs = (qPosterior2, qPrior, 2)
 minimizeLoss(1000, optimizer, kl.computeKL, lossArgs)
