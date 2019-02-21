@@ -2,6 +2,7 @@ import sys
 sys.path.append('../')
 sys.path.append('../src/')
 
+import numpy as np
 import torch
 import torch.autograd as autograd
 from KL import KL
@@ -9,7 +10,8 @@ from optimizer import minimizeLoss
 from parameters_distribution import ParametersDistribution
 from vanilla_nn import VanillaNN
 from monte_carlo import MonteCarlo
-from constants import FloatTensor, MEAN, VARIANCE, WEIGHT, BIAS
+from constants import Device, FloatTensor, MEAN, VARIANCE, WEIGHT, BIAS
+
 
 import torchvision
 import torchvision.transforms as transforms
@@ -47,9 +49,9 @@ def _onehot(labels):
     yOneHot = torch.from_numpy(yOneHot).to(Device)
     return yOneHot
 
-for i, (images, labels) in enumerate(train_loader):
+for i, (images, labels) in enumerate(trainLoader):
         # Move tensors to the configured device
-        images = images.reshape(-1, 28*28).to(device)
+        images = images.reshape(-1, 28*28).to(Device)
         y_onehot = _onehot(labels)
         qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
         vanillaNN = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
