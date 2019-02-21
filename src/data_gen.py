@@ -37,11 +37,6 @@ class MnistGen(Mnist):
 
             return next_x_train, next_y_train, next_x_test, next_y_test
 
-
-data_gen = SplitMnistGen()
-next_x_train, next_y_train, next_x_test, next_y_test = data_gen.next_task()
-
-
 # Split Mnist Generator
 class SplitMnistGen(Mnist):
     # use the original order unless specified

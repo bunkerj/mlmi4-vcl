@@ -52,13 +52,13 @@ def _onehot(labels):
 for i, (images, labels) in enumerate(trainLoader):
         # Move tensors to the configured device
         images = images.reshape(-1, 28*28).to(Device)
-        y_onehot = _onehot(labels)
+        yOnehot = _onehot(labels)
         qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
         vanillaNN = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
         monteCarlo = MonteCarlo(vanillaNN)
 
         result = monteCarlo.computeMonteCarlo(images, qPosterior, 1, numSamples)
         print(result)
-        predictionProb = monteCarlo.logPred(images, qPosterior, 1, numSamples, y_onehot)
+        predictionProb = monteCarlo.logPred(images, yOnehot,  qPosterior, 1, numSamples)
         print(predictionProb)
         break

@@ -14,7 +14,7 @@ class KL:
         muDiffTerm = 0.5 * torch.sum((v + (m0 - m)**2) / v0)
         return constTerm + logStdDiff + muDiffTerm
 
-    def computeKL(self, taskId, qPos, qPri):
+    def computeKL(self, qPos, qPri, taskId):
         kl = 0
         for layerId, m in enumerate(qPos.getShared(WEIGHT,MEAN)):
             v = qPos.getShared(WEIGHT, VARIANCE)[layerId]

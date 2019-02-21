@@ -46,7 +46,7 @@ class MonteCarlo:
 
         return pred/numSamples
 
-    def logPred(self, inputs, qPos, taskId, numSamples, labels):
+    def logPred(self, inputs, labels, qPos, taskId, numSamples):
         pred = self.computeMonteCarlo(inputs, qPos, taskId, numSamples)
         logLik = self.neuralNetwork.loss(pred, labels)
         return logLik
