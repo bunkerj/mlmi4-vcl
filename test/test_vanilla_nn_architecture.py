@@ -42,7 +42,6 @@ def _onehot(labels):
     yOneHot = torch.from_numpy(yOneHot).to(Device)
     return yOneHot
 
-
 for i, (images, labels) in enumerate(trainLoader):
         # Move tensors to the configured device
         images = images.reshape(-1, 28*28).to(Device)

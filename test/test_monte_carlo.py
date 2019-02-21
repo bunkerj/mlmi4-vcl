@@ -18,12 +18,11 @@ import torchvision.transforms as transforms
 
 inputSize = 784
 hiddenSize = 256
-numLayers = 5
+numLayers = 3
 numClasses = 10
-numSamples = 10
 
 sharedDim = (2, inputSize, hiddenSize)
-headDim = (3, hiddenSize, numClasses)
+headDim = (1, hiddenSize, numClasses)
 headCount = 5
 
 # Loading MNIST dataset
