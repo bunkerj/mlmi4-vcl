@@ -23,8 +23,9 @@ headDim = (3, hiddenSize, numClasses)
 headCount = 5
 
 fakeBatch = torch.randn(batchSize,inputSize).type(FloatTensor)
-fakeTarget = torch.cat([torch.ones(25, 2), torch.zeros(25, 2)]).type(FloatTensor)
 
+fakeTarget = torch.cat([torch.cat( [torch.ones(25, 1),torch.zeros(25, 1)], dim = 1), torch.cat( [torch.zeros(25, 1), torch.ones(25,1)], dim = 1) ]).type(FloatTensor)
+print(fakeTarget)
 qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
 vanillaNN = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
 monteCarlo = MonteCarlo(vanillaNN)
