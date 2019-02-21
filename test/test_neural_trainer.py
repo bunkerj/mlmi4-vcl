@@ -1,3 +1,7 @@
+import sys
+sys.path.append('../')
+sys.path.append('../src/')
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -47,9 +51,8 @@ for i, (images, labels) in enumerate(train_loader):
         images = images.reshape(-1, 28*28).to(device)
         y_onehot = _onehot(labels)
         testNN = TestNN(input_size, hidden_size, num_classes).cuda()
-        print(testNN.parameters())
         neuralTrainer = NeuralTrainer(testNN)
-        neuralTrainer.train(images, y_onehot, no_epochs = 10, batch_size = 200, display_epoch = 20)
+        neuralTrainer.train(images, y_onehot, noEpochs = 10, batchSize = 200, displayEpoch = 20)
 
 with torch.no_grad():
     correct = 0;
