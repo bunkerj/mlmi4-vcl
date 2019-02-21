@@ -11,7 +11,6 @@ from KL import KL
 def computeCost(inputs, labels, qPos, qPri, taskId, numSamples):
     monteCarlo = MonteCarlo()
     kl = KL()
-    cost = monteCarlo.logPred(inputs, qPos, taskId, numSamples, labels) - torch.div(kl.computeKL(taskId, qPos, qPri), numSamples)
+    cost = monteCarlo.logPred(inputs, labels, qPos, taskId, numSamples) - torch.div(kl.computeKL(qPos, qPri, taskId), numSamples)
 
     return  cost
-s
