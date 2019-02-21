@@ -1,6 +1,7 @@
 from parameters_distribution import ParametersDistribution
 from data_gen import *
 from coreset import *
+from optimizer import minimizeLoss
 
 #sharedDim = (3, 3, 3)
 #headDim = (2, 3, 1)
@@ -74,3 +75,28 @@ class VariationalTrainer:
             qPosterior.overwrite(maximizeVariationalLowerBound(qPosterior, next_y_train))
 
             testAccuracy(next_x_train, qPosterior, coreset)
+
+    def self.getBatch(x_train, y_train):
+        self.batchSize
+        batches = []
+        numberOfBatches = x_train.size() / self.batchSize
+        if isinstance(numberOfBatches, int):
+            errMessage = 'Batch size {} not consistent with dataset size {}' \
+                .format(x_train.size(), self.batchSize)
+            raise Exception(errMessage)
+        for i in range(numberOfBatches):
+            start = i*self.batchSize
+            end = (i+1)*self.batchSize
+            x_train_batch = x_train[start:end]
+            y_train_batch = y_train[start:end]
+            batches.append((x_train_batch, y_train_batch))
+        return batches
+
+    def maximizeVariationalLowerBound(x_train_batch, y_train_batch, qPrior, taskId):
+        qPosterior = ParametersDistribution()
+        parameters = qPosterior.getFlattenedParameters(taskId)
+        optimizer = torch.optim.Adam(parameters, lr = 0.001)
+        for x_train_batch, y_train_batch in self.getBatch(x_train, y_train):
+            lossArgs = (x_train_batch, y_train_batch qPosterior, qPrior, taskId)
+            minimizeLoss(1000, optimizer, getCost, lossArgs)
+        return qPosterior
