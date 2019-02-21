@@ -48,5 +48,5 @@ class MonteCarlo:
 
     def logPred(self, inputs, qPos, taskId, numSamples, labels):
         pred = self.computeMonteCarlo(inputs, qPos, taskId, numSamples)
-        logLik = - torch.mean(self.neuralNetwork.loss(pred, labels))
+        logLik = self.neuralNetwork.loss(pred, labels)
         return logLik
