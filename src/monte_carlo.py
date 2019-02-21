@@ -6,13 +6,12 @@ import torch
 import torch.nn as nn
 from constants import FloatTensor, MEAN, VARIANCE, WEIGHT, BIAS
 
-class MonteCarlo():
+class MonteCarlo:
 
     def __init__(self, neuralNetwork):
         self.neuralNetwork = neuralNetwork
 
     def _computeParameters(self, m, v, eps):
-        # print(torch.add(torch.mul(eps, torch.exp(0.5*v)), m).size())
         return torch.add(torch.mul(eps, torch.exp(0.5*v)), m)
 
     def computeMonteCarlo(self, inputs, qPos, taskId, numSamples):
@@ -36,7 +35,6 @@ class MonteCarlo():
             epsW = torch.randn((numSamples, mW.size()[0], mW.size()[1])).type(FloatTensor)
             epsB = torch.randn((numSamples, mB.size()[0])).type(FloatTensor)
             weightSample.append(self._computeParameters(mW, vW, epsW))
-            print(self._computeParameters(mW, vW, epsW)[1, :, :])
             baisesSample.append(self._computeParameters(mB, vB, epsB))
 
         pred = torch.zeros((inputs.size()[0], mW.size()[1])).type(FloatTensor)
@@ -47,3 +45,8 @@ class MonteCarlo():
             pred += self.neuralNetwork(inputs)
 
         return pred/numSamples
+
+    def logPred(self, inputs, qPos, taskId, numSamples, labels):
+        pred = self.computeMonteCarlo(inputs, qPos, taskId, numSamples)
+        logLik = - torch.mean(self.neuralNetwork.loss(pred, labels))
+        return logLik
