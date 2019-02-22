@@ -2,6 +2,8 @@
 # Coreset Heuristics ###########################################################
 ################################################################################
 
+import torch
+
 # Random Selection
 def coreset_rand(x_coresets, y_coresets, x_train, y_train, coreset_size):
     # randomly permute the indices
