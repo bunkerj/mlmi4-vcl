@@ -7,7 +7,7 @@ from copy import deepcopy
 from scipy.io import loadmat
 
 # Mnist Data Loader
-class Mnist()
+class Mnist():
     def __init__(self):
         self.X_train = torch.load('../data/MNIST_X_train.pt')
         self.Y_train = torch.load('../data/MNIST_Y_train.pt')
@@ -44,8 +44,8 @@ class SplitMnistGen(Mnist):
         super().__init__()
         self.maxIter = len(set0)
         self.curIter = 0
-        self.sets_0 = set0
-        self.sets_1 = set1
+        self.set0 = set0
+        self.set1 = set1
 
     def get_dims(self):
         return self.X_train.shape[1], 2
@@ -61,8 +61,8 @@ class SplitMnistGen(Mnist):
             next_y_train = torch.cat([torch.ones(train_id_0.shape[0], 1),torch.zeros(train_id_1.shape[0], 1)],dim=0)
             next_y_train = torch.cat([next_y_train, 1-next_y_train])
 
-            test_id_0 = self.X_train[self.Y_test == self.set0[self.curIter], :]
-            test_id_1 = self.X_train[self.Y_test == self.set1[self.curIter], :]
+            test_id_0 = self.X_test[self.Y_test == self.set0[self.curIter], :]
+            test_id_1 = self.X_test[self.Y_test == self.set1[self.curIter], :]
             next_x_test = torch.cat([test_id_0, test_id_1], dim=0)
 
             next_y_test = torch.cat([torch.ones(test_id_0.shape[0], 1),torch.zeros(test_id_1.shape[0], 1)],dim=0)
@@ -100,7 +100,7 @@ class PermutedMnistGen(Mnist):
             return next_x_train, next_y_train, next_x_test, next_y_test
 
 # NotMnist Data Loader
-class NotMnist()
+class NotMnist():
     def __init__(self):
         self.X_train = torch.load('../data/NotMNIST_X_train.pt')
         self.Y_train = torch.load('../data/NotMNIST_Y_train.pt')
@@ -154,8 +154,8 @@ class SplitNotMnistGen(NotMnist):
             next_y_train = torch.cat([torch.ones(train_id_0.shape[0], 1),torch.zeros(train_id_1.shape[0], 1)],dim=0)
             next_y_train = torch.cat([next_y_train, 1-next_y_train])
 
-            test_id_0 = self.X_train[self.Y_test == self.set0[self.curIter], :]
-            test_id_1 = self.X_train[self.Y_test == self.set1[self.curIter], :]
+            test_id_0 = self.X_test[self.Y_test == self.set0[self.curIter], :]
+            test_id_1 = self.X_test[self.Y_test == self.set1[self.curIter], :]
             next_x_test = torch.cat([test_id_0, test_id_1], dim=0)
 
             next_y_test = torch.cat([torch.ones(test_id_0.shape[0], 1),torch.zeros(test_id_1.shape[0], 1)],dim=0)
