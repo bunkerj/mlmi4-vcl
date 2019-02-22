@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from scipy.stats import truncnorm
 from constants import FloatTensor
+from copy import deepcopy
 
 class VanillaNN(nn.Module):
     def __init__(self, netWorkInputSize, networkHiddenSize, numLayers, numClasses):
@@ -71,8 +72,12 @@ class VanillaNN(nn.Module):
 
     def getParameters(self):
         return (
-            [layer.weight.transpose(0, 1) for layer in self.moduleList],
-            [layer.bias for layer in self.moduleList])
+            [layer.weight.transpose(0, 1).detach() for layer in self.moduleList],
+            [layer.bias.detach() for layer in self.moduleList])
+
+    def noGrad(self, parameters):
+        parameters.requires_grad = False
+        return parameters
 
     def setParameters(self, parameters):
         weights, biases = parameters
