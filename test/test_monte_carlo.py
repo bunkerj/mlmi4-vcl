@@ -20,6 +20,7 @@ inputSize = 784
 hiddenSize = 256
 numLayers = 3
 numClasses = 10
+numSamples = 100
 
 sharedDim = (2, inputSize, hiddenSize)
 headDim = (1, hiddenSize, numClasses)
@@ -57,7 +58,7 @@ for i, (images, labels) in enumerate(trainLoader):
         monteCarlo = MonteCarlo(vanillaNN)
 
         result = monteCarlo.computeMonteCarlo(images, qPosterior, 1, numSamples)
-        print(result)
+        # print(result)
         predictionProb = monteCarlo.logPred(images, yOnehot,  qPosterior, 1, numSamples)
-        print(predictionProb)
+        # print(predictionProb)
         break

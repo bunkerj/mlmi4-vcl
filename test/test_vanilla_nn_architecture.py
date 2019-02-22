@@ -52,6 +52,7 @@ for i, (images, labels) in enumerate(trainLoader):
         parameters = vanillaNN.getParameters()
         vanillaNN.setParameters(parameters)
 
+
 with torch.no_grad():
     correct = 0;
     total = 0;

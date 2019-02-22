@@ -70,12 +70,15 @@ def getBatch(x_train, y_train):
 
 def maximizeVariationalLowerBound(model, x_train, y_train, qPrior, taskId):
         qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
-        parameters = qPosterior.getFlattenedParameters(taskId)
+        parameters = qPosterior.getFlattenedParameters(2)
         optimizer = torch.optim.Adam(parameters, lr = 0.001)
-
+        i = 0
         for x_train_batch, y_train_batch in getBatch(x_train, y_train):
             lossArgs = (model, x_train_batch, y_train_batch, qPosterior, qPrior, taskId)
             minimizeLoss(1, optimizer, computeCost, lossArgs)
+            i += 1
+            if i > 99:
+                break
         return qPosterior
 
 qPrior = ParametersDistribution(sharedDim, headDim, headCount)

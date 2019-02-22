@@ -12,8 +12,9 @@ from vanilla_nn import VanillaNN
 from monte_carlo import MonteCarlo
 from optimizer import minimizeLoss
 from compute_cost import computeCost
+from neural_trainer import NeuralTrainer
 from constants import Device, FloatTensor, MEAN, VARIANCE, WEIGHT, BIAS
-
+from copy import deepcopy
 
 import torchvision
 import torchvision.transforms as transforms
@@ -68,36 +69,37 @@ def getBatch(x_train, y_train):
         return batches
 
 def maximizeVariationalLowerBound(model, x_train, y_train, qPrior, taskId):
-        qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
-        qPosterior.overwrite(qPrior)
-        parameters = qPosterior.getFlattenedParameters(taskId)
-        optimizer = torch.optim.Adam(parameters, lr = 0.001)
-
         for x_train_batch, y_train_batch in getBatch(x_train, y_train):
+            qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
+            qPosterior.overwrite(qPrior)
+            parameters = qPosterior.getFlattenedParameters(taskId)
+            optimizer = torch.optim.Adam(parameters, lr = 0.001)
             lossArgs = (model, x_train_batch, y_train_batch, qPosterior, qPrior, taskId)
             minimizeLoss(1, optimizer, computeCost, lossArgs)
+            qPrior.overwrite(qPosterior)
         return qPosterior
 
 # Training the vanillaNN
 for i, (images, labels) in enumerate(trainLoader):
     images = images.reshape(-1, 28*28).to(Device)
     yOnehot = _onehot(labels)
-    for x_train_batch, y_train_batch in getBatch(images, yOnehot):
-        # Move tensors to the configured device
-        vanillaNN = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
-        neuralTrainer = NeuralTrainer(vanillaNN)
-        neuralTrainer.train(images, yOneHot, noEpochs = 5, batchSize = 200, displayEpoch = 20)
+    # Move tensors to the configured device
+    vanillaNN = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
+    neuralTrainer = NeuralTrainer(vanillaNN)
+    neuralTrainer.train(images, yOnehot, noEpochs = 5, batchSize = 200, displayEpoch = 20)
 
+print("VanillaNN Trained!")
 parameters = vanillaNN.getParameters()
 qPrior = ParametersDistribution(sharedDim, headDim, headCount)
-qPrior.setParameters(parameters)
+qPrior.setParameters(parameters, taskId = 1)
 
-for i, (images, labels) in enumerate(trainLoader):
-    images = images.reshape(-1, 28*28).to(Device)
-    yOnehot = _onehot(labels)
-    model = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
-    qPosterior = maximizeVariationalLowerBound(model, images, yOnehot, qPrior, taskId = 2)
-    qPrior.overwrite(qPosterior)
+# for i, (images, labels) in enumerate(trainLoader):
+#     images = images.reshape(-1, 28*28).to(Device)
+#     yOnehot = _onehot(labels)
+#     model = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
+#     qPosterior = maximizeVariationalLowerBound(model, images, yOnehot, qPrior, taskId = 1)
+
+print("Prediction Time :-) ")
 
 with torch.no_grad():
     correct = 0;
@@ -108,7 +110,7 @@ with torch.no_grad():
         labels = labels.to(Device)
         model = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
         monteCarlo = MonteCarlo(model)
-        predicted = monteCarlo.computeMonteCarlo(images, qPrior, 2, numSamples)
+        predicted = monteCarlo.computeMonteCarlo(images, qPrior, 1, numSamples)
         _, predicted = torch.max(predicted.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
