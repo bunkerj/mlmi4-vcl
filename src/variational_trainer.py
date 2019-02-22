@@ -3,11 +3,16 @@ from data_gen import *
 from coreset import *
 from optimizer import minimizeLoss
 from copy import deepcopy
+from vanilla_nn import VanillaNN
+from neural_trainer import NeuralTrainer
+from compute_cost import computeCost
+from monte_carlo import MonteCarlo
 
 # experiment setup
 dictParams = {
 'numEpochs':100,
 'batchSize':10,
+'numSamples':10,
 'dataGen':SplitMnistGen(),
 'numTasks':5,
 'numHeads':5,
@@ -21,8 +26,8 @@ dictParams = {
 
 # run experiment
 VariationalTrainer = VariationalTrainer(dictParams)
-acc = VariationalTrainer.train()
-print(acc)
+VariationalTrainer.train()
+print(VariationalTrainer.accuracy)
 
 # variational trainer
 class VariationalTrainer:
@@ -44,6 +49,7 @@ class VariationalTrainer:
 
         self.numEpochs = dictParams['numEpochs']
         self.batchSize = dictParams['batchSize']
+        self.numSamples = dictParams['numSamples']
 
         self.dataGen = dictParams['dataGen']
         self.numTasks = dictParams['numTasks']
@@ -55,9 +61,9 @@ class VariationalTrainer:
         self.numSharedLayers, self.numHeadLayers = dictParams['numLayers']
         self.hiddenSize = dictParams['hiddenSize']
         self.inputDim, self.outputDim = self.dataGen.get_dims()
-        sharedWeightDim = (self.numSharedLayers, self.inputDim, self.hiddenSize)
-        headWeightDim = (self.numHeadLayers, self.hiddenSize, self.outputDim)
-        self.qPosterior = ParametersDistribution(sharedWeightDim, headWeightDim, self.numHeads)
+        self.sharedWeightDim = (self.numSharedLayers, self.inputDim, self.hiddenSize)
+        self.headWeightDim = (self.numHeadLayers, self.hiddenSize, self.outputDim)
+        self.qPosterior = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
 
         # if number of tasks is same as number of heads,
         # 0th task -> 0th head, 1st task -> 1st head, ...
@@ -77,7 +83,7 @@ class VariationalTrainer:
         # lastly, a list to store
         self.accuracy = torch.zeros((self.numTasks,self.taskOrder))
 
-    def train():
+    def train(self):
         # initialize coreset
         x_coresets = []
         y_coresets = []
@@ -97,9 +103,9 @@ class VariationalTrainer:
             if t == 0:
                 model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedLayers+self.numHeadLayers, self.outputDim)
                 modelTrainer = NeuralTrainer(model)
-                modelTrainer.train(x_train, y_train, self.numEpochs, self.batchSize, displayEpoch = 20)
+                modelTrainer.train(x_train, y_train, self.taskOrder[t], self.numEpochs, self.batchSize, displayEpoch = 20)
                 param_mean = model.getParameters()
-                # use parameter mean to initialize the q posterior
+                # use parameter mean to initialize the q prior
                 self.qPosterior.setParameters(param_mean)
 
             # create coreset
@@ -107,31 +113,40 @@ class VariationalTrainer:
                 x_coresets, y_coresets, x_train, y_train = self.coresetMethod(x_coresets, y_coresets, x_train, y_train, self.coresetSize)
 
             # update weights and bias for current task
-            self.qPosterior.overwrite(maximizeVariationalLowerBound(qPosterior, x_train, y_train))
+            self.qPosterior.overwrite(maximizeVariationalLowerBound(self.qPosterior, x_train, y_train, self.headOrder[t])
 
             # qPred and inference
             for t_ in range(t):
-                qPred = deepcopy(self.qPosterior)
+                # overwrite qPosterior on q_pred
+                #qPred = deepcopy(self.qPosterior)
+                q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
+                q_pred.overwrite(self.qPosterior)
+
                 if self.numHeads == 1:
                     if len(x_coresets) > 0:
                         x_coreset, y_coreset = merge_coresets(x_coresets, y_coresets)
-                        qPred.overwrite(maximizeVariationalLowerBound(qPred, x_coreset, y_coreset))
+                        q_pred.overwrite(maximizeVariationalLowerBound(q_pred, x_coreset, y_coreset, self.headOrder[t_]))
                 else:
                     if len(x_coresets) > 0:
-                        qPred.overwrite(maximizeVariationalLowerBound(qPred, x_coresets[t_], y_coresets[t_]))
+                        q_pred.overwrite(maximizeVariationalLowerBound(q_pred, x_coresets[t_], y_coresets[t_], self.headOrder[t_]))
 
-                pass # make prediction for x_testsets[t_] and y_testsets[t_] and return accuracy
+                parameters = q_pred.parameters()
+                model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedlayers+self.numHeadLayers, self.outputDim)
+                monteCarlo = MonteCarlo(model)
+                y_pred = monteCarlo.computeMonteCarlo(x_test, q_pred, self.headOrder[t_], self.numSamples)
+                _, y_pred = torch.max(y_pred.data, 1)
 
+                acc = torch.sum(torch.mul(y_pred, y_testsets[t_])) / y_pred.shape[0]
                 self.accuracy(self.taskOrder[t_],t_) = acc
 
-    def merge_coresets(x_coresets, y_coresets):
+    def merge_coresets(self, x_coresets, y_coresets):
         merged_x, merged_y = x_coresets[0], y_coresets[0]
         for i in range(1, len(x_coresets)):
             merged_x = torch.cat([merged_x, x_coresets[i]], dim = 0)
             merged_y = torch.cat([merged_y, y_coresets[i]], dim = 0)
         return merged_x, merged_y
 
-    def self.getBatch(x_train, y_train):
+    def self.getBatch(self, x_train, y_train):
         self.batchSize
         batches = []
         numberOfBatches = x_train.size() / self.batchSize
@@ -147,11 +162,15 @@ class VariationalTrainer:
             batches.append((x_train_batch, y_train_batch))
         return batches
 
-    def maximizeVariationalLowerBound(x_train_batch, y_train_batch, qPrior, taskId):
-        qPosterior = ParametersDistribution()
-        parameters = qPosterior.getFlattenedParameters(taskId)
+    def maximizeVariationalLowerBound(self, oldPosterior, x_train, y_train, headId):
+        # create dummy new posterior
+        newPosterior = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
+        newPoterior.overwrite(oldPosterior)
+
+        parameters = self.qPosterior.getFlattenedParameters(headId)
         optimizer = torch.optim.Adam(parameters, lr = 0.001)
+
         for x_train_batch, y_train_batch in self.getBatch(x_train, y_train):
-            lossArgs = (x_train_batch, y_train_batch qPosterior, qPrior, taskId)
-            minimizeLoss(1000, optimizer, getCost, lossArgs)
-        return qPosterior
+            lossArgs = (x_train_batch, y_train_batch newPosterior, self.qPosterior, headId)
+            minimizeLoss(1000, optimizer, computeCost, lossArgs)
+        return newPosterior
