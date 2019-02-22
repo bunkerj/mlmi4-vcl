@@ -73,17 +73,13 @@ class ParametersDistribution:
             unsplitLayers += splitLayer
         return unsplitLayers
 
-    # def getParameters(self):
-    #     return (
-    #         [layer.weight for layer in self.moduleList],
-    #         [layer.bias for layer in self.moduleList])
-
     def getGenericListOfTensors(self, referenceList):
         tensorList = []
-        for item in tensorList:
-            tensorList = torch \
+        for item in referenceList:
+            variance = torch \
                 .ones(item.size(), requires_grad=True) \
                 .type(FloatTensor)
+            tensorList.append(variance)
         return tensorList
 
     def getInitialVariances(self, parameters):
@@ -108,7 +104,7 @@ class ParametersDistribution:
 
         sharedWeightVariances, headWeightVariances = self.getInitialVariances(weights)
         self.shared[WEIGHT][VARIANCE] = sharedWeightVariances
-        self.heads[WEIGHT][VARIANCE] = headWeightVariances
+        self.heads[WEIGHT][VARIANCE][taskId] = headWeightVariances
 
         sharedBiasVariances, headBiasVariances = self.getInitialVariances(biases)
         self.shared[BIAS][VARIANCE] = sharedBiasVariances
