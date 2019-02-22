@@ -77,7 +77,7 @@ class VanillaNN(nn.Module):
     def setParameters(self, parameters):
         weights, biases = parameters
         for index, layer in enumerate(self.moduleList):
-            layer.weight = torch.nn.Parameter(weights[index].transpose_(0, 1))
+            layer.weight = torch.nn.Parameter(weights[index].transpose(0, 1))
             layer.bias = torch.nn.Parameter(biases[index])
 
     def prediction(self, x_test):
