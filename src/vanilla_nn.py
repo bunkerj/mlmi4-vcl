@@ -71,13 +71,13 @@ class VanillaNN(nn.Module):
 
     def getParameters(self):
         return (
-            [layer.weight for layer in self.moduleList],
+            [layer.weight.transpose(0, 1) for layer in self.moduleList],
             [layer.bias for layer in self.moduleList])
 
     def setParameters(self, parameters):
         weights, biases = parameters
         for index, layer in enumerate(self.moduleList):
-            layer.weight = torch.nn.Parameter(weights[index])
+            layer.weight = torch.nn.Parameter(weights[index].transpose_(0, 1))
             layer.bias = torch.nn.Parameter(biases[index])
 
     def prediction(self, x_test):
