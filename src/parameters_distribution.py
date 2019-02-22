@@ -12,18 +12,20 @@ class ParametersDistribution:
     def __init__(self, sharedWeightDim, headWeightDim, headCount):
         """ dimension: (# layers, input size, output size) """
         self.shared = {}
-        self.hidden = {}
+        self.heads = {}
         self.headCount = headCount
+        self.sharedLayerCount = sharedWeightDim[0]
+        self.headLayerCount = headWeightDim[0]
         for parameterType in PARAMETER_TYPES:
             self.shared[parameterType] = {}
-            self.hidden[parameterType] = {}
+            self.heads[parameterType] = {}
             for statistic in STATISTICS:
                 sharedSplitDim, headSplitDim = \
                     self.getSplitDimensions(sharedWeightDim, headWeightDim, parameterType)
                 self.shared[parameterType][statistic] = sharedSplitDim
-                self.hidden[parameterType][statistic] = {}
+                self.heads[parameterType][statistic] = {}
                 for head in range(headCount):
-                    self.hidden[parameterType][statistic][head] = headSplitDim
+                    self.heads[parameterType][statistic][head] = headSplitDim
 
     def createTensor(self, dimension):
         return autograd \
@@ -58,7 +60,7 @@ class ParametersDistribution:
         return self.shared[parameterType][statistic]
 
     def getHead(self, parameterType, statistic, head):
-        return self.hidden[parameterType][statistic][head]
+        return self.heads[parameterType][statistic][head]
 
     def getFlattenedParameters(self, head):
         splitLayers = [
@@ -71,11 +73,52 @@ class ParametersDistribution:
             unsplitLayers += splitLayer
         return unsplitLayers
 
+    # def getParameters(self):
+    #     return (
+    #         [layer.weight for layer in self.moduleList],
+    #         [layer.bias for layer in self.moduleList])
+
+    def getGenericListOfTensors(self, referenceList):
+        tensorList = []
+        for item in tensorList:
+            tensorList = torch \
+                .ones(item.size(), requires_grad=True) \
+                .type(FloatTensor)
+        return tensorList
+
+    def getInitialVariances(self, parameters):
+        tensorList = self.getGenericListOfTensors(parameters)
+        return (tensorList[:self.sharedLayerCount], \
+                tensorList[self.sharedLayerCount:])
+
+    def getInitialMeans(self, parameters):
+        return (parameters[:self.sharedLayerCount], \
+                parameters[self.sharedLayerCount:])
+
+    def setParameters(self, parameters, taskId):
+        weights, biases = parameters
+
+        sharedWeightMeans, headWeightMeans = self.getInitialMeans(weights)
+        self.shared[WEIGHT][MEAN] = sharedWeightMeans
+        self.heads[WEIGHT][MEAN][taskId] = headWeightMeans
+
+        sharedBiasMeans, headBiasMeans = self.getInitialMeans(biases)
+        self.shared[BIAS][MEAN] = sharedBiasMeans
+        self.heads[BIAS][MEAN][taskId] = headBiasMeans
+
+        sharedWeightVariances, headWeightVariances = self.getInitialVariances(weights)
+        self.shared[WEIGHT][VARIANCE] = sharedWeightVariances
+        self.heads[WEIGHT][VARIANCE] = headWeightVariances
+
+        sharedBiasVariances, headBiasVariances = self.getInitialVariances(biases)
+        self.shared[BIAS][VARIANCE] = sharedBiasVariances
+        self.heads[BIAS][VARIANCE][taskId] = headBiasVariances
+
     def overwrite(self, q):
         for parameterType in PARAMETER_TYPES:
             for statistic in STATISTICS:
                 self.shared[parameterType][statistic] = \
                     q.shared[parameterType][statistic]
                 for head in range(self.headCount):
-                    self.hidden[parameterType][statistic][head] = \
-                        q.hidden[parameterType][statistic][head]
+                    self.heads[parameterType][statistic][head] = \
+                        q.heads[parameterType][statistic][head]
