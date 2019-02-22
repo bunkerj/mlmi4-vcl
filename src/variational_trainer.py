@@ -130,10 +130,10 @@ class VariationalTrainer:
                     if len(x_coresets) > 0:
                         q_pred.overwrite(maximizeVariationalLowerBound(q_pred, x_coresets[t_], y_coresets[t_], self.headOrder[t_]))
 
-                parameters = qPred.parameters()
+                parameters = q_pred.parameters()
                 model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedlayers+self.numHeadLayers, self.outputDim)
                 monteCarlo = MonteCarlo(model)
-                y_pred = monteCarlo.computeMonteCarlo(x_test, qPred, self.headOrder[t_], self.numSamples)
+                y_pred = monteCarlo.computeMonteCarlo(x_test, q_pred, self.headOrder[t_], self.numSamples)
                 _, y_pred = torch.max(y_pred.data, 1)
 
                 acc = torch.sum(torch.mul(y_pred, y_testsets[t_])) / y_pred.shape[0]
