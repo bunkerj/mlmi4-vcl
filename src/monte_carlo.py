@@ -39,7 +39,7 @@ class MonteCarlo:
 
         pred = torch.zeros((inputs.size()[0], mW.size()[1])).type(FloatTensor)
         for k in range(numSamples):
-            weights = [weight[k, :, :].transpose_(0,1) for weight in weightSample]
+            weights = [weight[k, :, :] for weight in weightSample]
             biases = [bias[k, :] for bias in baisesSample]
             self.neuralNetwork.setParameters((weights, biases))
             pred += self.neuralNetwork(inputs)
