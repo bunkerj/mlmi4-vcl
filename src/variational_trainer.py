@@ -1,54 +1,83 @@
 from parameters_distribution import ParametersDistribution
 from data_gen import *
 from coreset import *
-<<<<<<< Updated upstream
 from optimizer import minimizeLoss
-
-#sharedDim = (3, 3, 3)
-#headDim = (2, 3, 1)
-#headCount = 3
-#sharedDim, headDim, headCount,
-
-# Specify the experiment setting
-# 1. Data generator - MnistGen() / SplitMnistGen() / PermutedMnistGen()
-#                   - NotMnistGen() / SplitNotMnistGen() / PermutedNotMnistGen()
-dataGen = SplitMnistGen()
-# 2. Coreset method and size - coreset_rand / coreset_k
-coresetMethod = coreset_rand
-coresetSize = 20
-
-hidden_size,
-no_epochs,
-data_gen,
-coreset_method,
-coreset_size=0,
-batch_size=None,
-single_head=True
-=======
 from copy import deepcopy
->>>>>>> Stashed changes
 
+# experiment setup
+dictParams = {
+'numEpochs':100,
+'batchSize':10,
+'dataGen':SplitMnistGen(),
+'numTasks':5,
+'numHeads':5,
+'coresetMethod':coreset_rand,
+'coresetSize':100,
+'numLayers':(4,2),
+'hiddenSize':100,
+'taskOrder':[],
+'headOrder':[],
+}
+
+# run experiment
+VariationalTrainer = VariationalTrainer(dictParams)
+acc = VariationalTrainer.train()
+print(acc)
+
+# variational trainer
 class VariationalTrainer:
-    def __init__(self, numEpochs, batchSize, hiddenSize, numLayers, dataGen, coresetMethod, coresetSize):
-        self.qPosterior = ParametersDistribution()
+    def __init__(self, dictParams):
+        """Parameters should be given as a dictionary,
+        'numEpochs': number of epochs,
+        'batchSize': batch size,
+        'dataGen': data generator, options include MnistGen(), SplitMnistGen(),
+                    PermutedMnistGen(), NotMnistGen(), SplitNotMnistGen(),
+                    PermutedNotMnistGen()
+        'numTasks': number of unique tasks
+        'numHeads': number of network heads
+        'coresetMethod': coreset heuristic, options include coreset_rand, coreset_k
+        'coresetSize': coreset size
+        'numLayers': number of shared and head layers, given as tuple
+        'taskOrder' and 'headOrder': if specified, the 0th task in taskOrder will be
+                                     fed to 0th head in headOrder, ...
+        """
 
-        self.numEpochs = numEpochs
-        self.batchSize = batchSize
+        self.numEpochs = dictParams['numEpochs']
+        self.batchSize = dictParams['batchSize']
 
-        self.hiddenSize = hiddenSize
-        self.numLayers = numLayers
+        self.dataGen = dictParams['dataGen']
+        self.numTasks = dictParams['numTasks']
+        self.numHeads = dictParams['numHeads']
 
-        self.dataGen = dataGen
-        self.coresetMethod = coresetMethod
-        self.coresetSize = coresetSize
+        self.coresetSize = dictParams['coresetSize']
+        if self.coresetSize > 0: self.coresetMethod = dictParams['coresetMethod']
+
+        self.numSharedLayers, self.numHeadLayers = dictParams['numLayers']
+        self.hiddenSize = dictParams['hiddenSize']
+        self.inputDim, self.outputDim = self.dataGen.get_dims()
+        sharedWeightDim = (self.numSharedLayers, self.inputDim, self.hiddenSize)
+        headWeightDim = (self.numHeadLayers, self.hiddenSize, self.outputDim)
+        self.qPosterior = ParametersDistribution(sharedWeightDim, headWeightDim, self.numHeads)
+
+        # if number of tasks is same as number of heads,
+        # 0th task -> 0th head, 1st task -> 1st head, ...
+        if self.numTasks == self.numHeads:
+            self.headOrder = [i for i in range(self.numHeads)]
+            self.taskOrder = [i for i in range(self.numTasks)]
+        # if the network is single head,
+        # 0th task -> 0th head, 1st task -> 0th head, ...
+        elif: self.numHeads == 1:
+            self.headOrder = [0] * self.numTasks
+            self.taskOrder = [i for i in range(self.numTasks)]
+        # otherwise, use the given orders
+        else:
+            self.headOrder = dictParams['headOrder']
+            self.taskOrder = dictParams['taskOrder']
+
+        # lastly, a list to store
+        self.accuracy = torch.zeros((self.numTasks,self.taskOrder))
 
     def train():
-        # obtain the number of tasks
-        num_tasks = self.dataGen.maxIter
-        # initialize current iteration
-        self.dataGen.curIter = 0
-        # obtain input and output dimension
-        input_dim, output_dim = self.dataGen.get_dims()
         # initialize coreset
         x_coresets = []
         y_coresets = []
@@ -56,18 +85,19 @@ class VariationalTrainer:
         x_testsets = []
         y_testsets = []
 
-        for task_id in range(num_tasks):
+        for t in range(len(self.taskOrder)):
             # train and test data for current task
+            self.dataGen.curIter = self.taskOrder[t]
             x_train, y_train, x_test, y_test = self.dataGen.next_task()
             # append test data to test sets
             x_testsets.append(x_test)
             y_testsets.append(y_test)
 
             # initialize the network with maximum likelihood weights
-            if task_id == 0:
-                model = VanillaNN(input_dim, self.hiddenSize, self.numLayers, output_dim)
+            if t == 0:
+                model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedLayers+self.numHeadLayers, self.outputDim)
                 modelTrainer = NeuralTrainer(model)
-                modelTrainer.train(x_train, y_train, self.noEpochs, self.batchSize, displayEpoch = 20)
+                modelTrainer.train(x_train, y_train, self.numEpochs, self.batchSize, displayEpoch = 20)
                 param_mean = model.getParameters()
                 # use parameter mean to initialize the q posterior
                 self.qPosterior.setParameters(param_mean)
@@ -79,62 +109,27 @@ class VariationalTrainer:
             # update weights and bias for current task
             self.qPosterior.overwrite(maximizeVariationalLowerBound(qPosterior, x_train, y_train))
 
-            # incorporate coreset data and make prediction
-            qPred = deepcopy(self.qPosterior)
-            qPred.overwrite(maximizeVariationalLowerBound(qPred, x_))
+            # qPred and inference
+            for t_ in range(t):
+                qPred = deepcopy(self.qPosterior)
+                if self.numHeads == 1:
+                    if len(x_coresets) > 0:
+                        x_coreset, y_coreset = merge_coresets(x_coresets, y_coresets)
+                        qPred.overwrite(maximizeVariationalLowerBound(qPred, x_coreset, y_coreset))
+                else:
+                    if len(x_coresets) > 0:
+                        qPred.overwrite(maximizeVariationalLowerBound(qPred, x_coresets[t_], y_coresets[t_]))
 
+                pass # make prediction for x_testsets[t_] and y_testsets[t_] and return accuracy
 
+                self.accuracy(self.taskOrder[t_],t_) = acc
 
-
-
-
-
-def merge_coresets(x_coresets, y_coresets):
-    merged_x, merged_y = x_coresets[0], y_coresets[0]
-    for i in range(1, len(x_coresets)):
-        merged_x = np.vstack((merged_x, x_coresets[i]))
-        merged_y = np.vstack((merged_y, y_coresets[i]))
-    return merged_x, merged_y
-
-def get_scores(model, x_testsets, y_testsets, x_coresets, y_coresets, hidden_size, no_epochs, single_head, batch_size=None):
-    mf_weights, mf_variances = model.get_weights()
-    acc = []
-
-    if single_head:
-        if len(x_coresets) > 0:
-            x_train, y_train = merge_coresets(x_coresets, y_coresets)
-            bsize = x_train.shape[0] if (batch_size is None) else batch_size
-            final_model = MFVI_NN(x_train.shape[1], hidden_size, y_train.shape[1], x_train.shape[0], prev_means=mf_weights, prev_log_variances=mf_variances)
-            final_model.train(x_train, y_train, 0, no_epochs, bsize)
-        else:
-            final_model = model
-
-    for i in range(len(x_testsets)):
-        if not single_head:
-            if len(x_coresets) > 0:
-                x_train, y_train = x_coresets[i], y_coresets[i]
-                bsize = x_train.shape[0] if (batch_size is None) else batch_size
-                final_model = MFVI_NN(x_train.shape[1], hidden_size, y_train.shape[1], x_train.shape[0], prev_means=mf_weights, prev_log_variances=mf_variances)
-                final_model.train(x_train, y_train, i, no_epochs, bsize)
-            else:
-                final_model = model
-
-        head = 0 if single_head else i
-        x_test, y_test = x_testsets[i], y_testsets[i]
-
-        pred = final_model.prediction_prob(x_test, head)
-        pred_mean = np.mean(pred, axis=0)
-        pred_y = np.argmax(pred_mean, axis=1)
-        # I got lost here (could anyone explain this to me?)
-        y = np.argmax(y_test, axis=1)
-        cur_acc = len(np.where((pred_y - y) == 0)[0]) * 1.0 / y.shape[0]
-        acc.append(cur_acc)
-
-        if len(x_coresets) > 0 and not single_head:
-            final_model.close_session()
-
-    if len(x_coresets) > 0 and single_head:
-        final_model.close_session()
+    def merge_coresets(x_coresets, y_coresets):
+        merged_x, merged_y = x_coresets[0], y_coresets[0]
+        for i in range(1, len(x_coresets)):
+            merged_x = torch.cat([merged_x, x_coresets[i]], dim = 0)
+            merged_y = torch.cat([merged_y, y_coresets[i]], dim = 0)
+        return merged_x, merged_y
 
     def self.getBatch(x_train, y_train):
         self.batchSize
