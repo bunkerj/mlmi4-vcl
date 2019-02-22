@@ -69,6 +69,7 @@ def getBatch(x_train, y_train):
 
 def maximizeVariationalLowerBound(model, x_train, y_train, qPrior, taskId):
         qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
+        qPosterior.overwrite(qPrior)
         parameters = qPosterior.getFlattenedParameters(taskId)
         optimizer = torch.optim.Adam(parameters, lr = 0.001)
 
