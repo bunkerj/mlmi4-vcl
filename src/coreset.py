@@ -5,21 +5,21 @@
 import torch
 
 # Random Selection
-def coreset_rand(x_coresets, y_coresets, x_train, y_train, coreset_size):
+def coreset_rand(x_train, y_train, coreset_size):
     # randomly permute the indices
     idx = torch.randperm(x_train.shape[0])
 
-    x_coresets.append(x_train[idx[:coreset_size],:])
-    y_coresets.append(y_train[idx[:coreset_size]])
+    x_coreset = x_train[idx[:coreset_size]
+    y_coreset = y_train[idx[:coreset_size]]
 
     # remaining indices form the training data
     x_train = x_train[idx[coreset_size:],:]
     y_train = y_train[idx[coreset_size:]]
 
-    return x_coresets, y_coresets, x_train, y_train
+    return x_coreset, y_coreset, x_train, y_train
 
 # K-center Selection
-def coreset_k(x_coresets, y_coresets, x_train, y_train, coreset_size):
+def coreset_k(x_train, y_train, coreset_size):
     # distance tensor contains the distance to the furthest center, for each data point
     distance = torch.ones(x_train.shape[0])*float('inf')
     # randomly select the first center
@@ -41,8 +41,8 @@ def coreset_k(x_coresets, y_coresets, x_train, y_train, coreset_size):
         cur_idx = new_idx
 
     # at first timestep, x_coreset and y_coreset should be set to "torch.FloatTensor()"
-    x_coresets.append(x_train[idx,:])
-    y_coresets.append(y_train[idx])
+    x_coreset = x_train[idx,:]
+    y_coreset = y_train[idx]
 
     # idx_train: all the indices not in idx, used to update training data
     idx_train = [i for i in range(x_train.shape[0]) if i not in idx]
@@ -51,4 +51,4 @@ def coreset_k(x_coresets, y_coresets, x_train, y_train, coreset_size):
     x_train = x_train[idx_train,:]
     y_train = y_train[idx_train]
 
-    return x_coresets, y_coresets, x_train, y_train
+    return x_coreset, y_coreset, x_train, y_train
