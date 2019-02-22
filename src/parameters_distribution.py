@@ -78,7 +78,7 @@ class ParametersDistribution:
         for item in referenceList:
             variance = torch \
                 .ones(item.size(), requires_grad=True) \
-                .type(FloatTensor)
+                .type(FloatTensor)*0
             tensorList.append(variance)
         return tensorList
 
