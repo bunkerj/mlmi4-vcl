@@ -93,8 +93,6 @@ parameters = vanillaNN.getParameters()
 qPrior = ParametersDistribution(sharedDim, headDim, headCount)
 qPrior.setParameters(parameters, taskId = 1)
 
-# cio cioa cio 
-
 # for i, (images, labels) in enumerate(trainLoader):
 #     images = images.reshape(-1, 28*28).to(Device)
 #     yOnehot = _onehot(labels)
