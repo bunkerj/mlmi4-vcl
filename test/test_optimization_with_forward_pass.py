@@ -2,7 +2,6 @@ import sys
 sys.path.append('../src/')
 
 import torch
-from optimizer import minimizeLoss
 
 class TestNN(torch.nn.Module):
     def __init__(self):
@@ -29,9 +28,18 @@ def computeCost(parameters, input):
     print(cost) # Cost stays the same :(
     return cost
 
+def minimizeLoss(maxIter, optimizer, lossFunc, lossFuncArgs):
+    for i in range(maxIter):
+        optimizer.zero_grad()
+        loss = lossFunc(*lossFuncArgs)
+        loss.backward(retain_graph = True)
+        optimizer.step()
+        if i % 100 == 0:
+            print(loss)
+
 input = torch.randn(1, 10)
-weight = torch.ones((10, 1))
-bias = torch.ones((1, 1))
+weight = torch.ones(10, 1)
+bias = torch.ones(1, 1)
 
 parameters = (weight, bias)
 lossArgs = (parameters, input)
