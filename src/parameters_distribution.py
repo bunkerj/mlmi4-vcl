@@ -3,7 +3,7 @@ sys.path.append('../')
 
 import torch
 import torch.autograd as autograd
-from constants import FloatTensor, MEAN, VARIANCE, WEIGHT, BIAS
+from constants import FloatTensor, MEAN, VARIANCE, WEIGHT, BIAS, INIT_VARIANCE
 
 PARAMETER_TYPES = [WEIGHT, BIAS]
 STATISTICS = [MEAN, VARIANCE]
@@ -78,7 +78,7 @@ class ParametersDistribution:
         for item in referenceList:
             variance = torch \
                 .ones(item.size(), requires_grad=True) \
-                .type(FloatTensor)
+                .type(FloatTensor) * INIT_VARIANCE
             tensorList.append(variance)
         return tensorList
 

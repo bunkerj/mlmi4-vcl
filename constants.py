@@ -15,3 +15,5 @@ VARIANCE = 'variance'
 
 WEIGHT = 'weight'
 BIAS = 'bias'
+
+INIT_VARIANCE = 0.05
