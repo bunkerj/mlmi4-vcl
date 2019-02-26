@@ -41,7 +41,7 @@ class MonteCarlo:
         for k in range(numSamples):
             weights = [weight[k, :, :] for weight in weightSample]
             biases = [bias[k, :] for bias in baisesSample]
-            self.neuralNetwork.setParameters((weights, biases)).to(Device)
+            self.neuralNetwork.setParameters((weights, biases))
             pred += self.neuralNetwork(inputs).to(Device)
 
         return pred/numSamples
