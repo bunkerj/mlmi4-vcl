@@ -2,47 +2,21 @@ import sys
 sys.path.append('../src/')
 
 import torch
-
-class TestNN(torch.nn.Module):
-    def __init__(self):
-        super(TestNN, self).__init__()
-        self.fc1 = torch.nn.Linear(10, 1)
-
-    def forward(self, x):
-        x = self.fc1(x)
-        return x
-
-    def getParameters(self):
-        return [self.fc1.weight.transpose(0, 1), self.fc1.bias]
-
-    def setParameters(self, parameters):
-        # Can anything be done here to stay connected to the graph?
-        weight, bias = parameters
-        self.fc1.weight = torch.nn.Parameter(weight.transpose(0, 1))
-        self.fc1.bias = torch.nn.Parameter(bias)
+from optimizer import minimizeLoss
+from torch.autograd import Variable
 
 def computeCost(parameters, input):
-    testNN = TestNN()
-    testNN.setParameters(parameters)
-    cost = testNN(input) ** 2
-    print(cost) # Cost stays the same :(
-    return cost
-
-def minimizeLoss(maxIter, optimizer, lossFunc, lossFuncArgs):
-    for i in range(maxIter):
-        optimizer.zero_grad()
-        loss = lossFunc(*lossFuncArgs)
-        loss.backward(retain_graph = True)
-        optimizer.step()
-        if i % 100 == 0:
-            print(loss)
+    weight, bias = parameters
+    return torch.add(torch.matmul(input, weight), bias)
 
 input = torch.randn(1, 10)
-weight = torch.ones(10, 1)
-bias = torch.ones(1, 1)
+weight = Variable(torch.randn(10, 1), requires_grad = True)
+bias = Variable(torch.randn(1, 1), requires_grad = True)
 
-parameters = (weight, bias)
+parameters = [weight, bias]
+optimizer = torch.optim.Adam(parameters, lr = 1)
 lossArgs = (parameters, input)
-optimizer = torch.optim.Adam(parameters, lr = 0.01)
 
-minimizeLoss(10, optimizer, computeCost, lossArgs)
+print(computeCost(parameters, input))
+minimizeLoss(100, optimizer, computeCost, lossArgs)
+print(computeCost(parameters, input))
