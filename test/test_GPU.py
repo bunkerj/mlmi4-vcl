@@ -54,7 +54,6 @@ import time
 start = time.time()
 
 model = NeuralNet(input_size, hidden_size, num_classes).to(device)
-
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
