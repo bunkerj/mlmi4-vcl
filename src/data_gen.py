@@ -95,7 +95,7 @@ class PermutedMnistGen(Mnist):
             next_x_test = deepcopy(self.X_test)[:,idx]
             next_y_test = torch.eye(10)[self.Y_test]
 
-            self.cur_iter += 1
+            self.curIter += 1
 
             return next_x_train, next_y_train, next_x_test, next_y_test
 
@@ -188,6 +188,6 @@ class PermutedNotMnistGen(NotMnist):
             next_x_test = deepcopy(self.X_test)[:,idx]
             next_y_test = torch.eye(10)[self.Y_test]
 
-            self.cur_iter += 1
+            self.curIter += 1
 
             return next_x_train, next_y_train, next_x_test, next_y_test

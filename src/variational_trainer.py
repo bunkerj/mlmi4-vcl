@@ -170,7 +170,7 @@ dictParams = {
 'numEpochs':100,
 'batchSize':10,
 'numSamples':10,
-'dataGen':MnistGen(),
+'dataGen':PermutedMnistGen(),
 'numTasks':1,
 'numHeads':1,
 'coresetMethod':coreset_rand,
