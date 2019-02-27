@@ -34,9 +34,7 @@ class MonteCarlo:
         act = inputs
         numLayers = len(weights)
         for i in range(numLayers):
-            # print(i)
             pred = torch.add(torch.matmul(act, weights[i]), biases[i])
-            # print(pred.size())
             act = F.relu(pred)
         return pred
 
