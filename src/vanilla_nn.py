@@ -56,9 +56,7 @@ class VanillaNN(nn.Module):
                 x = F.relu(x)
         lastLayerName = layerNames[-1]
         layer = getattr(VanillaNN, lastLayerName)
-        bn1 = nn.BatchNorm1d(num_features=self.numClasses).type(FloatTensor)
         x = layer(x)
-        x = bn1(x)
         return x
 
     def _getTruncatedNormal(self, size, threshold=1):
