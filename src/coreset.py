@@ -9,7 +9,7 @@ def coreset_rand(x_train, y_train, coreset_size):
     # randomly permute the indices
     idx = torch.randperm(x_train.shape[0])
 
-    x_coreset = x_train[idx[:coreset_size]
+    x_coreset = x_train[idx[:coreset_size]]
     y_coreset = y_train[idx[:coreset_size]]
 
     # remaining indices form the training data
