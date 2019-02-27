@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -5,13 +8,14 @@ import torchvision
 import torchvision.transforms as transforms
 from copy import deepcopy
 from scipy.io import loadmat
+from constants import FloatTensor
 
 # Mnist Data Loader
 class Mnist():
     def __init__(self):
-        self.X_train = torch.load('../data/MNIST_X_train.pt')
+        self.X_train = torch.load('../data/MNIST_X_train.pt').type(FloatTensor)
         self.Y_train = torch.load('../data/MNIST_Y_train.pt')
-        self.X_test = torch.load('../data/MNIST_X_test.pt')
+        self.X_test = torch.load('../data/MNIST_X_test.pt').type(FloatTensor)
         self.Y_test = torch.load('../data/MNIST_Y_test.pt')
 
 # Mnist Generator (no split or permutation)
