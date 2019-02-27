@@ -91,7 +91,7 @@ for i, (images, labels) in enumerate(trainLoader):
 print("VanillaNN Trained!")
 parameters = vanillaNN.getParameters()
 qPrior = ParametersDistribution(sharedDim, headDim, headCount)
-qPrior.setParameters(parameters, taskId = 1)
+qPrior.setParameters(parameters, 1)
 
 # for i, (images, labels) in enumerate(trainLoader):
 #     images = images.reshape(-1, 28*28).to(Device)
@@ -109,8 +109,8 @@ with torch.no_grad():
         images = images.reshape(-1, 28*28).to(Device)
         labels = labels.to(Device)
         model = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
-        monteCarlo = MonteCarlo(model)
-        predicted = monteCarlo.computeMonteCarlo(images, qPrior, 1, numSamples)
+        monteCarlo = MonteCarlo(model, qPrior, numSamples)
+        predicted = monteCarlo.computeMonteCarlo(images, 1)
         _, predicted = torch.max(predicted.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
