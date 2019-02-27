@@ -56,7 +56,7 @@ class ParametersDistribution:
             splittedLayers.append(self.createTensor((outputSize)))
         return splittedLayers
 
-    def getShared(self, parameterType, statistic):
+    def getShared(self, parameterType, statistic,  taskId = None): # Added taskId for convenience
         return self.shared[parameterType][statistic]
 
     def getHead(self, parameterType, statistic, head):
