@@ -28,14 +28,15 @@ class MonteCarlo:
         m = funcGetSpecificParameters(PARAMETER, MEAN, taskId)[layerId]
         v = funcGetSpecificParameters(PARAMETER, VARIANCE, taskId)[layerId]
         eps = torch.randn(self._getSampledParametersDims((PARAMETER, m))).type(FloatTensor)
-
         return self._computeParameters(m, v, eps)
 
     def _forwardPass(self, inputs, weights, biases):
         act = inputs
         numLayers = len(weights)
         for i in range(numLayers):
+            # print(i)
             pred = torch.add(torch.matmul(act, weights[i]), biases[i])
+            # print(pred.size())
             act = F.relu(pred)
         return pred
 
@@ -53,14 +54,7 @@ class MonteCarlo:
         for layerId, mW in enumerate(self.qPos.getHead(WEIGHT, MEAN, taskId)):
             weightSample.append(self._createParameterSample(self.qPos.getHead, WEIGHT, layerId, taskId))
             baisesSample.append(self._createParameterSample(self.qPos.getHead, BIAS, layerId, taskId))
-
-        pred = torch.zeros((inputs.size()[0], mW.size()[1])).type(FloatTensor)
-        for k in range(self.numSamples):
-            weights = [weight[k, :, :] for weight in weightSample]
-            biases = [bias[k, :] for bias in baisesSample]
-            pred += self._forwardPass(inputs, weights, biases)
-
-        return pred/self.numSamples
+        return torch.sum(self._forwardPass(inputs, weightSample, baisesSample), dim = 0)/self.numSamples
 
     def logPred(self, inputs, labels, taskId):
         pred = self.computeMonteCarlo(inputs, taskId)
