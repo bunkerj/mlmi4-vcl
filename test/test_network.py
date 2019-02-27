@@ -68,13 +68,13 @@ def getBatch(x_train, y_train):
             batches.append((x_train_batch, y_train_batch))
         return batches
 
-def maximizeVariationalLowerBound(model, x_train, y_train, qPrior, taskId):
+def maximizeVariationalLowerBound(x_train, y_train, qPrior, taskId):
         for x_train_batch, y_train_batch in getBatch(x_train, y_train):
             qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
             qPosterior.overwrite(qPrior)
             parameters = qPosterior.getFlattenedParameters(taskId)
             optimizer = torch.optim.Adam(parameters, lr = 0.001)
-            lossArgs = (model, x_train_batch, y_train_batch, qPosterior, qPrior, taskId)
+            lossArgs = (x_train_batch, y_train_batch, qPosterior, qPrior, taskId)
             minimizeLoss(1, optimizer, computeCost, lossArgs)
             qPrior.overwrite(qPosterior)
         return qPosterior
@@ -96,8 +96,7 @@ qPrior.setParameters(parameters, 1)
 # for i, (images, labels) in enumerate(trainLoader):
 #     images = images.reshape(-1, 28*28).to(Device)
 #     yOnehot = _onehot(labels)
-#     model = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
-#     qPosterior = maximizeVariationalLowerBound(model, images, yOnehot, qPrior, taskId = 1)
+#     qPosterior = maximizeVariationalLowerBound(images, yOnehot, qPrior, taskId = 1)
 
 print("Prediction Time :-) ")
 
@@ -108,8 +107,7 @@ with torch.no_grad():
     for images, labels in testLoader:
         images = images.reshape(-1, 28*28).to(Device)
         labels = labels.to(Device)
-        model = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
-        monteCarlo = MonteCarlo(model, qPrior, numSamples)
+        monteCarlo = MonteCarlo(qPrior, numSamples)
         predicted = monteCarlo.computeMonteCarlo(images, 1)
         _, predicted = torch.max(predicted.data, 1)
         total += labels.size(0)
