@@ -62,7 +62,7 @@ class VariationalTrainer:
 
         # lastly, a list to store
         self.accuracy = {}
-        for taskId in taskOrder:
+        for taskId in self.taskOrder:
             self.accuracy[taskId] = [0]*len(self.taskOrder)
         #torch.zeros((self.numTasks,len(self.taskOrder)))
 
@@ -170,12 +170,12 @@ dictParams = {
 'numEpochs':100,
 'batchSize':10,
 'numSamples':10,
-'dataGen':SplitMnistGen(),
-'numTasks':5,
-'numHeads':5,
+'dataGen':MnistGen(),
+'numTasks':1,
+'numHeads':1,
 'coresetMethod':coreset_rand,
-'coresetSize':100,
-'numLayers':(4,2),
+'coresetSize':0,
+'numLayers':(2,2),
 'hiddenSize':100,
 'taskOrder':[],
 'headOrder':[],
