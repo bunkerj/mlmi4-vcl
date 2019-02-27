@@ -31,7 +31,7 @@ class MnistGen(Mnist):
             next_x_train = self.X_train
             next_y_train = torch.eye(10)[self.Y_train]
             next_x_test = self.X_test
-            nex_y_test = torch.eye(10)[self.Y_test]
+            next_y_test = torch.eye(10)[self.Y_test]
 
             self.curIter += 1
 
