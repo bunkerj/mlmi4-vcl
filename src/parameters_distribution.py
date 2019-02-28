@@ -63,15 +63,10 @@ class ParametersDistribution:
         return self.heads[parameterType][statistic][head]
 
     def getFlattenedParameters(self, head):
-        splitLayers = [
-            self.getShared(WEIGHT, MEAN),
-            self.getShared(BIAS, MEAN),
-            self.getHead(WEIGHT, MEAN, head),
-            self.getHead(BIAS, MEAN, head)]
-        unsplitLayers = []
-        for splitLayer in splitLayers:
-            unsplitLayers += splitLayer
-        return unsplitLayers
+        return self.getShared(WEIGHT, MEAN) + \
+        self.getShared(BIAS, MEAN) + \
+        self.getHead(WEIGHT, MEAN, head) + \
+        self.getHead(BIAS, MEAN, head)
 
     def getGenericListOfTensors(self, referenceList):
         tensorList = []
@@ -110,11 +105,19 @@ class ParametersDistribution:
         self.shared[BIAS][VARIANCE] = sharedBiasVariances
         self.heads[BIAS][VARIANCE][taskId] = headBiasVariances
 
+    def purifyTensorList(self, tensorList):
+        newTensorList = []
+        for tensor in tensorList:
+            tensor = tensor.detach()
+            tensor.requires_grad = True
+            newTensorList.append(tensor)
+        return newTensorList
+
     def overwrite(self, q):
         for parameterType in PARAMETER_TYPES:
             for statistic in STATISTICS:
                 self.shared[parameterType][statistic] = \
-                    q.shared[parameterType][statistic]
+                    self.purifyTensorList(q.shared[parameterType][statistic])
                 for head in range(self.headCount):
                     self.heads[parameterType][statistic][head] = \
-                        q.heads[parameterType][statistic][head]
+                        self.purifyTensorList(q.heads[parameterType][statistic][head])
