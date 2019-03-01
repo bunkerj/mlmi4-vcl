@@ -118,22 +118,18 @@ class VariationalTrainer:
                         if len(x_coresets) > 0:
                             q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
 
+                    self.accuracy[taskId_][t] = test_accuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
 
-                    #parameters = q_pred.parameters()
-                    model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedLayers+self.numHeadLayers, self.outputDim)
-                    monteCarlo = MonteCarlo(model)
+        return self.accuracy
 
-                    y_pred = monteCarlo.computeMonteCarlo(x_testsets[taskId_], q_pred, headId_, self.numSamples)
-                    _, y_pred = torch.max(y_pred.data, 1)
-
-                    print(y_pred.size()) #.data[0,:]
-                    print(y_testsets[taskId_][0,:])
-
-                    y_pred = torch.eye(10)[y_pred]
-
-                    acc = torch.sum(torch.mul(y_pred, y_testsets[taskId_])) / y_pred.shape[0]
-
-                    self.accuracy[taskId_][t] = acc
+    def test_accuracy(x_test, y_test, q_pred, headId):
+        model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedLayers+self.numHeadLayers, self.outputDim)
+        monteCarlo = MonteCarlo(model)
+        y_pred = monteCarlo.computeMonteCarlo(x_test, q_pred, headId, self.numSamples)
+        _, y_pred = torch.max(y_pred.data, 1)
+        y_pred = torch.eye(self.dataGen.get_dims()[1])[y_pred]
+        acc = torch.sum(torch.mul(y_pred, y_test)) / y_pred.shape[0]
+        return acc
 
     def merge_coresets(self, x_coresets, y_coresets):
         x_coresets_list = list(x_coresets.values())
@@ -178,9 +174,9 @@ dictParams = {
 'numEpochs':1,
 'batchSize':10,
 'numSamples':2,
-'dataGen':SplitMnistGen(),
-'numTasks':1,
-'numHeads':1,
+'dataGen':PermutedMnistGen(),
+'numTasks':5,
+'numHeads':5,
 'coresetMethod':coreset_rand,
 'coresetSize':0,
 'numLayers':(2,2),
@@ -192,4 +188,3 @@ dictParams = {
 # run experiment
 trainer = VariationalTrainer(dictParams)
 trainer.train()
-print(trainer.accuracy)
