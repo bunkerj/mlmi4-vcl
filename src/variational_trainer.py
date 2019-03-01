@@ -60,11 +60,10 @@ class VariationalTrainer:
             self.headOrder = dictParams['headOrder']
             self.taskOrder = dictParams['taskOrder']
 
-        # lastly, a list to store
+        # lastly, a dictionary to store accuracy
         self.accuracy = {}
         for taskId in self.taskOrder:
             self.accuracy[taskId] = [0]*len(self.taskOrder)
-        #torch.zeros((self.numTasks,len(self.taskOrder)))
 
     def train(self):
         # initialize coreset
@@ -112,17 +111,17 @@ class VariationalTrainer:
 
                     if self.numHeads == 1:
                         if len(x_coresets) > 0:
-                            x_coreset, y_coreset = self.merge_coresets(x_coresets, y_coresets)
+                            x_coreset, y_coreset = self.mergeCoresets(x_coresets, y_coresets)
                             q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coreset, y_coreset, headId_))
                     else:
                         if len(x_coresets) > 0:
                             q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
 
-                    self.accuracy[taskId_][t] = test_accuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
+                    self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
 
         return self.accuracy
 
-    def test_accuracy(x_test, y_test, q_pred, headId):
+    def testAccuracy(x_test, y_test, q_pred, headId):
         model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedLayers+self.numHeadLayers, self.outputDim)
         monteCarlo = MonteCarlo(model)
         y_pred = monteCarlo.computeMonteCarlo(x_test, q_pred, headId, self.numSamples)
@@ -131,7 +130,7 @@ class VariationalTrainer:
         acc = torch.sum(torch.mul(y_pred, y_test)) / y_pred.shape[0]
         return acc
 
-    def merge_coresets(self, x_coresets, y_coresets):
+    def mergeCoresets(self, x_coresets, y_coresets):
         x_coresets_list = list(x_coresets.values())
         y_coresets_list = list(y_coresets.values())
         merged_x = torch.cat(x_coresets_list, dim=0)
