@@ -55,10 +55,10 @@ for i, (images, labels) in enumerate(trainLoader):
         yOnehot = _onehot(labels)
         qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
         vanillaNN = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
-        monteCarlo = MonteCarlo(vanillaNN)
+        monteCarlo = MonteCarlo(vanillaNN, qPosterior, numSamples)
 
-        result = monteCarlo.computeMonteCarlo(images, qPosterior, 1, numSamples)
-        # print(result)
-        predictionProb = monteCarlo.logPred(images, yOnehot,  qPosterior, 1, numSamples)
-        # print(predictionProb)
+        result = monteCarlo.computeMonteCarlo(images, taskId = 1)
+        print(result.size())
+        predictionProb = monteCarlo.logPred(images, yOnehot, taskId = 1)
+        print(predictionProb)
         break
