@@ -119,7 +119,7 @@ class VariationalTrainer:
                             q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
 
                     self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
-                    print('Accuracy of task: {} at time: {} is: '.format(taskId_, t, self.accuracy[taskId_][t].item()))
+                    print('Accuracy of task: {} at time: {} is: {}'.format(taskId_, t, self.accuracy[taskId_][t].item()))
 
         return self.accuracy
 
