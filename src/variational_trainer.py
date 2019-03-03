@@ -105,17 +105,17 @@ class VariationalTrainer:
                 headId_ = self.headOrder[t_]
 
                 if self.accuracy[taskId_][t] == 0:
-                    # overwrite qPosterior on q_pred
-                    # qPred = deepcopy(self.qPosterior)
-                    q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
-                    q_pred.overwrite(self.qPosterior)
-
-                    if self.numHeads == 1:
+                    if self.numHeads == 1 and t_ == 0:
                         if len(x_coresets) > 0:
+                            print("Coreset Time :-)")
+                            q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
+                            q_pred.overwrite(self.qPosterior)
                             x_coreset, y_coreset = self.mergeCoresets(x_coresets, y_coresets)
                             q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coreset, y_coreset, headId_))
-                    else:
+                    elif self.numHeads is not 1:
                         if len(x_coresets) > 0:
+                            q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
+                            q_pred.overwrite(self.qPosterior)
                             q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
 
                     self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
@@ -171,4 +171,5 @@ class VariationalTrainer:
             for x_train_batch, y_train_batch in self.getBatch(x_train, y_train):
                 lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, self.numSamples)
                 minimizeLoss(1, optimizer, computeCost, lossArgs)
+                break;
         return newPosterior
