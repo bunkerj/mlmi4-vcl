@@ -7,6 +7,7 @@ from vanilla_nn import VanillaNN
 from neural_trainer import NeuralTrainer
 from compute_cost import computeCost
 from monte_carlo import MonteCarlo
+from constants import Device
 import torch
 
 # variational trainer
@@ -82,9 +83,9 @@ class VariationalTrainer:
 
             # initialize the network with maximum likelihood weights
             if t == 0:
-                model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedLayers+self.numHeadLayers, self.outputDim)
+                model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedLayers+self.numHeadLayers, self.outputDim).to(Device)
                 modelTrainer = NeuralTrainer(model)
-                modelTrainer.train(x_train, y_train, None, self.numEpochs, self.batchSize, displayEpoch = 20)
+                modelTrainer.train(x_train, y_train, None, self.numEpochs, self.batchSize, displayEpoch = 100)
                 param_mean = model.getParameters()
                 # use parameter mean to initialize the q prior
                 self.qPosterior.setParameters(param_mean, headId)
@@ -105,7 +106,7 @@ class VariationalTrainer:
 
                 if self.accuracy[taskId_][t] == 0:
                     # overwrite qPosterior on q_pred
-                    #qPred = deepcopy(self.qPosterior)
+                    # qPred = deepcopy(self.qPosterior)
                     q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
                     q_pred.overwrite(self.qPosterior)
 
@@ -118,17 +119,21 @@ class VariationalTrainer:
                             q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
 
                     self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
+                    print('Accuracy of task: {} at time: {} is: '.format(taskId_, t, self.accuracy[taskId_][t].item()))
 
         return self.accuracy
 
-    def testAccuracy(x_test, y_test, q_pred, headId):
-        model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedLayers+self.numHeadLayers, self.outputDim)
-        monteCarlo = MonteCarlo(model)
-        y_pred = monteCarlo.computeMonteCarlo(x_test, q_pred, headId, self.numSamples)
-        _, y_pred = torch.max(y_pred.data, 1)
-        y_pred = torch.eye(self.dataGen.get_dims()[1])[y_pred]
-        acc = torch.sum(torch.mul(y_pred, y_test)) / y_pred.shape[0]
-        return acc
+    def testAccuracy(self, x_test, y_test, q_pred, headId):
+        acc = 0
+        print("Accuracy Time :-)")
+        for x_test_batch, y_test_batch in self.getBatch(x_test, y_test):
+            monteCarlo = MonteCarlo(q_pred, self.numSamples)
+            y_pred_batch = monteCarlo.computeMonteCarlo(x_test_batch, headId)
+            _, y_pred_batch = torch.max(y_pred_batch.data, 1)
+            y_pred_batch = torch.eye(self.dataGen.get_dims()[1])[y_pred_batch].type(FloatTensor)
+            acc += torch.sum(torch.mul(y_pred_batch, y_test_batch))
+
+        return acc/y_pred_batch.shape[0]
 
     def mergeCoresets(self, x_coresets, y_coresets):
         x_coresets_list = list(x_coresets.values())
@@ -160,30 +165,10 @@ class VariationalTrainer:
 
         parameters = newPosterior.getFlattenedParameters(headId)
         optimizer = torch.optim.Adam(parameters, lr = 0.001)
-
-        for x_train_batch, y_train_batch in self.getBatch(x_train, y_train):
-            model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedLayers+self.numHeadLayers, self.outputDim)
-            lossArgs = (model, x_train_batch, y_train_batch, newPosterior, oldPosterior, headId)
-            minimizeLoss(2, optimizer, computeCost, lossArgs) #1000
-
+        for epoch in range(self.numEpochs):
+            idx = torch.randperm(x_train.shape[0])
+            x_train, y_train = x_train[idx], y_train[idx]
+            for x_train_batch, y_train_batch in self.getBatch(x_train, y_train):
+                lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, self.numSamples)
+                minimizeLoss(1, optimizer, computeCost, lossArgs)
         return newPosterior
-
-# experiment setup
-dictParams = {
-'numEpochs':1,
-'batchSize':10,
-'numSamples':2,
-'dataGen':PermutedMnistGen(),
-'numTasks':5,
-'numHeads':5,
-'coresetMethod':coreset_rand,
-'coresetSize':0,
-'numLayers':(2,2),
-'hiddenSize':100,
-'taskOrder':[],
-'headOrder':[],
-}
-
-# run experiment
-trainer = VariationalTrainer(dictParams)
-trainer.train()
