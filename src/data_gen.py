@@ -33,9 +33,9 @@ class MnistGen(Mnist):
             raise Exception('Task finished!')
         else:
             next_x_train = self.X_train
-            next_y_train = torch.eye(10)[self.Y_train]
+            next_y_train = torch.eye(10)[self.Y_train].type(FloatTensor)
             next_x_test = self.X_test
-            next_y_test = torch.eye(10)[self.Y_test]
+            next_y_test = torch.eye(10)[self.Y_test].type(FloatTensor)
 
             self.curIter += 1
 
@@ -63,14 +63,14 @@ class SplitMnistGen(Mnist):
             next_x_train = torch.cat([train_id_0, train_id_1], dim=0)
 
             next_y_train = torch.cat([torch.ones(train_id_0.shape[0], 1),torch.zeros(train_id_1.shape[0], 1)],dim=0)
-            next_y_train = torch.cat([next_y_train, 1-next_y_train])
+            next_y_train = torch.cat([next_y_train, 1-next_y_train]).type(FloatTensor)
 
             test_id_0 = self.X_test[self.Y_test == self.set0[self.curIter], :]
             test_id_1 = self.X_test[self.Y_test == self.set1[self.curIter], :]
             next_x_test = torch.cat([test_id_0, test_id_1], dim=0)
 
             next_y_test = torch.cat([torch.ones(test_id_0.shape[0], 1),torch.zeros(test_id_1.shape[0], 1)],dim=0)
-            next_y_test = torch.cat([next_y_test, 1-next_y_test])
+            next_y_test = torch.cat([next_y_test, 1-next_y_test]).type(FloatTensor)
 
             self.curIter += 1
 
@@ -94,10 +94,10 @@ class PermutedMnistGen(Mnist):
             idx = torch.randperm(self.X_train.shape[1])
 
             next_x_train = deepcopy(self.X_train)[:,idx]
-            next_y_train = torch.eye(10)[self.Y_train]
+            next_y_train = torch.eye(10)[self.Y_train].type(FloatTensor)
 
             next_x_test = deepcopy(self.X_test)[:,idx]
-            next_y_test = torch.eye(10)[self.Y_test]
+            next_y_test = torch.eye(10)[self.Y_test].type(FloatTensor)
 
             self.curIter += 1
 
@@ -126,9 +126,9 @@ class NotMnistGen(NotMnist):
             raise Exception('Task finished!')
         else:
             next_x_train = self.X_train
-            next_y_train = torch.eye(10)[self.Y_train]
+            next_y_train = torch.eye(10)[self.Y_train].type(FloatTensor)
             next_x_test = self.X_test
-            nex_y_test = torch.eye(10)[self.Y_test]
+            nex_y_test = torch.eye(10)[self.Y_test].type(FloatTensor)
 
             self.curIter += 1
 
@@ -156,14 +156,14 @@ class SplitNotMnistGen(NotMnist):
             next_x_train = torch.cat([train_id_0, train_id_1], dim=0)
 
             next_y_train = torch.cat([torch.ones(train_id_0.shape[0], 1),torch.zeros(train_id_1.shape[0], 1)],dim=0)
-            next_y_train = torch.cat([next_y_train, 1-next_y_train])
+            next_y_train = torch.cat([next_y_train, 1-next_y_train]).type(FloatTensor)
 
             test_id_0 = self.X_test[self.Y_test == self.set0[self.curIter], :]
             test_id_1 = self.X_test[self.Y_test == self.set1[self.curIter], :]
             next_x_test = torch.cat([test_id_0, test_id_1], dim=0)
 
             next_y_test = torch.cat([torch.ones(test_id_0.shape[0], 1),torch.zeros(test_id_1.shape[0], 1)],dim=0)
-            next_y_test = torch.cat([next_y_test, 1-next_y_test])
+            next_y_test = torch.cat([next_y_test, 1-next_y_test]).type(FloatTensor)
 
             self.curIter += 1
 
@@ -187,10 +187,10 @@ class PermutedNotMnistGen(NotMnist):
             idx = torch.randperm(self.X_train.shape[1])
 
             next_x_train = deepcopy(self.X_train)[:,idx]
-            next_y_train = torch.eye(10)[self.Y_train]
+            next_y_train = torch.eye(10)[self.Y_train].type(FloatTensor)
 
             next_x_test = deepcopy(self.X_test)[:,idx]
-            next_y_test = torch.eye(10)[self.Y_test]
+            next_y_test = torch.eye(10)[self.Y_test].type(FloatTensor)
 
             self.curIter += 1
 
