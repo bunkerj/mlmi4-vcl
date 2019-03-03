@@ -20,7 +20,7 @@ class MonteCarlo:
         return PARAMETER.size()
 
     def _getSampledParametersDims(self, PARAMETER):
-        return ((self.numSamples, self._getParameterDims(PARAMETER[1])[0], self._getParameterDims(PARAMETER[1])[1]) \
+        return ((self.numSamples, self._getParameterDims(PARAMETER[1])[0], self._getParameterDims(PARAMETER[1])[1])\
                     if PARAMETER[0] == 'weight' \
                         else (self.numSamples, self._getParameterDims(PARAMETER[1])[0]))
 
@@ -39,7 +39,7 @@ class MonteCarlo:
         return pred
 
     def _loss(self, output, labels):
-        loss = torch.sum(- labels * F.log_softmax(output, -1), -1)
+        loss = torch.sum(labels * F.log_softmax(output, -1), -1)
         return loss.mean()
 
     def computeMonteCarlo(self, inputs, taskId):
