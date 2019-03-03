@@ -1,6 +1,3 @@
-################################################################################
-# Coreset Heuristics ###########################################################
-################################################################################
 
 import torch
 
@@ -21,7 +18,7 @@ def coreset_rand(x_train, y_train, coreset_size):
 # K-center Selection
 def coreset_k(x_train, y_train, coreset_size):
     # distance tensor contains the distance to the furthest center, for each data point
-    distance = torch.ones(x_train.shape[0])*float('inf')
+    distance = torch.ones(x_train.shape[0])*float('inf').type(FloatTensor)
     # randomly select the first center
     cur_idx = torch.randint(x_train.shape[0], (1,)).item()
     # list idx will contain the indices of the coreset
