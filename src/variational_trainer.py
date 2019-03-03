@@ -118,7 +118,7 @@ class VariationalTrainer:
                         print("Updating q_pred with coreset... / Task ID: {}".format(taskId_))
                         q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
                 self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
-                print('Task ID: {} / Arrival Time: {} / Accuracy: {}'.format(taskId_, t, self.accuracy[taskId_][t].item()))
+                print('Task ID: {} / Arrival Time: {} / Accuracy: {}'.format(taskId_, t, self.accuracy[taskId_][t]))
 
     def testAccuracy(self, x_test, y_test, q_pred, headId):
         acc = 0
