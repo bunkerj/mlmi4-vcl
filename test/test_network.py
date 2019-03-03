@@ -71,11 +71,10 @@ def getBatch(x_train, y_train):
 def maximizeVariationalLowerBound(x_train, y_train, qPrior, taskId):
         for x_train_batch, y_train_batch in getBatch(x_train, y_train):
             qPosterior = ParametersDistribution(sharedDim, headDim, headCount)
-            # qPosterior.overwrite(qPrior)
+            qPosterior.overwrite(qPrior)
             parameters = qPosterior.getFlattenedParameters(taskId)
-            print(parameters[0][1, 1:3])
-            optimizer = torch.optim.Adam(parameters, lr = 1)
-            lossArgs = (x_train_batch, y_train_batch, qPosterior, qPrior, taskId)
+            optimizer = torch.optim.Adam(parameters, lr = 0.001)
+            lossArgs = (x_train_batch, y_train_batch, qPosterior, qPrior, taskId, numSamples)
             minimizeLoss(1, optimizer, computeCost, lossArgs)
             qPrior.overwrite(qPosterior)
         return qPosterior
@@ -84,15 +83,16 @@ def maximizeVariationalLowerBound(x_train, y_train, qPrior, taskId):
 for i, (images, labels) in enumerate(trainLoader):
     images = images.reshape(-1, 28*28).to(Device)
     yOnehot = _onehot(labels)
-    # Move tensors to the configured device
-    vanillaNN = VanillaNN(inputSize, hiddenSize, numLayers, numClasses)
+    vanillaNN = VanillaNN(inputSize, hiddenSize, numLayers, numClasses).to(Device)
     neuralTrainer = NeuralTrainer(vanillaNN)
     neuralTrainer.train(images, yOnehot, noEpochs = 5, batchSize = 200, displayEpoch = 20)
 
 print("VanillaNN Trained!")
+
 parameters = vanillaNN.getParameters()
 qPrior = ParametersDistribution(sharedDim, headDim, headCount)
 qPrior.setParameters(parameters, 1)
+parameters = qPrior.getFlattenedParameters(1)
 
 for i, (images, labels) in enumerate(trainLoader):
     images = images.reshape(-1, 28*28).to(Device)
