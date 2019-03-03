@@ -171,5 +171,4 @@ class VariationalTrainer:
             for x_train_batch, y_train_batch in self.getBatch(x_train, y_train):
                 lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, self.numSamples)
                 minimizeLoss(1, optimizer, computeCost, lossArgs)
-                break;
         return newPosterior
