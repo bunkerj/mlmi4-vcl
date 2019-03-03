@@ -107,33 +107,34 @@ class VariationalTrainer:
                 if self.accuracy[taskId_][t] == 0:
                     if self.numHeads == 1 and t_ == 0:
                         if len(x_coresets) > 0:
-                            print("Coreset Time :-)")
+                            print("Updating q_pred with merged coreset...")
                             q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
                             q_pred.overwrite(self.qPosterior)
                             x_coreset, y_coreset = self.mergeCoresets(x_coresets, y_coresets)
                             q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coreset, y_coreset, headId_))
                     elif self.numHeads is not 1:
                         if len(x_coresets) > 0:
+                            print("Updating q_pred with coreset... / Task ID: {}".format(taskId_))
                             q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
                             q_pred.overwrite(self.qPosterior)
                             q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
 
                     self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
-                    print('Accuracy of task: {} at time: {} is: {}'.format(taskId_, t, self.accuracy[taskId_][t].item()))
+                    print('Task ID: {} / Arrival Time: {} / Accuracy: {}'.format(taskId_, t, self.accuracy[taskId_][t].item()))
 
         return self.accuracy
 
     def testAccuracy(self, x_test, y_test, q_pred, headId):
         acc = 0
-        print("Accuracy Time :-)")
+        print("Obtaining accuracy... / Task ID: {}")
         for x_test_batch, y_test_batch in self.getBatch(x_test, y_test):
             monteCarlo = MonteCarlo(q_pred, self.numSamples)
             y_pred_batch = monteCarlo.computeMonteCarlo(x_test_batch, headId)
             _, y_pred_batch = torch.max(y_pred_batch.data, 1)
             y_pred_batch = torch.eye(self.dataGen.get_dims()[1])[y_pred_batch].type(FloatTensor)
-            acc += torch.sum(torch.mul(y_pred_batch, y_test_batch))
+            acc += torch.sum(torch.mul(y_pred_batch, y_test_batch)).item()
 
-        return acc/y_pred_batch.shape[0]
+        return acc / y_pred_batch.shape[0]
 
     def mergeCoresets(self, x_coresets, y_coresets):
         x_coresets_list = list(x_coresets.values())
