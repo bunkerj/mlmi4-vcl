@@ -8,7 +8,6 @@ from constants import FloatTensor, MEAN, VARIANCE, WEIGHT, BIAS
 from monte_carlo import MonteCarlo
 from KL import KL
 
-
 def computeCost(inputs, labels, qPos, qPri, taskId, numSamples):
     inputSize = inputs.size()[0]
     monteCarlo = MonteCarlo(qPos, numSamples)
