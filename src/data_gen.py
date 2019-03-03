@@ -10,6 +10,7 @@ from copy import deepcopy
 from scipy.io import loadmat
 from constants import FloatTensor
 
+
 # Mnist Data Loader
 class Mnist():
     def __init__(self):
