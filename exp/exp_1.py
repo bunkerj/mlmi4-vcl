@@ -13,15 +13,11 @@ import pickle
 
 # default setup
 dictParams = {
-'numEpochs':100,
-'batchSize':256,
+'numEpochs':256,
 'numSamples':100,
 'dataGen':PermutedMnistGen(),
 'numTasks':10,
 'numHeads':1,
-'coresetMethod':None,
-'coresetSize':0,
-'coresetOnly':False,
 'numLayers':(2,1),
 'hiddenSize':100,
 'taskOrder':[],
@@ -36,6 +32,11 @@ dictParams = {
 # {3}: coreset size
 
 # 1. VCL (no Coreset)
+dictParams['batchSize'] = 256
+dictParams['coresetSize'] = 0
+dictParams['coresetMethod'] = None
+dictParams['coresetOnly'] = False
+
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
 pickle.dump(accuracy, open( "results/PM_VCL.p", "wb"))
