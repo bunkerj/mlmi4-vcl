@@ -32,7 +32,7 @@ dictParams = {
 # {3}: coreset size
 
 # 1. VCL (no Coreset)
-dictParams['batchSize'] = #same as training set
+dictParams['batchSize'] = None #same as training set
 dictParams['coresetSize'] = 0
 dictParams['coresetMethod'] = None
 dictParams['coresetOnly'] = False
@@ -42,7 +42,7 @@ accuracy = trainer.train()
 pickle.dump(accuracy, open( "results/SM_VCL.p", "wb"))
 
 # 2. VCL + K-center Coreset
-dictParams['batchSize'] = #same as training set
+dictParams['batchSize'] = None #same as training set
 dictParams['coresetSize'] = 40
 dictParams['coresetMethod'] = coreset_k
 dictParams['coresetOnly'] = False
@@ -62,7 +62,7 @@ accuracy = trainer.train()
 pickle.dump(accuracy, open( "results/SM_VCL_KCO_120.p", "wb"))
 
 # 4. VCL + Random Coreset
-dictParams['batchSize'] = #same as training set
+dictParams['batchSize'] = None #same as training set
 dictParams['coresetSize'] = 40
 dictParams['coresetMethod'] = coreset_rand
 dictParams['coresetOnly'] = False
