@@ -122,7 +122,6 @@ class VariationalTrainer:
 
     def testAccuracy(self, x_test, y_test, q_pred, headId):
         acc = 0
-        print("Obtaining accuracy... / Task ID: {}")
         for x_test_batch, y_test_batch in self.getBatch(x_test, y_test):
             monteCarlo = MonteCarlo(q_pred, self.numSamples)
             y_pred_batch = monteCarlo.computeMonteCarlo(x_test_batch, headId)
@@ -139,13 +138,13 @@ class VariationalTrainer:
         return merged_x, merged_y
 
     def getBatch(self, x_train, y_train):
-        self.batchSize
         batches = []
-        numberOfBatches = x_train.shape[0] / self.batchSize
-        if isinstance(numberOfBatches, int):
-            errMessage = 'Batch size {} not consistent with dataset size {}' \
-                .format(x_train.shape[0], self.batchSize)
-            raise Exception(errMessage)
+        batch_size = x_train.shape[0] if self.batchSize is None else self.batchSize
+        numberOfBatches = x_train.shape[0] / batch_size
+        #if isinstance(numberOfBatches, int):
+        #    errMessage = 'Batch size {} not consistent with dataset size {}' \
+        #        .format(x_train.shape[0], self.batchSize)
+        #    raise Exception(errMessage)
         for i in range(int(numberOfBatches)):
             start = i*self.batchSize
             end = (i+1)*self.batchSize
