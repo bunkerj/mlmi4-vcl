@@ -14,7 +14,7 @@ class NeuralTrainer():
 
     def train(self, xTrain, yTrain, taskId = 0, noEpochs=1000, batchSize=100, displayEpoch=5):
         N = xTrain.shape[0]
-        if batchSize > N:
+        if batchSize == None or batchSize > N:
             batchSize = N
         # Training cycle
         costs = [];
