@@ -144,11 +144,14 @@ class VariationalTrainer:
     def getBatch(self, x_train, y_train):
         batches = []
         for i in range(self.getNumBatches(x_train)):
-            start = i*self.batchSize
-            end = (i+1)*self.batchSize
-            x_train_batch = x_train[start:end]
-            y_train_batch = y_train[start:end]
-            batches.append((x_train_batch, y_train_batch))
+            if self.batchSize == None:
+                batches.append((x_train, y_train))
+            else:
+                start = i*self.batchSize
+                end = (i+1)*self.batchSize
+                x_train_batch = x_train[start:end]
+                y_train_batch = y_train[start:end]
+                batches.append((x_train_batch, y_train_batch))
         return batches
 
     def maximizeVariationalLowerBound(self, oldPosterior, x_train, y_train, headId):
