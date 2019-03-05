@@ -4,5 +4,4 @@ def minimizeLoss(maxIter, optimizer, lossFunc, lossFuncArgs):
         loss = lossFunc(*lossFuncArgs)
         loss.backward(retain_graph = True)
         optimizer.step()
-        if i % 100 == 0:
-            print(loss)
+        return loss 

@@ -137,20 +137,21 @@ class VariationalTrainer:
         merged_y = torch.cat(y_coresets_list, dim=0)
         return merged_x, merged_y
 
+    def getNumBatches(self, x_train):
+        batch_size = x_train.shape[0] if self.batchSize is None else self.batchSize
+        return int(x_train.shape[0] / batch_size)
+
     def getBatch(self, x_train, y_train):
         batches = []
-        batch_size = x_train.shape[0] if self.batchSize is None else self.batchSize
-        numberOfBatches = x_train.shape[0] / batch_size
-        #if isinstance(numberOfBatches, int):
-        #    errMessage = 'Batch size {} not consistent with dataset size {}' \
-        #        .format(x_train.shape[0], self.batchSize)
-        #    raise Exception(errMessage)
-        for i in range(int(numberOfBatches)):
-            start = i*self.batchSize
-            end = (i+1)*self.batchSize
-            x_train_batch = x_train[start:end]
-            y_train_batch = y_train[start:end]
-            batches.append((x_train_batch, y_train_batch))
+        for i in range(self.getNumBatches(x_train)):
+            if self.batchSize == None:
+                batches.append((x_train, y_train))
+            else:
+                start = i*self.batchSize
+                end = (i+1)*self.batchSize
+                x_train_batch = x_train[start:end]
+                y_train_batch = y_train[start:end]
+                batches.append((x_train_batch, y_train_batch))
         return batches
 
     def maximizeVariationalLowerBound(self, oldPosterior, x_train, y_train, headId):
@@ -163,7 +164,11 @@ class VariationalTrainer:
         for epoch in range(self.numEpochs):
             idx = torch.randperm(x_train.shape[0])
             x_train, y_train = x_train[idx], y_train[idx]
-            for x_train_batch, y_train_batch in self.getBatch(x_train, y_train):
+            for iter, train_batch in enumerate(self.getBatch(x_train, y_train)):
+                x_train_batch, y_train_batch = train_batch
                 lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, self.numSamples)
-                minimizeLoss(1, optimizer, computeCost, lossArgs)
+                loss = minimizeLoss(1, optimizer, computeCost, lossArgs)
+                if iter % 100 == 0:
+                    print('Max Variational ELBO: epoch: [{}/{}] and batch: [{}/{}]'.format(epoch+1, self.numEpochs, iter+1, self.getNumBatches(x_train)))
+            print('Loss at epoch: {}'.format(epoch+1))
         return newPosterior
