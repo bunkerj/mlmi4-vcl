@@ -137,15 +137,13 @@ class VariationalTrainer:
         merged_y = torch.cat(y_coresets_list, dim=0)
         return merged_x, merged_y
 
+    def getNumBatches(x_train):
+        batch_size = x_train.shape[0] if self.batchSize is None else self.batchSize
+        return int(x_train.shape[0] / batch_size)
+
     def getBatch(self, x_train, y_train):
         batches = []
-        batch_size = x_train.shape[0] if self.batchSize is None else self.batchSize
-        numberOfBatches = x_train.shape[0] / batch_size
-        #if isinstance(numberOfBatches, int):
-        #    errMessage = 'Batch size {} not consistent with dataset size {}' \
-        #        .format(x_train.shape[0], self.batchSize)
-        #    raise Exception(errMessage)
-        for i in range(int(numberOfBatches)):
+        for i in range(getNumBatches(x_train)):
             start = i*self.batchSize
             end = (i+1)*self.batchSize
             x_train_batch = x_train[start:end]
@@ -163,7 +161,9 @@ class VariationalTrainer:
         for epoch in range(self.numEpochs):
             idx = torch.randperm(x_train.shape[0])
             x_train, y_train = x_train[idx], y_train[idx]
-            for x_train_batch, y_train_batch in self.getBatch(x_train, y_train):
+            for iter, train_batch in enumerate(self.getBatch(x_train, y_train)):
+                x_train_batch, y_train_batch = train_batch
                 lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, self.numSamples)
                 minimizeLoss(1, optimizer, computeCost, lossArgs)
+                print('Max Variational ELBO: epoch: [{}/{}] and batch: [{}/{}]'.format(epoch, self.numEpochs, iter, getNumBatches(x_train)))
         return newPosterior
