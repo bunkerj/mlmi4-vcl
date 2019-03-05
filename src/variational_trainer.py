@@ -137,7 +137,7 @@ class VariationalTrainer:
         merged_y = torch.cat(y_coresets_list, dim=0)
         return merged_x, merged_y
 
-    def getNumBatches(x_train):
+    def getNumBatches(self, x_train):
         batch_size = x_train.shape[0] if self.batchSize is None else self.batchSize
         return int(x_train.shape[0] / batch_size)
 
