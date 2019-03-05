@@ -30,7 +30,7 @@ class VariationalTrainer:
 
         self.numEpochs = dictParams['numEpochs']
         self.batchSize = dictParams['batchSize']
-        self.numSamples = dictParams['numSamples']
+        #self.numSamples = dictParams['numSamples']
 
         self.dataGen = dictParams['dataGen']
         self.numTasks = dictParams['numTasks']
@@ -123,8 +123,9 @@ class VariationalTrainer:
     def testAccuracy(self, x_test, y_test, q_pred, headId):
         acc = 0
         count = 0
+        num_pred_samples = 100
         for x_test_batch, y_test_batch in self.getBatch(x_test, y_test):
-            monteCarlo = MonteCarlo(q_pred, self.numSamples)
+            monteCarlo = MonteCarlo(q_pred, num_pred_samples)
             y_pred_batch = monteCarlo.computeMonteCarlo(x_test_batch, headId)
             _, y_pred_batch = torch.max(y_pred_batch.data, 1)
             y_pred_batch = torch.eye(self.dataGen.get_dims()[1])[y_pred_batch].type(FloatTensor)
@@ -160,15 +161,15 @@ class VariationalTrainer:
         # create dummy new posterior
         newPosterior = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
         newPosterior.overwrite(oldPosterior)
-
         parameters = newPosterior.getFlattenedParameters(headId)
         optimizer = torch.optim.Adam(parameters, lr = 0.001)
+        num_train_samples = 10
         for epoch in range(self.numEpochs):
             idx = torch.randperm(x_train.shape[0])
             x_train, y_train = x_train[idx], y_train[idx]
             for iter, train_batch in enumerate(self.getBatch(x_train, y_train)):
                 x_train_batch, y_train_batch = train_batch
-                lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, self.numSamples)
+                lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, num_train_samples)
                 loss = minimizeLoss(1, optimizer, computeCost, lossArgs)
                 if iter % 100 == 0:
                     print('Max Variational ELBO: #epoch: [{}/{}], #batch: [{}/{}], loss: {:.4f}'\
