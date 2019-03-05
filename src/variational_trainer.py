@@ -169,6 +169,6 @@ class VariationalTrainer:
                 lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, self.numSamples)
                 loss = minimizeLoss(1, optimizer, computeCost, lossArgs)
                 if iter % 100 == 0:
-                    print('Max Variational ELBO: epoch: [{}/{}] and batch: [{}/{}]'.format(epoch+1, self.numEpochs, iter+1, self.getNumBatches(x_train)))
-            print('Loss at epoch: {}'.format(epoch+1))
+                    print('Max Variational ELBO: #epoch: [{}/{}], #batch: [{}/{}], loss: {:.4f}'\
+                        .format(epoch+1, self.numEpochs, iter+1, self.getNumBatches(x_train), loss))
         return newPosterior
