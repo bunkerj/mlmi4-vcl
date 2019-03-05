@@ -17,6 +17,7 @@ dictParams = {
 'numTasks':2,
 'numHeads':1,
 'coresetMethod':coreset_k,
+'coresetOnly': False, 
 'coresetSize':200,
 'numLayers':(2,1),
 'hiddenSize':256,
