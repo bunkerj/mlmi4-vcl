@@ -122,13 +122,15 @@ class VariationalTrainer:
 
     def testAccuracy(self, x_test, y_test, q_pred, headId):
         acc = 0
+        count = 0
         for x_test_batch, y_test_batch in self.getBatch(x_test, y_test):
             monteCarlo = MonteCarlo(q_pred, self.numSamples)
             y_pred_batch = monteCarlo.computeMonteCarlo(x_test_batch, headId)
             _, y_pred_batch = torch.max(y_pred_batch.data, 1)
             y_pred_batch = torch.eye(self.dataGen.get_dims()[1])[y_pred_batch].type(FloatTensor)
             acc += torch.sum(torch.mul(y_pred_batch, y_test_batch)).item()
-        return acc / y_pred_batch.shape[0]
+            count += y_pred_batch.shape[0]
+        return acc / count
 
     def mergeCoresets(self, x_coresets, y_coresets):
         x_coresets_list = list(x_coresets.values())
@@ -169,6 +171,6 @@ class VariationalTrainer:
                 lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, self.numSamples)
                 loss = minimizeLoss(1, optimizer, computeCost, lossArgs)
                 if iter % 100 == 0:
-                    print('Max Variational ELBO: epoch: [{}/{}] and batch: [{}/{}]'.format(epoch+1, self.numEpochs, iter+1, self.getNumBatches(x_train)))
-            print('Loss at epoch: {}'.format(epoch+1))
+                    print('Max Variational ELBO: #epoch: [{}/{}], #batch: [{}/{}], loss: {:.4f}'\
+                        .format(epoch+1, self.numEpochs, iter+1, self.getNumBatches(x_train), loss))
         return newPosterior

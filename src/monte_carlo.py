@@ -22,7 +22,7 @@ class MonteCarlo:
     def _getSampledParametersDims(self, PARAMETER):
         return ((self.numSamples, self._getParameterDims(PARAMETER[1])[0], self._getParameterDims(PARAMETER[1])[1])\
                     if PARAMETER[0] == 'weight' \
-                        else (self.numSamples, self._getParameterDims(PARAMETER[1])[0]))
+                        else (self.numSamples, 1, self._getParameterDims(PARAMETER[1])[0]))
 
     def _createParameterSample(self, funcGetSpecificParameters, PARAMETER, layerId, taskId = None):
         m = funcGetSpecificParameters(PARAMETER, MEAN, taskId)[layerId]
@@ -31,7 +31,7 @@ class MonteCarlo:
         return self._computeParameters(m, v, eps)
 
     def _forwardPass(self, inputs, weights, biases):
-        act = inputs
+        act = inputs.unsqueeze(dim = 0).repeat(self.numSamples, 1, 1)
         numLayers = len(weights)
         for i in range(numLayers):
             pred = torch.add(torch.matmul(act, weights[i]), biases[i])

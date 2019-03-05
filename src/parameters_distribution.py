@@ -108,7 +108,7 @@ class ParametersDistribution:
     def purifyTensorList(self, tensorList):
         newTensorList = []
         for tensor in tensorList:
-            tensor = tensor.detach()
+            tensor = tensor.detach().clone()
             tensor.requires_grad = True
             newTensorList.append(tensor)
         return newTensorList
