@@ -143,7 +143,7 @@ class VariationalTrainer:
 
     def getBatch(self, x_train, y_train):
         batches = []
-        for i in range(getNumBatches(x_train)):
+        for i in range(self.getNumBatches(x_train)):
             start = i*self.batchSize
             end = (i+1)*self.batchSize
             x_train_batch = x_train[start:end]
@@ -165,5 +165,5 @@ class VariationalTrainer:
                 x_train_batch, y_train_batch = train_batch
                 lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, self.numSamples)
                 minimizeLoss(1, optimizer, computeCost, lossArgs)
-                print('Max Variational ELBO: epoch: [{}/{}] and batch: [{}/{}]'.format(epoch, self.numEpochs, iter, getNumBatches(x_train)))
+                print('Max Variational ELBO: epoch: [{}/{}] and batch: [{}/{}]'.format(epoch, self.numEpochs, iter, self.getNumBatches(x_train)))
         return newPosterior
