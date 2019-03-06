@@ -8,8 +8,8 @@ from constants import FloatTensor, MEAN, VARIANCE, WEIGHT, BIAS
 from monte_carlo import MonteCarlo
 from KL import KL
 
-def computeCost(inputs, labels, qPos, qPri, taskId, numSamples):
+def computeCost(inputs, labels, qPos, qPri, taskId, numSamples, alpha=1):
     inputSize = inputs.size()[0]
     monteCarlo = MonteCarlo(qPos, numSamples)
     kl = KL()
-    return  - (monteCarlo.logPred(inputs, labels, taskId) - torch.div(kl.computeKL(qPos, qPri, taskId), inputSize))
+    return  - ( (2-alpha) * monteCarlo.logPred(inputs, labels, taskId) - alpha * torch.div(kl.computeKL(qPos, qPri, taskId), inputSize) )
