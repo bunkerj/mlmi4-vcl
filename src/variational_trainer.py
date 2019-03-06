@@ -16,6 +16,7 @@ class VariationalTrainer:
         """Parameters should be given as a dictionary,
         'numEpochs': number of epochs,
         'batchSize': batch size,
+        'alpha': hyperparameter (used to control likelihood & KL terms),
         'dataGen': data generator, options include MnistGen(), SplitMnistGen(),
                     PermutedMnistGen(), NotMnistGen(), SplitNotMnistGen(),
                     PermutedNotMnistGen()
@@ -30,7 +31,7 @@ class VariationalTrainer:
 
         self.numEpochs = dictParams['numEpochs']
         self.batchSize = dictParams['batchSize']
-        #self.numSamples = dictParams['numSamples']
+        self.alpha = dictParams['alpha'] # hyperparameter
 
         self.dataGen = dictParams['dataGen']
         self.numTasks = dictParams['numTasks']
@@ -169,7 +170,7 @@ class VariationalTrainer:
             x_train, y_train = x_train[idx], y_train[idx]
             for iter, train_batch in enumerate(self.getBatch(x_train, y_train)):
                 x_train_batch, y_train_batch = train_batch
-                lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, num_train_samples)
+                lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, num_train_samples, self.alpha)
                 loss = minimizeLoss(1, optimizer, computeCost, lossArgs)
                 if iter % 100 == 0:
                     print('Max Variational ELBO: #epoch: [{}/{}], #batch: [{}/{}], loss: {:.4f}'\
