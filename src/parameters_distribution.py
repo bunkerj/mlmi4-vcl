@@ -90,20 +90,20 @@ class ParametersDistribution:
         weights, biases = parameters
 
         sharedWeightMeans, headWeightMeans = self.getInitialMeans(weights)
-        self.shared[WEIGHT][MEAN] = sharedWeightMeans
-        self.heads[WEIGHT][MEAN][taskId] = headWeightMeans
-
         sharedBiasMeans, headBiasMeans = self.getInitialMeans(biases)
-        self.shared[BIAS][MEAN] = sharedBiasMeans
-        self.heads[BIAS][MEAN][taskId] = headBiasMeans
-
         sharedWeightVariances, headWeightVariances = self.getInitialVariances(weights)
-        self.shared[WEIGHT][VARIANCE] = sharedWeightVariances
-        self.heads[WEIGHT][VARIANCE][taskId] = headWeightVariances
-
         sharedBiasVariances, headBiasVariances = self.getInitialVariances(biases)
+
+        self.shared[WEIGHT][MEAN] = sharedWeightMeans
+        self.shared[BIAS][MEAN] = sharedBiasMeans
+        self.shared[WEIGHT][VARIANCE] = sharedWeightVariances
         self.shared[BIAS][VARIANCE] = sharedBiasVariances
-        self.heads[BIAS][VARIANCE][taskId] = headBiasVariances
+
+        for taskId in range(self.headCount):
+            self.heads[WEIGHT][MEAN][taskId] = headWeightMeans
+            self.heads[BIAS][MEAN][taskId] = headBiasMeans
+            self.heads[WEIGHT][VARIANCE][taskId] = headWeightVariances
+            self.heads[BIAS][VARIANCE][taskId] = headBiasVariances
 
     def purifyTensorList(self, tensorList):
         newTensorList = []
