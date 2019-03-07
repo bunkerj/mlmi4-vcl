@@ -22,6 +22,7 @@ class VariationalTrainer:
                     PermutedNotMnistGen()
         'numTasks': number of unique tasks
         'numHeads': number of network heads
+        'coresetOnly': if True, only use coreset
         'coresetMethod': coreset heuristic, options include coreset_rand, coreset_k
         'coresetSize': coreset size
         'numLayers': number of shared and head layers, given as tuple
@@ -50,12 +51,12 @@ class VariationalTrainer:
 
         # if number of tasks is same as number of heads,
         # 0th task -> 0th head, 1st task -> 1st head, ...
-        if self.numTasks == self.numHeads:
+        if self.numTasks == self.numHeads and dictParams['headOrder'] == []:
             self.headOrder = list(range(self.numHeads))
             self.taskOrder = list(range(self.numTasks))
         # if the network is single head,
         # 0th task -> 0th head, 1st task -> 0th head, ...
-        elif self.numHeads == 1:
+        elif self.numHeads == 1 and and dictParams['headOrder'] == []:
             self.headOrder = [0] * self.numTasks
             self.taskOrder = list(range(self.numTasks))
         # otherwise, use the given orders
@@ -72,66 +73,83 @@ class VariationalTrainer:
         # initialize coresets & testsets
         x_coresets = {} ; y_coresets = {}
         x_testsets = {} ; y_testsets = {}
+
+        print('Begin training...')
+        print('Task order: {}'.format(self.taskOrder))
+        print('Head order: {}'.format(self.headOrder))
+
         for t in range(len(self.taskOrder)):
+
             taskId = self.taskOrder[t]
             headId = self.headOrder[t]
+            print('Task ID: {} / Head ID: {}'.format(taskId, headId))
+
             # train and test data for current task
             self.dataGen.curIter = taskId
             x_train, y_train, x_testsets[taskId], y_testsets[taskId] = self.dataGen.next_task()
+
             # initialize the network with maximum likelihood weights
             if t == 0 and self.coresetOnly == False:
                 self.modelInitialization(x_train, y_train, headId)
+
             # if coreset size is not zero and a new task is encountered, create coreset
             if self.coresetSize > 0 and taskId not in x_coresets.keys():
+                print('Creating coreset / Task ID: {}'.format(taskId))
                 x_coresets[taskId], y_coresets[taskId], x_train, y_train = self.coresetMethod(x_train, y_train, self.coresetSize)
+                print('Coreset created / x_coreset size: {} / y_coreset size: {}'.format(x_coresets[taskId].size(), y_coresets[taskId].size()))
+
             # update weights and bias for current task
             if self.coresetOnly == False:
+                print('Updating q_posterior / Task ID: {} / Head ID: {}'.format(taskId, headId))
                 self.qPosterior.overwrite(self.maximizeVariationalLowerBound(self.qPosterior, x_train, y_train, headId))
+                print('Update complete')
+
             # get scores (this updates self.accuracy)
-            self.getScores(x_coresets, y_coresets, x_testsets, y_testsets, t)
+            q_pred = self.qPrediction(x_coresets, y_coresets, t)
+            self.getScores(x_testsets, y_testsets, q_pred, t)
         return self.accuracy
 
     def modelInitialization(self, x_train, y_train, headId):
         model = VanillaNN(self.inputDim, self.hiddenSize, self.numSharedLayers+self.numHeadLayers, self.outputDim).to(Device)
         modelTrainer = NeuralTrainer(model)
-        modelTrainer.train(x_train, y_train, None, self.numEpochs, self.batchSize, displayEpoch = 100)
+        modelTrainer.train(x_train, y_train, None, self.numEpochs, self.batchSize, displayEpoch = 10)
         param_mean = model.getParameters()
         # use parameter mean to initialize the q prior
         self.qPosterior.setParameters(param_mean, headId)
 
-    def getScores(self, x_coresets, y_coresets, x_testsets, y_testsets, t):
+    def qPrediction(self, x_coresets, y_coresets, t):
+        print('Updating q_pred / Time: {}'.format(t))
+        q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
+        q_pred.overwrite(self.qPosterior)
+        if self.coresetSize > 0:
+            for t_ in range(t+1):
+                taskId_ = self.taskOrder[t_]
+                headId_ = self.headOrder[t_]
+                print("Incorporating coreset / Task ID: {} / Head ID: {}".format(taskId_, headId_))
+                q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
+        print('q_pred ready / time: {}'.format(t))
+        return q_pred
+
+    def getScores(self, x_testsets, y_testsets, q_pred, t):
         for t_ in range(t+1):
-            print("Getting scores... / Time: {}".format(t))
             taskId_ = self.taskOrder[t_]
             headId_ = self.headOrder[t_]
-            if self.accuracy[taskId_][t] == 0:
-                if self.numHeads == 1 and t_ == 0:
-                    q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
-                    q_pred.overwrite(self.qPosterior)
-                    if self.coresetSize > 0:
-                        print("Updating q_pred with merged coreset...")
-                        x_coreset, y_coreset = self.mergeCoresets(x_coresets, y_coresets)
-                        q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coreset, y_coreset, headId_))
-                elif self.numHeads is not 1:
-                    q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
-                    q_pred.overwrite(self.qPosterior)
-                    if self.coresetSize > 0:
-                        print("Updating q_pred with coreset... / Task ID: {}".format(taskId_))
-                        q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
-                self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
-                print('Task ID: {} / Arrival Time: {} / Accuracy: {}'.format(taskId_, t, self.accuracy[taskId_][t]))
+            print("Getting scores / Task ID: {} / Head ID: {}".format(taskId_, headId_))
+            self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
+            print('Accuracy of task {} at time {} is {}'.format(taskId_, t, self.accuracy[taskId_][t]))
 
     def testAccuracy(self, x_test, y_test, q_pred, headId):
         acc = 0
         count = 0
         num_pred_samples = 100
-        for x_test_batch, y_test_batch in self.getBatch(x_test, y_test):
-            monteCarlo = MonteCarlo(q_pred, num_pred_samples)
-            y_pred_batch = monteCarlo.computeMonteCarlo(x_test_batch, headId)
-            _, y_pred_batch = torch.max(y_pred_batch.data, 1)
-            y_pred_batch = torch.eye(self.dataGen.get_dims()[1])[y_pred_batch].type(FloatTensor)
-            acc += torch.sum(torch.mul(y_pred_batch, y_test_batch)).item()
-            count += y_pred_batch.shape[0]
+        monteCarlo = MonteCarlo(q_pred, num_pred_samples)
+        y_pred = monteCarlo.computeMonteCarlo(x_test, headId)
+        _, y_pred = torch.max(y_pred.data, 1)
+        y_pred = torch.eye(self.dataGen.get_dims()[1])[y_pred].type(FloatTensor)
+        print(y_pred, y_test, y_pred.size(), y_test.size(), torch.sum(y_pred, 0), torch.sum(y_test, 0))
+        acc += torch.sum(torch.mul(y_pred, y_test)).item()
+        count += y_pred.shape[0]
+        print(acc, count)
         return acc / count
 
     def mergeCoresets(self, x_coresets, y_coresets):
@@ -148,7 +166,7 @@ class VariationalTrainer:
     def getBatch(self, x_train, y_train):
         batches = []
         for i in range(self.getNumBatches(x_train)):
-            if self.batchSize == None:
+            if self.batchSize == None or self.batchSize > x_train.shape[0]:
                 batches.append((x_train, y_train))
             else:
                 start = i*self.batchSize
@@ -173,6 +191,6 @@ class VariationalTrainer:
                 lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, num_train_samples, self.alpha)
                 loss = minimizeLoss(1, optimizer, computeCost, lossArgs)
                 if iter % 100 == 0:
-                    print('Max Variational ELBO: #epoch: [{}/{}], #batch: [{}/{}], loss: {:.4f}'\
-                        .format(epoch+1, self.numEpochs, iter+1, self.getNumBatches(x_train), loss))
+                    print('Max Variational ELBO: #epoch: [{}/{}], #batch: [{}/{}], loss: {}'\
+                          .format(epoch+1, self.numEpochs, iter+1, self.getNumBatches(x_train), loss))
         return newPosterior
