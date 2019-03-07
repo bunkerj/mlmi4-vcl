@@ -56,7 +56,7 @@ class VariationalTrainer:
             self.taskOrder = list(range(self.numTasks))
         # if the network is single head,
         # 0th task -> 0th head, 1st task -> 0th head, ...
-        elif self.numHeads == 1 and and dictParams['headOrder'] == []:
+        elif self.numHeads == 1 and dictParams['headOrder'] == []:
             self.headOrder = [0] * self.numTasks
             self.taskOrder = list(range(self.numTasks))
         # otherwise, use the given orders
