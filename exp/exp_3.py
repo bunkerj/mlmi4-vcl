@@ -1,5 +1,5 @@
 ################################################################################
-# Experiment 3. Split NotMnist - Learning Methods
+# Experiment 2. Split Not Mnist - Learning Methods & Coreset Size
 ################################################################################
 
 import sys
@@ -13,15 +13,16 @@ import pickle
 
 # default setup
 dictParams = {
-'numEpochs':120,
-'numSamples':100,
-'dataGen':SplitNotMnistGen(),
-'numTasks':5,
-'numHeads':5,
-'numLayers':(4,1),
-'hiddenSize':150,
-'taskOrder':[],
-'headOrder':[],
+'numEpochs' : 120,
+'batchSize' : None,
+'alpha' : 1,
+'dataGen' : SplitNotMnistGen(),
+'numTasks' : 5,
+'numHeads' : 5,
+'numLayers' : (4,1),
+'hiddenSize' : 150,
+'taskOrder' : [],
+'headOrder' : [],
 }
 
 # Pickle file naming convention:
@@ -32,51 +33,46 @@ dictParams = {
 # {3}: coreset size
 
 # 1. VCL (no Coreset)
-dictParams['batchSize'] = None #same as training set
+dictParams['coresetOnly'] = False
 dictParams['coresetSize'] = 0
 dictParams['coresetMethod'] = None
+
+trainer = VariationalTrainer(dictParams)
+accuracy = trainer.train()
+pickle.dump(accuracy, open( "results/SN_VCL.p", "wb"))
+
+# 2 . VCL + Random Coreset
 dictParams['coresetOnly'] = False
-
-trainer = VariationalTrainer(dictParams)
-accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/SM_VCL.p", "wb"))
-
-# 2. VCL + K-center Coreset
-dictParams['batchSize'] = None #same as training set
-dictParams['coresetSize'] = 40
-dictParams['coresetMethod'] = coreset_k
-dictParams['coresetOnly'] = False
-
-trainer = VariationalTrainer(dictParams)
-accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/SM_VCL_KC_40.p", "wb"))
-
-# 3. K-center Coreset only
-dictParams['batchSize'] = 120
-dictParams['coresetSize'] = 120
-dictParams['coresetMethod'] = coreset_k
-dictParams['coresetOnly'] = True
-
-trainer = VariationalTrainer(dictParams)
-accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/SM_VCL_KCO_120.p", "wb"))
-
-# 4. VCL + Random Coreset
-dictParams['batchSize'] = None #same as training set
 dictParams['coresetSize'] = 40
 dictParams['coresetMethod'] = coreset_rand
-dictParams['coresetOnly'] = False
 
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/PM_VCL_RC_40.p".format(size), "wb"))
+pickle.dump(accuracy, open( "results/SN_VCL_RC_40.p", "wb"))
 
-# 5. Random Coreset only
-dictParams['batchSize'] = 120
-dictParams['coresetSize'] = 120
-dictParams['coresetMethod'] = coreset_rand
+# 3. Random Coreset only
 dictParams['coresetOnly'] = True
+dictParams['coresetSize'] = 40
+dictParams['coresetMethod'] = coreset_rand
 
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/PM_VCL_RCO_120.p".format(size), "wb"))
+pickle.dump(accuracy, open( "results/SN_VCL_RCO_40.p", "wb"))
+
+# 4. VCL + K-center Coreset
+dictParams['coresetOnly'] = False
+dictParams['coresetSize'] = 40
+dictParams['coresetMethod'] = coreset_k
+
+trainer = VariationalTrainer(dictParams)
+accuracy = trainer.train()
+pickle.dump(accuracy, open( "results/SN_VCL_KC_40.p", "wb"))
+
+# 5. K-center Coreset only
+dictParams['coresetOnly'] = True
+dictParams['coresetSize'] = 40
+dictParams['coresetMethod'] = coreset_k
+
+trainer = VariationalTrainer(dictParams)
+accuracy = trainer.train()
+pickle.dump(accuracy, open( "results/SN_VCL_KCO_40.p", "wb"))
