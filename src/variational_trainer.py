@@ -90,6 +90,7 @@ class VariationalTrainer:
 
             # initialize the network with maximum likelihood weights
             if t == 0 and self.coresetOnly == False:
+                print('Initialising q_posterior with training data (MLE)')
                 self.modelInitialization(x_train, y_train, headId)
 
             # if coreset size is not zero and a new task is encountered, create coreset
@@ -100,13 +101,20 @@ class VariationalTrainer:
 
             # update weights and bias for current task
             if self.coresetOnly == False:
-                print('Updating q_posterior / Task ID: {} / Head ID: {}'.format(taskId, headId))
+                print('Updating q_posterior with training data / Task ID: {} / Head ID: {}'.format(taskId, headId))
                 self.qPosterior.overwrite(self.maximizeVariationalLowerBound(self.qPosterior, x_train, y_train, headId))
                 print('Update complete')
 
+            # update
+            if self.coresetOnly == True:
+                if t == 0:
+                    print('Initialising q_posterior with coreset data (MLE)')
+                    self.modelInitialization(x_coresets[taskId], y_coresets[taskId], headId)
+                print('Updating q_posterior with coreset data / Task ID: {} / Head ID: {}'.format(taskId, headId))
+                self.qPosterior.overwrite(self.maximizeVariationalLowerBound(self.qPosterior, x_coresets[taskId], y_coresets[taskId], headId))
+
             # get scores (this updates self.accuracy)
-            q_pred = self.qPrediction(x_coresets, y_coresets, t)
-            self.getScores(x_testsets, y_testsets, q_pred, t)
+            self.getScores(x_coresets, y_coresets, x_testsets, y_testsets, t)
         return self.accuracy
 
     def modelInitialization(self, x_train, y_train, headId):
@@ -117,26 +125,22 @@ class VariationalTrainer:
         # use parameter mean to initialize the q prior
         self.qPosterior.setParameters(param_mean, headId)
 
-    def qPrediction(self, x_coresets, y_coresets, t):
-        print('Updating q_pred / Time: {}'.format(t))
-        q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
-        q_pred.overwrite(self.qPosterior)
-        if self.coresetSize > 0:
-            for t_ in range(t+1):
-                taskId_ = self.taskOrder[t_]
-                headId_ = self.headOrder[t_]
-                print("Incorporating coreset / Task ID: {} / Head ID: {}".format(taskId_, headId_))
-                q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
-        print('q_pred ready / time: {}'.format(t))
-        return q_pred
-
-    def getScores(self, x_testsets, y_testsets, q_pred, t):
+    def getScores(self, x_coresets, y_coresets, x_testsets, y_testsets, t):
         for t_ in range(t+1):
             taskId_ = self.taskOrder[t_]
             headId_ = self.headOrder[t_]
             print("Getting scores / Task ID: {} / Head ID: {}".format(taskId_, headId_))
+
+            q_pred = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
+            q_pred.overwrite(self.qPosterior)
+
+            if self.coresetSize > 0:
+                print("Incorporating coreset / Task ID: {} / Head ID: {}".format(taskId_, headId_))
+                q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
+
             self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
             print('Accuracy of task {} at time {} is {}'.format(taskId_, t, self.accuracy[taskId_][t]))
+
 
     def testAccuracy(self, x_test, y_test, q_pred, headId):
         acc = 0
