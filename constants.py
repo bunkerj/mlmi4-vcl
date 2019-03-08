@@ -16,4 +16,4 @@ VARIANCE = 'variance'
 WEIGHT = 'weight'
 BIAS = 'bias'
 
-INIT_VARIANCE = 0.05
+INIT_VARIANCE = -10
