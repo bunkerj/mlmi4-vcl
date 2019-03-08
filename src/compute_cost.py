@@ -12,4 +12,6 @@ def computeCost(inputs, labels, qPos, qPri, taskId, numSamples, alpha=1):
     inputSize = inputs.size()[0]
     monteCarlo = MonteCarlo(qPos, numSamples)
     kl = KL()
-    return  - ( (2-alpha) * monteCarlo.logPred(inputs, labels, taskId) - alpha * torch.div(kl.computeKL(qPos, qPri, taskId), inputSize) )
+    mcTerm = monteCarlo.logPred(inputs, labels, taskId)
+    klTerm = torch.div(kl.computeKL(qPos, qPri, taskId), inputSize)
+    return -((2-alpha)*mcTerm - alpha*klTerm)
