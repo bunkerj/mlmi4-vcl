@@ -13,7 +13,7 @@ dictParams = {
 'dataGen':SplitMnistGen(set0 = [0,2,4,6,8], set1 = [1,3,5,7,9]),
 'numTasks':5,
 'numHeads':5,
-'numLayers':(1,1),
+'numLayers':(2,1),
 'hiddenSize':256,
 'taskOrder':[0,1,2,3,4],
 'headOrder':[0,1,2,3,4],

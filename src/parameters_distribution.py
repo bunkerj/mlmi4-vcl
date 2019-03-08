@@ -26,6 +26,37 @@ class ParametersDistribution:
                 self.heads[parameterType][statistic] = {}
                 for head in range(headCount):
                     self.heads[parameterType][statistic][head] = headSplitDim
+        self.initializeMeansAndVariances(0, 1)
+
+    def _getTruncatedNormal(self, size, threshold=1):
+        values = truncnorm.rvs(-threshold, threshold, size=size)
+        values = torch.from_numpy(values).type(FloatTensor)
+        return values
+
+    def getTruncatedNormalHeadMeans(self, taskId):
+        newHeadMeans = []
+        for headMean in self.heads[parameterType][MEAN][taskId]:
+            newHeadMeans.append(self._getTruncatedNormal(headMean.size(), 0.02))
+        return newHeadMeans
+
+    def initializeHeads(self, taskId):
+        self.heads[parameterType][MEAN][taskId] = self.getTruncatedNormalHeadMeans(taskId)
+        self.heads[parameterType][VARIANCE][taskId] = self.initializeTensorList(self.heads[parameterType][VARIANCE][taskId], INITIAL_VAR)
+
+    def initializeTensorList(self, tensorList, value):
+        newTensorList = []
+        for tensor in tensorList:
+            # tensor.fill_(value)
+            newTensorList.append(value*torch.ones(tensor.size()))
+        return newTensorList
+
+    def initializeMeansAndVariances(self, initMean, initVariance):
+        for parameterType in PARAMETER_TYPES:
+            self.shared[parameterType][MEAN] = self.initializeTensorList(self.shared[parameterType][MEAN], initMean)
+            self.shared[parameterType][VARIANCE] = self.initializeTensorList(self.shared[parameterType][VARIANCE], initVariance)
+            for head in range(self.headCount):
+                self.heads[parameterType][MEAN][head] = self.initializeTensorList(self.heads[parameterType][MEAN][head], initMean)
+                self.heads[parameterType][VARIANCE][head] = self.initializeTensorList(self.heads[parameterType][VARIANCE][head], initVariance)
 
     def createTensor(self, dimension):
         return autograd \
@@ -163,11 +194,12 @@ class ParametersDistribution:
         self.printSharedDim()
         print('---------------------------------------')
 
-    def overwrite(self, q):
+    def overwrite(self, q, onlyShared = False):
         for parameterType in PARAMETER_TYPES:
             for statistic in STATISTICS:
                 self.shared[parameterType][statistic] = \
                     self.purifyTensorList(q.shared[parameterType][statistic])
-                for head in range(self.headCount):
-                    self.heads[parameterType][statistic][head] = \
-                        self.purifyTensorList(q.heads[parameterType][statistic][head])
+                if not onlyShared:
+                    for head in range(self.headCount):
+                        self.heads[parameterType][statistic][head] = \
+                            self.purifyTensorList(q.heads[parameterType][statistic][head])

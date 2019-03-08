@@ -102,7 +102,7 @@ class VariationalTrainer:
             # update weights and bias for current task
             if self.coresetOnly == False:
                 print('Updating q_posterior with training data / Task ID: {} / Head ID: {}'.format(taskId, headId))
-                self.qPosterior.overwrite(self.maximizeVariationalLowerBound(self.qPosterior, x_train, y_train, headId))
+                self.qPosterior.overwrite(self.maximizeVariationalLowerBound(self.qPosterior, x_train, y_train, headId, t))
                 print('Update complete')
 
             # update
@@ -111,7 +111,7 @@ class VariationalTrainer:
                     print('Initialising q_posterior with coreset data (MLE)')
                     self.modelInitialization(x_coresets[taskId], y_coresets[taskId], headId)
                 print('Updating q_posterior with coreset data / Task ID: {} / Head ID: {}'.format(taskId, headId))
-                self.qPosterior.overwrite(self.maximizeVariationalLowerBound(self.qPosterior, x_coresets[taskId], y_coresets[taskId], headId))
+                self.qPosterior.overwrite(self.maximizeVariationalLowerBound(self.qPosterior, x_coresets[taskId], y_coresets[taskId], headId, t))
 
             # get scores (this updates self.accuracy)
             self.getScores(x_coresets, y_coresets, x_testsets, y_testsets, t)
@@ -136,7 +136,7 @@ class VariationalTrainer:
 
             if self.coresetSize > 0:
                 print("Incorporating coreset / Task ID: {} / Head ID: {}".format(taskId_, headId_))
-                q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_))
+                q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_, t_))
 
             self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
             print('Accuracy of task {} at time {} is {}'.format(taskId_, t, self.accuracy[taskId_][t]))
@@ -178,13 +178,15 @@ class VariationalTrainer:
                 batches.append((x_train_batch, y_train_batch))
         return batches
 
-    def maximizeVariationalLowerBound(self, oldPosterior, x_train, y_train, headId):
+    def maximizeVariationalLowerBound(self, posterior, x_train, y_train, headId, t):
         # create dummy new posterior
-        newPosterior = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
-        if headId != 0:
-            oldPosterior.initializeHead(headId-1, headId)
-        newPosterior.overwrite(oldPosterior)
-        parameters = newPosterior.getFlattenedParameters(headId)
+        prior = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
+
+        if t != 0:
+            prior.overwrite(posterior, True)
+            posterior.initializeHeads(headId)
+
+        parameters = posterior.getFlattenedParameters(headId)
         optimizer = torch.optim.Adam(parameters, lr = 0.001)
         num_train_samples = 10
         for epoch in range(self.numEpochs):
@@ -192,9 +194,9 @@ class VariationalTrainer:
             x_train, y_train = x_train[idx], y_train[idx]
             for iter, train_batch in enumerate(self.getBatch(x_train, y_train)):
                 x_train_batch, y_train_batch = train_batch
-                lossArgs = (x_train_batch, y_train_batch, newPosterior, oldPosterior, headId, num_train_samples, self.alpha)
-                loss = minimizeLoss(5, optimizer, computeCost, lossArgs)
+                lossArgs = (x_train_batch, y_train_batch, posterior, prior, headId, num_train_samples, self.alpha)
+                loss = minimizeLoss(1, optimizer, computeCost, lossArgs)
                 if iter % 100 == 0:
                     print('Max Variational ELBO: #epoch: [{}/{}], #batch: [{}/{}], loss: {}'\
                           .format(epoch+1, self.numEpochs, iter+1, self.getNumBatches(x_train), loss))
-        return newPosterior
+        return posterior
