@@ -37,8 +37,8 @@ class ParametersDistribution:
         splittedLayers = []
         previousOutput = inputSize
         for layer in range(layerCount):
-            splittedLayers.append(self.createTensor((previousOutput, outputSize)))
-            previousOutput = outputSize
+            currentOutput = outputSize if layer == layerCount - 1 else inputSize
+            splittedLayers.append(self.createTensor((inputSize, currentOutput)))
         return splittedLayers
 
     def getSplitDimensions(self, sharedWeightDim, headWeightDim, parameterType):
@@ -53,7 +53,8 @@ class ParametersDistribution:
         layerCount, inputSize, outputSize = dimension
         splittedLayers = []
         for layer in range(layerCount):
-            splittedLayers.append(self.createTensor((outputSize)))
+            currentOutput = outputSize if layer == layerCount - 1 else inputSize
+            splittedLayers.append(self.createTensor((currentOutput)))
         return splittedLayers
 
     def getShared(self, parameterType, statistic,  taskId = None): # Added taskId for convenience
@@ -99,11 +100,24 @@ class ParametersDistribution:
         self.shared[WEIGHT][VARIANCE] = sharedWeightVariances
         self.shared[BIAS][VARIANCE] = sharedBiasVariances
 
-        for taskId in range(self.headCount):
-            self.heads[WEIGHT][MEAN][taskId] = headWeightMeans
-            self.heads[BIAS][MEAN][taskId] = headBiasMeans
-            self.heads[WEIGHT][VARIANCE][taskId] = headWeightVariances
-            self.heads[BIAS][VARIANCE][taskId] = headBiasVariances
+        # for taskId in range(self.headCount):
+        self.heads[WEIGHT][MEAN][taskId] = headWeightMeans
+        self.heads[BIAS][MEAN][taskId] = headBiasMeans
+        self.heads[WEIGHT][VARIANCE][taskId] = headWeightVariances
+        self.heads[BIAS][VARIANCE][taskId] = headBiasVariances
+
+    def setHeadParameters(self, parameters, taskId):
+        weights, biases = parameters
+
+        sharedWeightMeans, headWeightMeans = self.getInitialMeans(weights)
+        sharedBiasMeans, headBiasMeans = self.getInitialMeans(biases)
+        sharedWeightVariances, headWeightVariances = self.getInitialVariances(weights)
+        sharedBiasVariances, headBiasVariances = self.getInitialVariances(biases)
+
+        self.heads[WEIGHT][MEAN][taskId] = headWeightMeans
+        self.heads[BIAS][MEAN][taskId] = headBiasMeans
+        self.heads[WEIGHT][VARIANCE][taskId] = headWeightVariances
+        self.heads[BIAS][VARIANCE][taskId] = headBiasVariances
 
     def purifyTensorList(self, tensorList):
         newTensorList = []
@@ -113,6 +127,35 @@ class ParametersDistribution:
             newTensor.requires_grad = True
             newTensorList.append(newTensor)
         return newTensorList
+
+    def getSizesInTensorList(self, tensorList):
+        return [t.size() for t in tensorList]
+
+    def initializeHead(self, sourceHead, newHead):
+        self.heads[WEIGHT][MEAN][newHead] = self.purifyTensorList(self.heads[WEIGHT][MEAN][sourceHead])
+        self.heads[BIAS][MEAN][newHead] = self.purifyTensorList(self.heads[BIAS][MEAN][sourceHead])
+        self.heads[WEIGHT][VARIANCE][newHead] = self.purifyTensorList(self.heads[WEIGHT][VARIANCE][sourceHead])
+        self.heads[BIAS][VARIANCE][newHead] = self.purifyTensorList(self.heads[BIAS][VARIANCE][sourceHead])
+
+    def printBodySum(self):
+        parameters = self.getShared(BIAS, MEAN) + self.getShared(WEIGHT, MEAN)
+        print(sum(p.sum() for p in parameters))
+
+    def printHeadSum(self):
+        for head in range(self.headCount):
+            parameters = self.getHead(BIAS, MEAN, head) + self.getHead(WEIGHT, MEAN, head)
+            print('Head: {} ---- Head sum: {}'.format(head, sum(p.sum() for p in parameters)))
+
+    def printHeadDim(self):
+        for head in range(self.headCount):
+            parameters = self.getHead(BIAS, MEAN, head)
+            headDims = [p.size() for p in parameters]
+            print('Head dims: {}'.format(headDims))
+
+    def printSharedDim(self):
+        parameters = self.getShared(BIAS, MEAN)
+        sharedDims = [p.size() for p in parameters]
+        print('Shared dims: {}'.format(sharedDims))
 
     def overwrite(self, q):
         for parameterType in PARAMETER_TYPES:
