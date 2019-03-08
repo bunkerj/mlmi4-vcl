@@ -179,6 +179,8 @@ class VariationalTrainer:
     def maximizeVariationalLowerBound(self, oldPosterior, x_train, y_train, headId):
         # create dummy new posterior
         newPosterior = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
+        if headId != 0:
+            oldPosterior.initializeHead(headId-1, headId)
         newPosterior.overwrite(oldPosterior)
         parameters = newPosterior.getFlattenedParameters(headId)
         optimizer = torch.optim.Adam(parameters, lr = 0.001)
