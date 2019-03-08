@@ -14,7 +14,7 @@ class MonteCarlo:
         self.qPos = qPos
 
     def _computeParameters(self, m, v, eps):
-        return torch.add(torch.mul(eps, v), m)
+        return torch.add(torch.mul(eps, torch.exp(0.5*v)), m)
 
     def _getParameterDims(self, PARAMETER):
         return PARAMETER.size()

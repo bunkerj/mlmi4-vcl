@@ -8,10 +8,9 @@ from constants import MEAN, VARIANCE, WEIGHT, BIAS
 
 class KL:
     def _getKL(self, m, v, m0, v0, parId):
-        constTerm = ( - 0.5 * m.size()[0] * m.size()[1] if parId == WEIGHT
-                        else -0.5 * m.size()[0])
-        logStdDiff = torch.sum(torch.log(v0) - torch.log(v))
-        muDiffTerm = 0.5 * torch.sum((v + (m0 - m)**2) / v0)
+        constTerm = -0.5 * m.numel()
+        logStdDiff = 0.5 * torch.sum(v0 - v)
+        muDiffTerm = 0.5 * torch.sum((torch.exp(v) + (m0 - m)**2) / torch.exp(v0))
         return constTerm + logStdDiff + muDiffTerm
 
     def computeKL(self, qPos, qPri, taskId):
