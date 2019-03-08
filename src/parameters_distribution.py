@@ -148,14 +148,20 @@ class ParametersDistribution:
 
     def printHeadDim(self):
         for head in range(self.headCount):
-            parameters = self.getHead(BIAS, MEAN, head)
+            parameters = self.getHead(WEIGHT, MEAN, head)
             headDims = [p.size() for p in parameters]
             print('Head dims: {}'.format(headDims))
 
     def printSharedDim(self):
-        parameters = self.getShared(BIAS, MEAN)
+        parameters = self.getShared(WEIGHT, MEAN)
         sharedDims = [p.size() for p in parameters]
         print('Shared dims: {}'.format(sharedDims))
+
+    def printArchitectureDimensions(self):
+        print('------ Distribution Architecture ------')
+        self.printHeadDim()
+        self.printSharedDim()
+        print('---------------------------------------')
 
     def overwrite(self, q):
         for parameterType in PARAMETER_TYPES:

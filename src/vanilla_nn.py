@@ -73,13 +73,13 @@ class VanillaNN(nn.Module):
             [layer.weight.transpose(0, 1).detach() for layer in self.moduleList],
             [layer.bias.detach() for layer in self.moduleList])
 
-    def printParametersDims(self):
+    def printArchitectureDimensions(self):
         weightDims = [layer.weight.transpose(0, 1).detach().size() for layer in self.moduleList]
         biasDims = [layer.bias.detach().size() for layer in self.moduleList]
-        print('@@@@@@@@@@@@@@@@@')
+        print('------ Network Architecture ------')
         print('Weights: {}'.format(weightDims))
         print('Bias: {}'.format(biasDims))
-        print('@@@@@@@@@@@@@@@@@')
+        print('----------------------------------')
 
     def noGrad(self, parameters):
         parameters.requires_grad = False
