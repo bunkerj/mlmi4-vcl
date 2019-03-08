@@ -150,10 +150,8 @@ class VariationalTrainer:
         y_pred = monteCarlo.computeMonteCarlo(x_test, headId)
         _, y_pred = torch.max(y_pred.data, 1)
         y_pred = torch.eye(self.dataGen.get_dims()[1])[y_pred].type(FloatTensor)
-        print(y_pred, y_test, y_pred.size(), y_test.size(), torch.sum(y_pred, 0), torch.sum(y_test, 0))
         acc += torch.sum(torch.mul(y_pred, y_test)).item()
         count += y_pred.shape[0]
-        print(acc, count)
         return acc / count
 
     def mergeCoresets(self, x_coresets, y_coresets):
