@@ -40,8 +40,9 @@ class ParametersDistribution:
         return newHeadMeans
 
     def initializeHeads(self, taskId):
-        self.heads[parameterType][MEAN][taskId] = self.getTruncatedNormalHeadMeans(taskId)
-        self.heads[parameterType][VARIANCE][taskId] = self.initializeTensorList(self.heads[parameterType][VARIANCE][taskId], INITIAL_VAR)
+        for parameterType in PARAMETER_TYPES:
+            self.heads[parameterType][MEAN][taskId] = self.getTruncatedNormalHeadMeans(taskId)
+            self.heads[parameterType][VARIANCE][taskId] = self.initializeTensorList(self.heads[parameterType][VARIANCE][taskId], INITIAL_VAR)
 
     def initializeTensorList(self, tensorList, value):
         newTensorList = []
