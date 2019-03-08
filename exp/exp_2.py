@@ -39,7 +39,8 @@ dictParams['coresetMethod'] = None
 
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/SM_VCL.p", "wb"))
+filename = "exp_2/SM_VCL.p"
+pickle.dump(accuracy, open(filename, "wb"))
 
 # 2 . VCL + Random Coreset
 dictParams['coresetOnly'] = False
@@ -48,7 +49,8 @@ dictParams['coresetMethod'] = coreset_rand
 
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/SM_VCL_RC_40.p", "wb"))
+filename = "exp_2/SM_VCL_RC_40.p"
+pickle.dump(accuracy, open(filename, "wb"))
 
 # 3. Random Coreset only
 dictParams['coresetOnly'] = True
@@ -57,7 +59,8 @@ dictParams['coresetMethod'] = coreset_rand
 
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/SM_VCL_RCO_40.p", "wb"))
+filename = "exp_2/SM_VCL_RCO_40.p"
+pickle.dump(accuracy, open(filename, "wb"))
 
 # 4. VCL + K-center Coreset
 dictParams['coresetOnly'] = False
@@ -66,7 +69,8 @@ dictParams['coresetMethod'] = coreset_k
 
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/SM_VCL_KC_40.p", "wb"))
+filename = "exp_2/SM_VCL_KC_40.p"
+pickle.dump(accuracy, open(filename, "wb"))
 
 # 5. K-center Coreset only
 dictParams['coresetOnly'] = True
@@ -75,4 +79,5 @@ dictParams['coresetMethod'] = coreset_k
 
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/SM_VCL_KCO_40.p", "wb"))
+filename = "exp_2/SM_VCL_KCO_40.p"
+pickle.dump(accuracy, open(filename, "wb"))
