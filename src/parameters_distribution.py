@@ -3,6 +3,7 @@ sys.path.append('../')
 
 import torch
 import torch.autograd as autograd
+from scipy.stats import truncnorm
 from constants import FloatTensor, MEAN, VARIANCE, WEIGHT, BIAS, INIT_VARIANCE
 
 PARAMETER_TYPES = [WEIGHT, BIAS]
@@ -33,16 +34,16 @@ class ParametersDistribution:
         values = torch.from_numpy(values).type(FloatTensor)
         return values
 
-    def getTruncatedNormalHeadMeans(self, taskId):
+    def getTruncatedNormalHeadMeans(self, headMeans, taskId):
         newHeadMeans = []
-        for headMean in self.heads[parameterType][MEAN][taskId]:
+        for headMean in headMeans:
             newHeadMeans.append(self._getTruncatedNormal(headMean.size(), 0.02))
         return newHeadMeans
 
     def initializeHeads(self, taskId):
         for parameterType in PARAMETER_TYPES:
-            self.heads[parameterType][MEAN][taskId] = self.getTruncatedNormalHeadMeans(taskId)
-            self.heads[parameterType][VARIANCE][taskId] = self.initializeTensorList(self.heads[parameterType][VARIANCE][taskId], INITIAL_VAR)
+            self.heads[parameterType][MEAN][taskId] = self.getTruncatedNormalHeadMeans(self.heads[parameterType][MEAN][taskId], taskId)
+            self.heads[parameterType][VARIANCE][taskId] = self.initializeTensorList(self.heads[parameterType][VARIANCE][taskId], INIT_VARIANCE)
 
     def initializeTensorList(self, tensorList, value):
         newTensorList = []
