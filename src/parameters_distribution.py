@@ -85,8 +85,7 @@ class ParametersDistribution:
         layerCount, inputSize, outputSize = dimension
         splittedLayers = []
         for layer in range(layerCount):
-            currentOutput = outputSize if layer == layerCount - 1 else inputSize
-            splittedLayers.append(self.createTensor((currentOutput)))
+            splittedLayers.append(self.createTensor((outputSize)))
         return splittedLayers
 
     def getShared(self, parameterType, statistic,  taskId = None): # Added taskId for convenience
