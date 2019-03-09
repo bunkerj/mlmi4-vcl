@@ -21,13 +21,42 @@ class ParametersDistribution:
             self.shared[parameterType] = {}
             self.heads[parameterType] = {}
             for statistic in STATISTICS:
-                sharedSplitDim, headSplitDim = \
-                    self.getSplitDimensions(sharedWeightDim, headWeightDim, parameterType)
-                self.shared[parameterType][statistic] = sharedSplitDim
+                self.shared[parameterType][statistic] = \
+                    self.getParameters(sharedWeightDim, parameterType, False)
                 self.heads[parameterType][statistic] = {}
                 for head in range(headCount):
-                    self.heads[parameterType][statistic][head] = headSplitDim
+                    self.heads[parameterType][statistic][head] = \
+                        self.getParameters(headWeightDim, parameterType, True)
         self.initializeMeansAndVariances(0, 1)
+
+    def getCurrentWeightDimensions(self, layer, dimensions, isHead):
+        layerCount, inputSize, outputSize = dimensions
+        if isHead:
+            currentInput = inputSize
+            currentOutput = outputSize if layer == layerCount - 1 else inputSize
+        else:
+            currentInput = inputSize if layer == 0 else outputSize
+            currentOutput = outputSize
+        return currentInput, currentOutput
+
+    def getCurrentBiasDimensions(self, layer, dimensions, isHead):
+        layerCount, inputSize, outputSize = dimensions
+        if isHead:
+            currentOutput = outputSize if layer == layerCount - 1 else inputSize
+        else:
+            currentOutput = outputSize
+        return currentOutput
+
+    def getParameters(self, dimensions, parameterType, isHead):
+        parameters = []
+        for layer in range(dimensions[0]):
+            if parameterType == WEIGHT:
+                currentInput, currentOutput = self.getCurrentWeightDimensions(layer, dimensions, isHead)
+                parameters.append(self.createTensor((currentInput, currentOutput)))
+            elif parameterType == BIAS:
+                currentOutput = self.getCurrentBiasDimensions(layer, dimensions, isHead)
+                parameters.append(self.createTensor((currentOutput)))
+        return parameters
 
     def _getTruncatedNormal(self, size, threshold=1):
         values = truncnorm.rvs(-threshold, threshold, size=size)
@@ -48,7 +77,6 @@ class ParametersDistribution:
     def initializeTensorList(self, tensorList, value):
         newTensorList = []
         for tensor in tensorList:
-            # tensor.fill_(value)
             newTensorList.append(value*torch.ones(tensor.size()).type(FloatTensor))
         return newTensorList
 
@@ -64,30 +92,6 @@ class ParametersDistribution:
         return autograd \
             .Variable(torch.rand(dimension) \
             .type(FloatTensor), requires_grad=True)
-
-    def splitByLayer(self, dimension):
-        layerCount, inputSize, outputSize = dimension
-        splittedLayers = []
-        previousOutput = inputSize
-        for layer in range(layerCount):
-            currentInput = inputSize if layer == 0 else outputSize
-            splittedLayers.append(self.createTensor((currentInput, outputSize)))
-        return splittedLayers
-
-    def getSplitDimensions(self, sharedWeightDim, headWeightDim, parameterType):
-        if parameterType == WEIGHT:
-            return self.splitByLayer(sharedWeightDim), \
-                   self.splitByLayer(headWeightDim)
-        else:
-            return self.getSplitBiasDimensions(sharedWeightDim), \
-                   self.getSplitBiasDimensions(headWeightDim)
-
-    def getSplitBiasDimensions(self, dimension):
-        layerCount, inputSize, outputSize = dimension
-        splittedLayers = []
-        for layer in range(layerCount):
-            splittedLayers.append(self.createTensor((outputSize)))
-        return splittedLayers
 
     def getShared(self, parameterType, statistic,  taskId = None): # Added taskId for convenience
         return self.shared[parameterType][statistic]
@@ -178,21 +182,25 @@ class ParametersDistribution:
             parameters = self.getHead(BIAS, MEAN, head) + self.getHead(WEIGHT, MEAN, head)
             print('Head: {} ---- Head sum: {}'.format(head, sum(p.sum() for p in parameters)))
 
-    def printHeadDim(self):
+    def printHeadDim(self, parameterType):
         for head in range(self.headCount):
-            parameters = self.getHead(WEIGHT, MEAN, head)
+            parameters = self.getHead(parameterType, MEAN, head)
             headDims = [p.size() for p in parameters]
             print('Head dims: {}'.format(headDims))
 
-    def printSharedDim(self):
-        parameters = self.getShared(WEIGHT, MEAN)
+    def printSharedDim(self, parameterType):
+        parameters = self.getShared(parameterType, MEAN)
         sharedDims = [p.size() for p in parameters]
         print('Shared dims: {}'.format(sharedDims))
 
     def printArchitectureDimensions(self):
         print('------ Distribution Architecture ------')
-        self.printHeadDim()
-        self.printSharedDim()
+        print('*** WEIGHT ***')
+        self.printHeadDim(WEIGHT)
+        self.printSharedDim(WEIGHT)
+        print('*** BIAS ***')
+        self.printHeadDim(BIAS)
+        self.printSharedDim(BIAS)
         print('---------------------------------------')
 
     def overwrite(self, q, onlyShared = False):
