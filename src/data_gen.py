@@ -94,10 +94,10 @@ class PermutedMnistGen(Mnist):
             torch.manual_seed(self.curIter)
             idx = torch.randperm(self.X_train.shape[1])
 
-            next_x_train = deepcopy(self.X_train)[:,idx]
+            next_x_train = deepcopy(self.X_train)[:,idx].type(FloatTensor)
             next_y_train = torch.eye(10)[self.Y_train].type(FloatTensor)
 
-            next_x_test = deepcopy(self.X_test)[:,idx]
+            next_x_test = deepcopy(self.X_test)[:,idx].type(FloatTensor)
             next_y_test = torch.eye(10)[self.Y_test].type(FloatTensor)
 
             self.curIter += 1
