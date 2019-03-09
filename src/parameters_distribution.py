@@ -69,8 +69,8 @@ class ParametersDistribution:
         splittedLayers = []
         previousOutput = inputSize
         for layer in range(layerCount):
-            currentOutput = outputSize if layer == layerCount - 1 else inputSize
-            splittedLayers.append(self.createTensor((inputSize, currentOutput)))
+            currentInput = inputSize if layer == 0 else outputSize
+            splittedLayers.append(self.createTensor((currentInput, outputSize)))
         return splittedLayers
 
     def getSplitDimensions(self, sharedWeightDim, headWeightDim, parameterType):
