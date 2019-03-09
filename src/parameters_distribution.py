@@ -48,7 +48,7 @@ class ParametersDistribution:
         newTensorList = []
         for tensor in tensorList:
             # tensor.fill_(value)
-            newTensorList.append(value*torch.ones(tensor.size()))
+            newTensorList.append(value*torch.ones(tensor.size()).type(FloatTensor))
         return newTensorList
 
     def initializeMeansAndVariances(self, initMean, initVariance):
