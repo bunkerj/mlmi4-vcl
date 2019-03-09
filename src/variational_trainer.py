@@ -111,7 +111,7 @@ class VariationalTrainer:
                     print('Initialising q_posterior with coreset data (MLE)')
                     self.modelInitialization(x_coresets[taskId], y_coresets[taskId], headId)
                 print('Updating q_posterior with coreset data / Task ID: {} / Head ID: {}'.format(taskId, headId))
-                self.qPosterior.overwrite(self.maximizeVariationalLowerBound(self.qPosterior, x_coresets[taskId], y_coresets[taskId], headId, t))
+                self.qPosterior.overwrite(self.maximizeVariationalLowerBound(self.qPosterior, x_coresets[taskId], y_coresets[taskId], headId, t, True))
 
             # get scores (this updates self.accuracy)
             self.getScores(x_coresets, y_coresets, x_testsets, y_testsets, t)
@@ -178,12 +178,11 @@ class VariationalTrainer:
                 batches.append((x_train_batch, y_train_batch))
         return batches
 
-    def maximizeVariationalLowerBound(self, posterior, x_train, y_train, headId, t):
+    def maximizeVariationalLowerBound(self, posterior, x_train, y_train, headId, t, isCoreset = False):
         # create dummy new posterior
         prior = ParametersDistribution(self.sharedWeightDim, self.headWeightDim, self.numHeads)
-
-        if t != 0:
-            prior.overwrite(posterior, True)
+        prior.overwrite(posterior, True)
+        if not isCoreset:
             posterior.initializeHeads(headId)
 
         # Overwrite done to detach from graph
