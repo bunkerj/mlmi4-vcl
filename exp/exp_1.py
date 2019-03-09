@@ -14,7 +14,6 @@ import pickle
 # default setup
 dictParams = {
 'numEpochs' : 100,
-'batchSize' : 256,
 'alpha' : 1,
 'dataGen' : PermutedMnistGen(),
 'numTasks' : 10,
@@ -40,7 +39,8 @@ dictParams['coresetMethod'] = None
 
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/PM_VCL.p", "wb"))
+filename = "exp_1/PM_VCL.p"
+pickle.dump(accuracy, open(filename, "wb"))
 
 # 2 . VCL + Random Coreset
 dictParams['batchSize'] = 256
@@ -51,7 +51,8 @@ for size in [200, 400, 1000, 2500, 5000]:
     dictParams['coresetSize'] = size
     trainer = VariationalTrainer(dictParams)
     accuracy = trainer.train()
-    pickle.dump(accuracy, open( "results/PM_VCL_RC_{}.p".format(size), "wb"))
+    filename = "exp_1/PM_VCL_RC_{}.p".format(size)
+    pickle.dump(accuracy, open(filename, "wb"))
 
 # 3. Random Coreset only
 dictParams['batchSize'] = 200
@@ -62,7 +63,8 @@ for size in [200, 400, 1000, 2500, 5000]:
     dictParams['coresetSize'] = size
     trainer = VariationalTrainer(dictParams)
     accuracy = trainer.train()
-    pickle.dump(accuracy, open( "results/PM_VCL_RCO_{}.p".format(size), "wb"))
+    filename = "exp_1/PM_VCL_RCO_{}.p".format(size)
+    pickle.dump(accuracy, open(filename, "wb"))
 
 # 4. VCL + K-center Coreset
 dictParams['batchSize'] = 256
@@ -72,14 +74,16 @@ dictParams['coresetMethod'] = coreset_k
 
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/PM_VCL_KC_200.p", "wb"))
+filename = "exp_1/PM_VCL_KC_200.p"
+pickle.dump(accuracy, open(filename, "wb"))
 
 # 5. K-center Coreset only
-dictParams['batchSize'] = 256
+dictParams['batchSize'] = 200
 dictParams['coresetOnly'] = True
 dictParams['coresetSize'] = 200
 dictParams['coresetMethod'] = coreset_k
 
 trainer = VariationalTrainer(dictParams)
 accuracy = trainer.train()
-pickle.dump(accuracy, open( "results/PM_VCL_KCO_200.p", "wb"))
+filename = "exp_1/PM_VCL_KCO_200.p"
+pickle.dump(accuracy, open(filename, "wb"))
