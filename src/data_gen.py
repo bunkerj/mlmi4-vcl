@@ -14,9 +14,9 @@ from constants import FloatTensor
 # Mnist Data Loader
 class Mnist():
     def __init__(self):
-        self.X_train = torch.load('../data/MNIST_X_train.pt').type(FloatTensor)
+        self.X_train = torch.load('../data/MNIST_X_train.pt')
         self.Y_train = torch.load('../data/MNIST_Y_train.pt')
-        self.X_test = torch.load('../data/MNIST_X_test.pt').type(FloatTensor)
+        self.X_test = torch.load('../data/MNIST_X_test.pt')
         self.Y_test = torch.load('../data/MNIST_Y_test.pt')
 
 # Mnist Generator (no split or permutation)
@@ -61,14 +61,14 @@ class SplitMnistGen(Mnist):
         else:
             train_id_0 = self.X_train[self.Y_train == self.set0[self.curIter], :]
             train_id_1 = self.X_train[self.Y_train == self.set1[self.curIter], :]
-            next_x_train = torch.cat([train_id_0, train_id_1], dim=0)
+            next_x_train = torch.cat([train_id_0, train_id_1], dim=0).type(FloatTensor)
 
             next_y_train = torch.cat([torch.ones(train_id_0.shape[0], 1),torch.zeros(train_id_1.shape[0], 1)],dim=0)
             next_y_train = torch.cat([next_y_train, 1-next_y_train], dim=1).type(FloatTensor)
 
             test_id_0 = self.X_test[self.Y_test == self.set0[self.curIter], :]
             test_id_1 = self.X_test[self.Y_test == self.set1[self.curIter], :]
-            next_x_test = torch.cat([test_id_0, test_id_1], dim=0)
+            next_x_test = torch.cat([test_id_0, test_id_1], dim=0).type(FloatTensor)
 
             next_y_test = torch.cat([torch.ones(test_id_0.shape[0], 1),torch.zeros(test_id_1.shape[0], 1)],dim=0)
             next_y_test = torch.cat([next_y_test, 1-next_y_test], dim=1).type(FloatTensor)
@@ -154,14 +154,14 @@ class SplitNotMnistGen(NotMnist):
         else:
             train_id_0 = self.X_train[self.Y_train == self.set0[self.curIter], :]
             train_id_1 = self.X_train[self.Y_train == self.set1[self.curIter], :]
-            next_x_train = torch.cat([train_id_0, train_id_1], dim=0)
+            next_x_train = torch.cat([train_id_0, train_id_1], dim=0).type(FloatTensor)
 
             next_y_train = torch.cat([torch.ones(train_id_0.shape[0], 1),torch.zeros(train_id_1.shape[0], 1)],dim=0)
             next_y_train = torch.cat([next_y_train, 1-next_y_train], dim=1).type(FloatTensor)
 
             test_id_0 = self.X_test[self.Y_test == self.set0[self.curIter], :]
             test_id_1 = self.X_test[self.Y_test == self.set1[self.curIter], :]
-            next_x_test = torch.cat([test_id_0, test_id_1], dim=0)
+            next_x_test = torch.cat([test_id_0, test_id_1], dim=0).type(FloatTensor)
 
             next_y_test = torch.cat([torch.ones(test_id_0.shape[0], 1),torch.zeros(test_id_1.shape[0], 1)],dim=0)
             next_y_test = torch.cat([next_y_test, 1-next_y_test], dim=1).type(FloatTensor)
