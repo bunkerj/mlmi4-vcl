@@ -142,8 +142,8 @@ class SplitNotMnistGen(NotMnist):
         super().__init__()
         self.maxIter = len(set0)
         self.curIter = 0
-        self.sets_0 = list(map(lambda x: ord(x) - 65, set0))
-        self.sets_1 = list(map(lambda x: ord(x) - 65, set1))
+        self.set0 = list(map(lambda x: ord(x) - 65, set0))
+        self.set1 = list(map(lambda x: ord(x) - 65, set1))
 
     def get_dims(self):
         return self.X_train.shape[1], 2

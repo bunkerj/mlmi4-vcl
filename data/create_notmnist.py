@@ -18,12 +18,9 @@ X = torch.from_numpy(X)
 Y = torch.from_numpy(Y)
 
 # X is reshaped from (28, 28, 18724) to (28*28, 18724)
-X = X.reshape(28*28, -1).T
+X = torch.transpose(X.reshape(28*28, -1), 0, 1)
 # Divide X with 255.0 to normalise
 X = X/255.0
-
-# the dtype of Y is changed from float to int (necessary for one-hot-encoding)
-Y = Y.type(torch.uint8)
 
 # for reproducibility
 torch.manual_seed(0)
@@ -42,7 +39,7 @@ X_test = X[idx[n_train:],:]
 Y_test = Y[idx[n_train:]]
 
 # save tensors as pickle file
-torch.save(X_train, 'NotMNIST_X_test.pt')
-torch.save(Y_train, 'NotMNIST_Y_test.pt')
+torch.save(X_train, 'NotMNIST_X_train.pt')
+torch.save(Y_train, 'NotMNIST_Y_train.pt')
 torch.save(X_test, 'NotMNIST_X_test.pt')
 torch.save(Y_test, 'NotMNIST_Y_test.pt')
