@@ -186,6 +186,9 @@ class VariationalTrainer:
             prior.overwrite(posterior, True)
             posterior.initializeHeads(headId)
 
+        # Overwrite done to detach from graph
+        posterior.overwrite(posterior)
+
         parameters = posterior.getFlattenedParameters(headId)
         optimizer = torch.optim.Adam(parameters, lr = 0.001)
         num_train_samples = 10
