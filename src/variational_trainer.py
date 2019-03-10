@@ -170,7 +170,10 @@ class VariationalTrainer:
         return merged_x, merged_y
 
     def getNumBatches(self, data):
-        return math.ceil(data.shape[0] / self.batchSize)
+        if self.batchSize == None:
+            return 1
+        else:
+            return math.ceil(data.shape[0] / self.batchSize)
 
     def getBatch(self, x_train, y_train):
         if self.batchSize == None or self.batchSize > x_train.shape[0]:
