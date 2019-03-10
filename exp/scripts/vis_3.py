@@ -1,6 +1,14 @@
+import sys
+sys.path.append('../')
+
 from visualization import Visualization
 
-fileNames = ["exp_3/SN_VCL.p", "exp_3/SN_VCL_RC_40.p", "exp_3/SN_VCL_RCO_40.p", "exp_3/SN_VCL_KC_40.p", "exp_3/SN_VCL_KCO_40.p"]
+# fileNames = ["exp_3/SN_VCL.p", "exp_3/SN_VCL_RC_40.p", "exp_3/SN_VCL_RCO_40.p", "exp_3/SN_VCL_KC_40.p", "exp_3/SN_VCL_KCO_40.p"]
+
+fileNames = ["../averaged_results/exp_3/SN_VCL.p", "../averaged_results/exp_3/SN_VCL_RC_40.p", "../averaged_results/exp_3/SN_VCL_RC_80.p",\
+ "../averaged_results/exp_3/SN_VCL_RC_160.p",  "../averaged_results/exp_3/SN_VCL_RC_320.p", "../averaged_results/exp_3/SN_VCL_KC_40.p",\
+ "../averaged_results/exp_3/SN_VCL_KC_40.p", "../averaged_results/exp_3/SN_VCL_KC_80.p", "../averaged_results/exp_3/SN_VCL_KC_160.p",\
+ "../averaged_results/exp_3/SN_VCL_KC_320.p"]
 expNames = ['VCL (No Coreset)', 'VCL + Random Coreset', 'VCL + Random Coreset Only', 'VCL + K-Center Coreset', 'VCL + K-Center Coreset Only']
 colors = ['k','r','r','b','b']
 styles = ['o-','o-','o--','o-','o--']
