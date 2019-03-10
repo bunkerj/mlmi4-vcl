@@ -68,7 +68,7 @@ class VariationalTrainer:
         # lastly, a dictionary to store accuracy
         self.accuracy = {}
         for taskId in self.taskOrder:
-            self.accuracy[taskId] = [0]*len(self.taskOrder)
+            self.accuracy[taskId] = [None]*len(self.taskOrder)
 
     def train(self):
         # initialize coresets & testsets
