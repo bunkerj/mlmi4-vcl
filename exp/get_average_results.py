@@ -55,7 +55,7 @@ def getAverageResults(resultDict):
     return getAverage(sumOfResults, N)
 
 def serializeEachExperiment(averageResults, experimentName):
-    resultsDir = '{}/{}/{}'.format(os.curdir, 'results', experimentName)
+    resultsDir = '{}/{}/{}'.format(os.curdir, 'averaged_results', experimentName)
     pathlib.Path(resultsDir).mkdir(parents=True, exist_ok=True)
     for expName in averageResults:
         expResultFilePath = '{}/{}'.format(resultsDir, expName)
@@ -66,7 +66,7 @@ def main():
     resultDict = getResultsForAllExperiments(experimentName)
     averageResults = getAverageResults(resultDict)
     serializeEachExperiment(averageResults, experimentName)
-    print('Done :)')
+    print('Averaging completed successfully.')
 
 if __name__ == '__main__':
     main()
