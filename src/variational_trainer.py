@@ -9,6 +9,7 @@ from compute_cost import computeCost
 from monte_carlo import MonteCarlo
 from constants import Device
 import torch
+import math
 
 # variational trainer
 class VariationalTrainer:
@@ -138,21 +139,28 @@ class VariationalTrainer:
                 print("Incorporating coreset / Task ID: {} / Head ID: {}".format(taskId_, headId_))
                 q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_, t_))
 
+            # if self.coresetSize > 0:
+            #     print("Incorporating coreset / Task ID: {} / Head ID: {}".format(taskId_, headId_))
+            #     if self.numHeads == 1:
+            #         merged_x, merged_y = self.mergeCoresets(x_coresets, y_coresets)
+            #         q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, merged_x, merged_y, headId_, t_))
+            #     else:
+            #         q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_, t_))
+
             self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
             print('Accuracy of task {} at time {} is {}'.format(taskId_, t, self.accuracy[taskId_][t]))
 
 
     def testAccuracy(self, x_test, y_test, q_pred, headId):
         acc = 0
-        count = 0
         num_pred_samples = 100
-        monteCarlo = MonteCarlo(q_pred, num_pred_samples)
-        y_pred = monteCarlo.computeMonteCarlo(x_test, headId)
-        _, y_pred = torch.max(y_pred.data, 1)
-        y_pred = torch.eye(self.dataGen.get_dims()[1])[y_pred].type(FloatTensor)
-        acc += torch.sum(torch.mul(y_pred, y_test)).item()
-        count += y_pred.shape[0]
-        return acc / count
+        for x_test_batch, y_test_batch in self.getBatch(x_test, y_test):
+            monteCarlo = MonteCarlo(q_pred, num_pred_samples)
+            y_pred_batch = monteCarlo.computeMonteCarlo(x_test_batch, headId)
+            _, y_pred_batch = torch.max(y_pred_batch.data, 1)
+            y_pred_batch = torch.eye(self.dataGen.get_dims()[1])[y_pred_batch].type(FloatTensor)
+            acc += torch.sum(torch.mul(y_pred_batch, y_test_batch)).item()
+        return acc / y_test.shape[0]
 
     def mergeCoresets(self, x_coresets, y_coresets):
         x_coresets_list = list(x_coresets.values())
@@ -161,21 +169,19 @@ class VariationalTrainer:
         merged_y = torch.cat(y_coresets_list, dim=0)
         return merged_x, merged_y
 
-    def getNumBatches(self, x_train):
-        batch_size = x_train.shape[0] if self.batchSize is None else self.batchSize
-        return int(x_train.shape[0] / batch_size)
+    def getNumBatches(self, data):
+        return math.ceil(data.shape[0] / self.batchSize)
 
     def getBatch(self, x_train, y_train):
+        if self.batchSize == None or self.batchSize > x_train.shape[0]:
+            return [(x_train, y_train)]
         batches = []
         for i in range(self.getNumBatches(x_train)):
-            if self.batchSize == None or self.batchSize > x_train.shape[0]:
-                batches.append((x_train, y_train))
-            else:
-                start = i*self.batchSize
-                end = (i+1)*self.batchSize
-                x_train_batch = x_train[start:end]
-                y_train_batch = y_train[start:end]
-                batches.append((x_train_batch, y_train_batch))
+            start = i*self.batchSize
+            end = (i+1)*self.batchSize
+            x_train_batch = x_train[start:end]
+            y_train_batch = y_train[start:end]
+            batches.append((x_train_batch, y_train_batch))
         return batches
 
     def maximizeVariationalLowerBound(self, posterior, x_train, y_train, headId, t, isCoreset = False):
