@@ -210,8 +210,6 @@ class FashionMnist():
         self.X_test = x_test.view(x_test.shape[0], -1)
         self.Y_test = y_test
 
-        plt.imshow(x_train[0].numpy().reshape(28,28), cmap = 'gray')
-
 # FashionMnist Generator
 class FashionMnistGen(FashionMnist):
     # use the original order unless specified
