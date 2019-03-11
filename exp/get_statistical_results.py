@@ -2,13 +2,7 @@ import os
 import sys
 import pickle
 import pathlib
-import numpy as np
 from copy import deepcopy
-from statistics import stdev
-
-AVERAGE = 'average'
-STD = 'std'
-PRINT = 'print'
 
 def getResultsForAllExperiments(experimentName):
     results = {}
@@ -53,29 +47,12 @@ def getAverage(sumOfResults, N):
 def getAverageResults(resultDict):
     sumOfResults = {}
     N = len(resultDict)
-    for idx, experimentIdx in enumerate(resultDict):
+    for idx, key in enumerate(resultDict):
         if idx == 0:
-            sumOfResults = deepcopy(resultDict[experimentIdx])
+            sumOfResults = deepcopy(resultDict[key])
         else:
-            sumOfResults = addToSum(sumOfResults, resultDict[experimentIdx])
+            sumOfResults = addToSum(sumOfResults, resultDict[key])
     return getAverage(sumOfResults, N)
-
-def getStandardDeviation(resultDict):
-    stdResults = {}
-    if len(resultDict) == 0:
-        raise Error('Results dictionary cannot be empty')
-    firstExperimentIdx = list(resultDict)[0]
-    for experimentName in resultDict[firstExperimentIdx]:
-        stdResults[experimentName] = {}
-        for taskIdx in range(len(resultDict[firstExperimentIdx][experimentName])):
-            for idx, experimentIdx in enumerate(resultDict):
-                newRow = resultDict[experimentIdx][experimentName][taskIdx]
-                if idx == 0:
-                    values = np.array(newRow, dtype=np.float64)
-                values = np.vstack([values, np.array(newRow, dtype=np.float64)])
-            values = np.std(values, 0)
-            stdResults[experimentName][taskIdx] = list(values)
-    return stdResults
 
 def serializeEachExperiment(averageResults, experimentName):
     resultsDir = '{}/{}/{}'.format(os.curdir, 'averaged_results', experimentName)
@@ -84,47 +61,18 @@ def serializeEachExperiment(averageResults, experimentName):
         expResultFilePath = '{}/{}'.format(resultsDir, expName)
         pickle.dump(averageResults[expName], open(expResultFilePath, "wb"))
 
-def getStatisticalResult(statistic, resultDict):
-    if statistic == AVERAGE:
-        return getAverageResults(resultDict)
-    elif statistic == STD:
-        return getStandardDeviation(resultDict)
-    else:
-        raise Error('Invalid statistic: {}'.format(statistic))
-
-def getAverageFromStatisticalResult(statisticalResult):
-    averageResults = {}
-    for experimentName in statisticalResult:
-        count = 0
-        averageResults[experimentName] = 0
-        for taskIdx in statisticalResult[experimentName]:
-            for value in statisticalResult[experimentName][taskIdx]:
-                if not np.isnan(value):
-                    count += 1
-                    averageResults[experimentName] += value
-        averageResults[experimentName] /= count
-    return averageResults
+def printResults(averageResults):
+    for k in averageResults:
+        for idx in averageResults[k]:
+            print(averageResults[k][idx])
 
 def main():
     experimentName = sys.argv[1]
-    statistic = sys.argv[2]
-    action = sys.argv[3]
-
     resultDict = getResultsForAllExperiments(experimentName)
-    statisticalResult = getStatisticalResult(statistic, resultDict)
-
-    if action == PRINT:
-        print(getAverageFromStatisticalResult(statisticalResult))
-    else:
-        serializeEachExperiment(statisticalResult, experimentName)
-
-    print('\nProcess completed successfully.')
-
-    # --------------------------------------------------------------- #
-    # print(resultDict)
-    # print(resultDict['exp_3_0'])
-    # print(resultDict['exp_3_0']['SN_VCL.p'])
-    # print(resultDict['exp_3_0']['SN_VCL.p'][0])
+    averageResults = getAverageResults(resultDict)
+    printResults(averageResults)
+    serializeEachExperiment(averageResults, experimentName)
+    print('Averaging completed successfully.')
 
 if __name__ == '__main__':
     main()
