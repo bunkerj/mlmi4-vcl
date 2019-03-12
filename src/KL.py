@@ -27,16 +27,17 @@ class KL:
             v0 = qPri.getShared(BIAS, VARIANCE)[layerId]
             kl += self._getKL(m, v, m0, v0, BIAS)
 
-        for layerId, m in enumerate(qPos.getHead(WEIGHT, MEAN, taskId)):
-            v = qPos.getHead(WEIGHT, VARIANCE, taskId)[layerId]
-            m0 = qPri.getHead(WEIGHT, MEAN, taskId)[layerId]
-            v0 = qPri.getHead(WEIGHT, VARIANCE, taskId)[layerId]
-            kl += self._getKL(m, v, m0, v0, WEIGHT)
+        for taskId_ in range(taskId):
+            for layerId, m in enumerate(qPos.getHead(WEIGHT, MEAN, taskId_)):
+                v = qPos.getHead(WEIGHT, VARIANCE, taskId_)[layerId]
+                m0 = qPri.getHead(WEIGHT, MEAN, taskId_)[layerId]
+                v0 = qPri.getHead(WEIGHT, VARIANCE, taskId_)[layerId]
+                kl += self._getKL(m, v, m0, v0, WEIGHT)
 
-        for layerId, m in enumerate(qPos.getHead(BIAS, MEAN, taskId)):
-            v = qPos.getHead(BIAS, VARIANCE, taskId)[layerId]
-            m0 = qPri.getHead(BIAS, MEAN, taskId)[layerId]
-            v0 = qPri.getHead(BIAS, VARIANCE, taskId)[layerId]
-            kl += self._getKL(m, v, m0, v0, BIAS)
+            for layerId, m in enumerate(qPos.getHead(BIAS, MEAN, taskId_)):
+                v = qPos.getHead(BIAS, VARIANCE, taskId_)[layerId]
+                m0 = qPri.getHead(BIAS, MEAN, taskId_)[layerId]
+                v0 = qPri.getHead(BIAS, VARIANCE, taskId_)[layerId]
+                kl += self._getKL(m, v, m0, v0, BIAS)
 
         return kl
