@@ -16,9 +16,9 @@ Original paper by **Cuong V. Nguyen**, **Yingzhen Li**, **Thang D. Bui** and **R
 * **Challenge for Continual Learning**
 
 >* Balance between **adapting to new data** vs. **retaining existing knowledge**
->* Too much plasticity $$\rightarrow$$ **catastrophic forgetting** ([McCloskey & Cohen, 1989](https://www.sciencedirect.com/science/article/pii/S0079742108605368); [Ratcliff, 1990](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.410.1393&rep=rep1&type=pdf); [Goodfellow et al., 2014a](https://arxiv.org/pdf/1312.6211.pdf))
->  * Too much stability $$\rightarrow$$ inability to adapt
->* **Approach 1:** train individual models on each task $\rightarrow$ train to combine them
+>* Too much plasticity → **catastrophic forgetting** ([McCloskey & Cohen, 1989](https://www.sciencedirect.com/science/article/pii/S0079742108605368); [Ratcliff, 1990](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.410.1393&rep=rep1&type=pdf); [Goodfellow et al., 2014a](https://arxiv.org/pdf/1312.6211.pdf))
+>  * Too much stability → inability to adapt
+>* **Approach 1:** train individual models on each task → train to combine them
 >  * ([Lee et al., 2017](https://papers.nips.cc/paper/7051-overcoming-catastrophic-forgetting-by-incremental-moment-matching.pdf))
 >* **Approach 2:** maintain a single model and use a single type of regularized training that prevents drastic changes in the influential parameters, but allow other parameters to change more freely
 >  * ([Li & Hoiem, 2016](https://arxiv.org/pdf/1606.09282.pdf); [Kirkpatrick et al., 2017](https://arxiv.org/pdf/1612.00796.pdf); [Zenke et al., 2017](https://arxiv.org/pdf/1703.04200.pdf))
@@ -33,16 +33,13 @@ Original paper by **Cuong V. Nguyen**, **Yingzhen Li**, **Thang D. Bui** and **R
 
 * **Online updating, derived from Bayes' rule**
 
->$$p(\boldsymbol{\theta}|\mathcal{D}_{1:T}) \propto p(\boldsymbol{\theta}) \prod^T_{t=1} \prod^{N_t}_{n_t=1} p(y_t^{(n_t)}|\boldsymbol{\theta},x_t^{(n_t)}) = p(\boldsymbol{\theta}) \prod^T_{t=1} p(\mathcal{D}_t|\boldsymbol{\theta}) \propto p(\boldsymbol{\theta}|\mathcal{D}_{1:T-1}) p(\mathcal{D}_T|\boldsymbol{\theta})$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$p(\boldsymbol{\theta}|\mathcal{D}_{1:T})&space;\propto&space;p(\boldsymbol{\theta})&space;\prod^T_{t=1}&space;\prod^{N_t}_{n_t=1}&space;p(y_t^{(n_t)}|\boldsymbol{\theta},x_t^{(n_t)})&space;=&space;p(\boldsymbol{\theta})&space;\prod^T_{t=1}&space;p(\mathcal{D}_t|\boldsymbol{\theta})&space;\propto&space;p(\boldsymbol{\theta}|\mathcal{D}_{1:T-1})&space;p(\mathcal{D}_T|\boldsymbol{\theta})$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$p(\boldsymbol{\theta}|\mathcal{D}_{1:T})&space;\propto&space;p(\boldsymbol{\theta})&space;\prod^T_{t=1}&space;\prod^{N_t}_{n_t=1}&space;p(y_t^{(n_t)}|\boldsymbol{\theta},x_t^{(n_t)})&space;=&space;p(\boldsymbol{\theta})&space;\prod^T_{t=1}&space;p(\mathcal{D}_t|\boldsymbol{\theta})&space;\propto&space;p(\boldsymbol{\theta}|\mathcal{D}_{1:T-1})&space;p(\mathcal{D}_T|\boldsymbol{\theta})$$" title="$$p(\boldsymbol{\theta}|\mathcal{D}_{1:T}) \propto p(\boldsymbol{\theta}) \prod^T_{t=1} \prod^{N_t}_{n_t=1} p(y_t^{(n_t)}|\boldsymbol{\theta},x_t^{(n_t)}) = p(\boldsymbol{\theta}) \prod^T_{t=1} p(\mathcal{D}_t|\boldsymbol{\theta}) \propto p(\boldsymbol{\theta}|\mathcal{D}_{1:T-1}) p(\mathcal{D}_T|\boldsymbol{\theta})$$" /></a>
 
->* Posterior after $$T$$th dataset $$\propto$$ Posterior after $$(T-1)$$th dataset $$\times$$ Likelihood of the $$T$$th dataset
+>* Posterior after Tth dataset is proportional to the Posterior after the (T-1)th dataset multiplied by the Likelihood of the Tth dataset
 
 * **Projection Operation: approximation for intractable posterior** (recursive)
 
->$$\begin{align}
-p(\boldsymbol{\theta}|\mathcal{D}_1) \approx q_1(\boldsymbol{\theta}) &= \text{proj}(p(\boldsymbol{\theta})p(\mathcal{D}_1|\boldsymbol{\theta})) \\
-p(\boldsymbol{\theta}|\mathcal{D}_{1:T}) \approx q_T(\boldsymbol{\theta}) &= \text{proj}(q_{T-1}(\boldsymbol{\theta})p(\mathcal{D}_T|\boldsymbol{\theta}))
-\end{align}$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$\begin{align*}&space;p(\boldsymbol{\theta}|\mathcal{D}_1)&space;\approx&space;q_1(\boldsymbol{\theta})&space;=&space;\text{proj}(p(\boldsymbol{\theta})p(\mathcal{D}1|\boldsymbol{\theta}))&space;\&space;p(\boldsymbol{\theta}|\mathcal{D}{1:T})&space;\approx&space;q_T(\boldsymbol{\theta})&space;&=&space;\text{proj}(q_{T-1}(\boldsymbol{\theta})p(\mathcal{D}_T|\boldsymbol{\theta}))&space;\end{align}$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$\begin{align*}&space;p(\boldsymbol{\theta}|\mathcal{D}_1)&space;\approx&space;q_1(\boldsymbol{\theta})&space;=&space;\text{proj}(p(\boldsymbol{\theta})p(\mathcal{D}1|\boldsymbol{\theta}))&space;\&space;p(\boldsymbol{\theta}|\mathcal{D}{1:T})&space;\approx&space;q_T(\boldsymbol{\theta})&space;&=&space;\text{proj}(q_{T-1}(\boldsymbol{\theta})p(\mathcal{D}_T|\boldsymbol{\theta}))&space;\end{align}$$" title="$$\begin{align*} p(\boldsymbol{\theta}|\mathcal{D}_1) \approx q_1(\boldsymbol{\theta}) = \text{proj}(p(\boldsymbol{\theta})p(\mathcal{D}1|\boldsymbol{\theta})) \ p(\boldsymbol{\theta}|\mathcal{D}{1:T}) \approx q_T(\boldsymbol{\theta}) &= \text{proj}(q_{T-1}(\boldsymbol{\theta})p(\mathcal{D}_T|\boldsymbol{\theta})) \end{align}$$" /></a>
 
 >|Projection Operation|Inference Method|References|
 |-|-|-|
@@ -57,17 +54,16 @@ p(\boldsymbol{\theta}|\mathcal{D}_{1:T}) \approx q_T(\boldsymbol{\theta}) &= \te
 
 * **Projection Operation: KL Divergence Minimization**
 
->$$q_t(\boldsymbol{\theta}) = \underset{q \in \mathcal{Q}}{\text{argmin}} \text{KL}
-\left( q(\boldsymbol{\theta}) || \frac{1}{Z_t} q_{t-1}(\boldsymbol{\theta}) p(\mathcal{D}_t|\boldsymbol{\theta}) \right)$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$q_t(\boldsymbol{\theta})&space;=&space;\underset{q&space;\in&space;\mathcal{Q}}{\text{argmin}}&space;\text{KL}&space;\left(&space;q(\boldsymbol{\theta})&space;||&space;\frac{1}{Z_t}&space;q_{t-1}(\boldsymbol{\theta})&space;p(\mathcal{D}_t|\boldsymbol{\theta})&space;\right)$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$q_t(\boldsymbol{\theta})&space;=&space;\underset{q&space;\in&space;\mathcal{Q}}{\text{argmin}}&space;\text{KL}&space;\left(&space;q(\boldsymbol{\theta})&space;||&space;\frac{1}{Z_t}&space;q_{t-1}(\boldsymbol{\theta})&space;p(\mathcal{D}_t|\boldsymbol{\theta})&space;\right)$$" title="$$q_t(\boldsymbol{\theta}) = \underset{q \in \mathcal{Q}}{\text{argmin}} \text{KL} \left( q(\boldsymbol{\theta}) || \frac{1}{Z_t} q_{t-1}(\boldsymbol{\theta}) p(\mathcal{D}_t|\boldsymbol{\theta}) \right)$$" /></a>
 
->* $$q_0(\boldsymbol{\theta}) = p(\boldsymbol{\theta})$$
->* $$Z_t$$: normalizing constant (not required when computing the optimum)
->* VCL becomes Bayesian inference if $$p(\boldsymbol{\theta}|\mathcal{D}_{1:t}) \in \mathcal{Q} \;\forall\; t$$
+>* <a href="https://www.codecogs.com/eqnedit.php?latex=$$q_0(\boldsymbol{\theta})&space;=&space;p(\boldsymbol{\theta})$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$q_0(\boldsymbol{\theta})&space;=&space;p(\boldsymbol{\theta})$$" title="$$q_0(\boldsymbol{\theta}) = p(\boldsymbol{\theta})$$" /></a>
+>* <a href="https://www.codecogs.com/eqnedit.php?latex=$$Z_t$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$Z_t$$" title="$$Z_t$$" /></a>: normalizing constant (not required when computing the optimum)
+>* VCL becomes Bayesian inference if <a href="https://www.codecogs.com/eqnedit.php?latex=$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t})&space;\in&space;\mathcal{Q}&space;\;\forall\;&space;t$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t})&space;\in&space;\mathcal{Q}&space;\;\forall\;&space;t$$" title="$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t}) \in \mathcal{Q} \;\forall\; t$$" /></a>
 
 * **Potential Problems**
 
->* Errors from repeated approximation $$\rightarrow$$ forget old tasks
->* Minimization at each step is also approximate $$\rightarrow$$ information loss
+>* Errors from repeated approximation → forget old tasks
+>* Minimization at each step is also approximate → information loss
 
 * **Solution: Coreset**
 
@@ -79,9 +75,10 @@ p(\boldsymbol{\theta}|\mathcal{D}_{1:T}) \approx q_T(\boldsymbol{\theta}) &= \te
 
 * **Variational Recursion**
 
->$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t}) \propto p(\boldsymbol{\theta}|\mathcal{D}_{1:t} \setminus C_t) p(C_t|\boldsymbol{\theta}) \approx \tilde{q}_t (\boldsymbol{\theta}) p(C_t|\boldsymbol{\theta})$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t})&space;\propto&space;p(\boldsymbol{\theta}|\mathcal{D}_{1:t}&space;\setminus&space;C_t)&space;p(C_t|\boldsymbol{\theta})&space;\approx&space;\tilde{q}_t&space;(\boldsymbol{\theta})&space;p(C_t|\boldsymbol{\theta})$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t})&space;\propto&space;p(\boldsymbol{\theta}|\mathcal{D}_{1:t}&space;\setminus&space;C_t)&space;p(C_t|\boldsymbol{\theta})&space;\approx&space;\tilde{q}_t&space;(\boldsymbol{\theta})&space;p(C_t|\boldsymbol{\theta})$$" title="$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t}) \propto p(\boldsymbol{\theta}|\mathcal{D}_{1:t} \setminus C_t) p(C_t|\boldsymbol{\theta}) \approx \tilde{q}_t (\boldsymbol{\theta}) p(C_t|\boldsymbol{\theta})$$" /></a>
 
->$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t} \setminus C_t) = p(\boldsymbol{\theta}|\mathcal{D}_{1:t-1} \setminus C_{t-1}) p(C_{t-1} \setminus C_t | \boldsymbol{\theta}) p(\mathcal{D}_t \setminus C_t | \boldsymbol{\theta}) \approx \tilde{q}_{t-1}(\boldsymbol{\theta}) p(\mathcal{D}_t \cup C_{t-1} \setminus C_t | \boldsymbol{\theta})$$
+
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t}&space;\setminus&space;C_t)&space;=&space;p(\boldsymbol{\theta}|\mathcal{D}_{1:t-1}&space;\setminus&space;C_{t-1})&space;p(C_{t-1}&space;\setminus&space;C_t&space;|&space;\boldsymbol{\theta})&space;p(\mathcal{D}_t&space;\setminus&space;C_t&space;|&space;\boldsymbol{\theta})&space;\approx&space;\tilde{q}_{t-1}(\boldsymbol{\theta})&space;p(\mathcal{D}_t&space;\cup&space;C_{t-1}&space;\setminus&space;C_t&space;|&space;\boldsymbol{\theta})$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t}&space;\setminus&space;C_t)&space;=&space;p(\boldsymbol{\theta}|\mathcal{D}_{1:t-1}&space;\setminus&space;C_{t-1})&space;p(C_{t-1}&space;\setminus&space;C_t&space;|&space;\boldsymbol{\theta})&space;p(\mathcal{D}_t&space;\setminus&space;C_t&space;|&space;\boldsymbol{\theta})&space;\approx&space;\tilde{q}_{t-1}(\boldsymbol{\theta})&space;p(\mathcal{D}_t&space;\cup&space;C_{t-1}&space;\setminus&space;C_t&space;|&space;\boldsymbol{\theta})$$" title="$$p(\boldsymbol{\theta}|\mathcal{D}_{1:t} \setminus C_t) = p(\boldsymbol{\theta}|\mathcal{D}_{1:t-1} \setminus C_{t-1}) p(C_{t-1} \setminus C_t | \boldsymbol{\theta}) p(\mathcal{D}_t \setminus C_t | \boldsymbol{\theta}) \approx \tilde{q}_{t-1}(\boldsymbol{\theta}) p(\mathcal{D}_t \cup C_{t-1} \setminus C_t | \boldsymbol{\theta})$$" /></a>
 
 * **Algorithm**
 
@@ -89,23 +86,15 @@ p(\boldsymbol{\theta}|\mathcal{D}_{1:T}) \approx q_T(\boldsymbol{\theta}) &= \te
 >* **Step 2:** Update $C_t$ using $C_{t-1}$ and $\mathcal{D}_t$
 >* **Step 3:** Update $\tilde{q}_t$ (used for **propagation**)
 
->\begin{align}
-\tilde{q}_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t-1}(\boldsymbol{\theta}) p(\mathcal{D}_t \cup C_{t-1} \setminus C_t | \boldsymbol{\theta}) \right) \\
-&= \underset{q \in \mathcal{Q}}{\text{argmin}} \; \text{KL}
-\left( q(\boldsymbol{\theta})  \;\big|\big|\; \frac{1}{\tilde{Z}} \tilde{q}_{t-1}(\boldsymbol{\theta}) p(\mathcal{D}_t \cup C_{t-1} \setminus C_t |\boldsymbol{\theta}) \right)
-\end{align}
+><a href="https://www.codecogs.com/eqnedit.php?latex=\begin{align*}&space;\tilde{q}_t(\boldsymbol{\theta})&space;&=&space;\text{proj}&space;\left(&space;\tilde{q}_{t-1}(\boldsymbol{\theta})&space;p(\mathcal{D}_t&space;\cup&space;C_{t-1}&space;\setminus&space;C_t&space;|&space;\boldsymbol{\theta})&space;\right)&space;\\&space;&=&space;\underset{q&space;\in&space;\mathcal{Q}}{\text{argmin}}&space;\;&space;\text{KL}&space;\left(&space;q(\boldsymbol{\theta})&space;\;\big|\big|\;&space;\frac{1}{\tilde{Z}}&space;\tilde{q}_{t-1}(\boldsymbol{\theta})&space;p(\mathcal{D}_t&space;\cup&space;C_{t-1}&space;\setminus&space;C_t&space;|\boldsymbol{\theta})&space;\right)&space;\end{align*}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;\tilde{q}_t(\boldsymbol{\theta})&space;&=&space;\text{proj}&space;\left(&space;\tilde{q}_{t-1}(\boldsymbol{\theta})&space;p(\mathcal{D}_t&space;\cup&space;C_{t-1}&space;\setminus&space;C_t&space;|&space;\boldsymbol{\theta})&space;\right)&space;\\&space;&=&space;\underset{q&space;\in&space;\mathcal{Q}}{\text{argmin}}&space;\;&space;\text{KL}&space;\left(&space;q(\boldsymbol{\theta})&space;\;\big|\big|\;&space;\frac{1}{\tilde{Z}}&space;\tilde{q}_{t-1}(\boldsymbol{\theta})&space;p(\mathcal{D}_t&space;\cup&space;C_{t-1}&space;\setminus&space;C_t&space;|\boldsymbol{\theta})&space;\right)&space;\end{align*}" title="\begin{align*} \tilde{q}_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t-1}(\boldsymbol{\theta}) p(\mathcal{D}_t \cup C_{t-1} \setminus C_t | \boldsymbol{\theta}) \right) \\ &= \underset{q \in \mathcal{Q}}{\text{argmin}} \; \text{KL} \left( q(\boldsymbol{\theta}) \;\big|\big|\; \frac{1}{\tilde{Z}} \tilde{q}_{t-1}(\boldsymbol{\theta}) p(\mathcal{D}_t \cup C_{t-1} \setminus C_t |\boldsymbol{\theta}) \right) \end{align*}" /></a>
 
 >* **Step 4:** Update $q_t$ (used for **prediction**)
 
->\begin{align}
-q_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t}(\boldsymbol{\theta}) p(C_t | \boldsymbol{\theta}) \right) \\
-&= \underset{q \in \mathcal{Q}}{\text{argmin}} \; \text{KL}
-\left( q(\boldsymbol{\theta})  \;\big|\big|\; \frac{1}{Z} \tilde{q}_t (\boldsymbol{\theta}) p(C_t |\boldsymbol{\theta}) \right)
-\end{align}
+><a href="https://www.codecogs.com/eqnedit.php?latex=\begin{align*}&space;q_t(\boldsymbol{\theta})&space;&=&space;\text{proj}&space;\left(&space;\tilde{q}_{t}(\boldsymbol{\theta})&space;p(C_t&space;|&space;\boldsymbol{\theta})&space;\right)&space;\\&space;&=&space;\underset{q&space;\in&space;\mathcal{Q}}{\text{argmin}}&space;\;&space;\text{KL}&space;\left(&space;q(\boldsymbol{\theta})&space;\;\big|\big|\;&space;\frac{1}{Z}&space;\tilde{q}_t&space;(\boldsymbol{\theta})&space;p(C_t&space;|\boldsymbol{\theta})&space;\right)&space;\end{align*}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;q_t(\boldsymbol{\theta})&space;&=&space;\text{proj}&space;\left(&space;\tilde{q}_{t}(\boldsymbol{\theta})&space;p(C_t&space;|&space;\boldsymbol{\theta})&space;\right)&space;\\&space;&=&space;\underset{q&space;\in&space;\mathcal{Q}}{\text{argmin}}&space;\;&space;\text{KL}&space;\left(&space;q(\boldsymbol{\theta})&space;\;\big|\big|\;&space;\frac{1}{Z}&space;\tilde{q}_t&space;(\boldsymbol{\theta})&space;p(C_t&space;|\boldsymbol{\theta})&space;\right)&space;\end{align*}" title="\begin{align*} q_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t}(\boldsymbol{\theta}) p(C_t | \boldsymbol{\theta}) \right) \\ &= \underset{q \in \mathcal{Q}}{\text{argmin}} \; \text{KL} \left( q(\boldsymbol{\theta}) \;\big|\big|\; \frac{1}{Z} \tilde{q}_t (\boldsymbol{\theta}) p(C_t |\boldsymbol{\theta}) \right) \end{align*}" /></a>
 
 >* **Step 5:** Perform prediction
 
->$$p(y^*|\boldsymbol{x}^*, \mathcal{D}_{1:t}) = \int q_t(\boldsymbol{\theta}) p(y^*|\boldsymbol{\theta},\boldsymbol{x}^*) d\boldsymbol{\theta}$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$p(y^*|\boldsymbol{x}^*,&space;\mathcal{D}_{1:t})&space;=&space;\int&space;q_t(\boldsymbol{\theta})&space;p(y^*|\boldsymbol{\theta},\boldsymbol{x}^*)&space;d\boldsymbol{\theta}$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$p(y^*|\boldsymbol{x}^*,&space;\mathcal{D}_{1:t})&space;=&space;\int&space;q_t(\boldsymbol{\theta})&space;p(y^*|\boldsymbol{\theta},\boldsymbol{x}^*)&space;d\boldsymbol{\theta}$$" title="$$p(y^*|\boldsymbol{x}^*, \mathcal{D}_{1:t}) = \int q_t(\boldsymbol{\theta}) p(y^*|\boldsymbol{\theta},\boldsymbol{x}^*) d\boldsymbol{\theta}$$" /></a>
 
 ## 3. VCL in Deep Discriminative Models
 
@@ -121,22 +110,20 @@ q_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t}(\boldsymbol{\theta}
 
 * **Formulation**
 
-><img src = 'images/summary_1.png' width=350>
-
->* Model parameter $\boldsymbol{\theta} = \{ \boldsymbol{\theta}^H_{1:T}, \boldsymbol{\theta}^S \} \in \mathbb{R}^D$
+>* Model parameter <a href="https://www.codecogs.com/eqnedit.php?latex=$\bm{\theta}&space;=&space;\{&space;\bm{\theta}^H_{1:T},&space;\bm{\theta}^S&space;\}&space;\in&space;\mathbb{R}^D$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\bm{\theta}&space;=&space;\{&space;\bm{\theta}^H_{1:T},&space;\bm{\theta}^S&space;\}&space;\in&space;\mathbb{R}^D$" title="$\bm{\theta} = \{ \bm{\theta}^H_{1:T}, \bm{\theta}^S \} \in \mathbb{R}^D$" /></a>
 >  * **Shared parameters:** updated constantly
->  * **Head parameter:** $q(\boldsymbol{\theta}^H_K) = p(\boldsymbol{\theta}^H_K)$ at the beginning, updated incrementally as each task emerges
+>  * **Head parameter:** <a href="https://www.codecogs.com/eqnedit.php?latex=$q(\bm{\theta}^H_K)&space;=&space;p(\bm{\theta}^H_K)$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$q(\bm{\theta}^H_K)&space;=&space;p(\bm{\theta}^H_K)$" title="$q(\bm{\theta}^H_K) = p(\bm{\theta}^H_K)$" /></a> at the beginning, updated incrementally as each task emerges
 
->* For simplicity, use **Gaussian mean-field approximate posterior** $q_t(\boldsymbol{\theta}) = \prod^D_{d=1} \mathcal{N} (\theta_{t,d} ; \mu_{t,d}, \sigma^2_{t,d})$
+>* For simplicity, use **Gaussian mean-field approximate posterior** <a href="https://www.codecogs.com/eqnedit.php?latex=$q_t(\bm{\theta})&space;=&space;\prod^D_{d=1}&space;\mathcal{N}&space;(\theta_{t,d}&space;;&space;\mu_{t,d},&space;\sigma^2_{t,d})$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$q_t(\bm{\theta})&space;=&space;\prod^D_{d=1}&space;\mathcal{N}&space;(\theta_{t,d}&space;;&space;\mu_{t,d},&space;\sigma^2_{t,d})$" title="$q_t(\bm{\theta}) = \prod^D_{d=1} \mathcal{N} (\theta_{t,d} ; \mu_{t,d}, \sigma^2_{t,d})$" /></a>
 
 * **Network Training**
 
->* Maximize the negative online variational free energy or the variational lower bound to the online marginal likelihood $\mathcal{L}^t_{VCL}$ with respect to the variational parameters $\{\mu_{t,d},\sigma_{t,d}\}^D_{d=1}$
+>* Maximize the negative online variational free energy or the variational lower bound to the online marginal likelihood <a href="https://www.codecogs.com/eqnedit.php?latex=$\mathcal{L}^t_{VCL}$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\mathcal{L}^t_{VCL}$" title="$\mathcal{L}^t_{VCL}$" /></a> with respect to the variational parameters <a href="https://www.codecogs.com/eqnedit.php?latex=$\{\mu_{t,d},\sigma_{t,d}\}^D_{d=1}$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\{\mu_{t,d},\sigma_{t,d}\}^D_{d=1}$" title="$\{\mu_{t,d},\sigma_{t,d}\}^D_{d=1}$" /></a>
 
->$$\mathcal{L}^t_{VCL} (q_t(\boldsymbol{\theta})) = \sum^{N_t}_{n=1} \mathbb{E}_{\boldsymbol{\theta} \sim q_t(\boldsymbol{\theta})} \left[ \log p(y_t^{(n)}|\boldsymbol{\theta},\mathbf{x}^{(n)}_t) \right] - \text{KL} (q_t(\boldsymbol{\theta})||q_{t-1}(\boldsymbol{\theta}))$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$\mathcal{L}^t_{VCL}&space;(q_t(\boldsymbol{\theta}))&space;=&space;\sum^{N_t}_{n=1}&space;\mathbb{E}_{\boldsymbol{\theta}&space;\sim&space;q_t(\boldsymbol{\theta})}&space;\left[&space;\log&space;p(y_t^{(n)}|\boldsymbol{\theta},\mathbf{x}^{(n)}_t)&space;\right]&space;-&space;\text{KL}&space;(q_t(\boldsymbol{\theta})||q_{t-1}(\boldsymbol{\theta}))$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$\mathcal{L}^t_{VCL}&space;(q_t(\boldsymbol{\theta}))&space;=&space;\sum^{N_t}_{n=1}&space;\mathbb{E}_{\boldsymbol{\theta}&space;\sim&space;q_t(\boldsymbol{\theta})}&space;\left[&space;\log&space;p(y_t^{(n)}|\boldsymbol{\theta},\mathbf{x}^{(n)}_t)&space;\right]&space;-&space;\text{KL}&space;(q_t(\boldsymbol{\theta})||q_{t-1}(\boldsymbol{\theta}))$$" title="$$\mathcal{L}^t_{VCL} (q_t(\boldsymbol{\theta})) = \sum^{N_t}_{n=1} \mathbb{E}_{\boldsymbol{\theta} \sim q_t(\boldsymbol{\theta})} \left[ \log p(y_t^{(n)}|\boldsymbol{\theta},\mathbf{x}^{(n)}_t) \right] - \text{KL} (q_t(\boldsymbol{\theta})||q_{t-1}(\boldsymbol{\theta}))$$" /></a>
 
->* $\text{KL} (q_t(\boldsymbol{\theta})||q_{t-1}(\boldsymbol{\theta}))$: tractable / set $q_0(\boldsymbol{\theta})$ as multivariate Gaussian ([Graves, 2011](https://www.cs.toronto.edu/~graves/nips_2011.pdf); [Blundell et al., 2015](https://arxiv.org/pdf/1505.05424.pdf))
->* $\mathbb{E}_{\boldsymbol{\theta} \sim q_t(\boldsymbol{\theta})} [\cdot]$: intractable $\rightarrow$ approximate by employing simple Monte Carlo and using the **local reparameterization trick** to compute the gradients ([Salimans & Knowles, 2013](https://arxiv.org/pdf/1206.6679.pdf); [Kingma & Welling, 2014](http://dpkingma.com/wordpress/wp-content/uploads/2014/10/iclr14_vae.pdf); [Kingma et al., 2015](https://arxiv.org/pdf/1506.02557.pdf))
+>* <a href="https://www.codecogs.com/eqnedit.php?latex=$\text{KL}&space;(q_t(\bm{\theta})||q_{t-1}(\bm{\theta}))$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\text{KL}&space;(q_t(\bm{\theta})||q_{t-1}(\bm{\theta}))$" title="$\text{KL} (q_t(\bm{\theta})||q_{t-1}(\bm{\theta}))$" /></a>: tractable / set $q_0(\boldsymbol{\theta})$ as multivariate Gaussian ([Graves, 2011](https://www.cs.toronto.edu/~graves/nips_2011.pdf); [Blundell et al., 2015](https://arxiv.org/pdf/1505.05424.pdf))
+>* <a href="https://www.codecogs.com/eqnedit.php?latex=$\mathbb{E}_{\bm{\theta}&space;\sim&space;q_t(\bm{\theta})}&space;[\cdot]$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\mathbb{E}_{\bm{\theta}&space;\sim&space;q_t(\bm{\theta})}&space;[\cdot]$" title="$\mathbb{E}_{\bm{\theta} \sim q_t(\bm{\theta})} [\cdot]$" /></a>: intractable → approximate by employing simple Monte Carlo and using the **local reparameterization trick** to compute the gradients ([Salimans & Knowles, 2013](https://arxiv.org/pdf/1206.6679.pdf); [Kingma & Welling, 2014](http://dpkingma.com/wordpress/wp-content/uploads/2014/10/iclr14_vae.pdf); [Kingma et al., 2015](https://arxiv.org/pdf/1506.02557.pdf))
 
 ## 4. VCL in Deep Generative Models
 
@@ -148,35 +135,28 @@ q_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t}(\boldsymbol{\theta}
 
 * **Formulation** - VAE approach (batch learning)
 
->$$p(\mathbf{x}|\mathbf{z},\boldsymbol{\theta}) p(\mathbf{z})$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$p(\mathbf{x}|\mathbf{z},\boldsymbol{\theta})&space;p(\mathbf{z})$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$p(\mathbf{x}|\mathbf{z},\boldsymbol{\theta})&space;p(\mathbf{z})$$" title="$$p(\mathbf{x}|\mathbf{z},\boldsymbol{\theta}) p(\mathbf{z})$$" /></a>
 
->* $p(\mathbf{z})$: prior over latent variables / typically Gaussian
->* $p(\mathbf{x}|\mathbf{z},\boldsymbol{\theta})$: defined by DNN, $\boldsymbol{f_\theta} (\mathbf{z})$, where $\boldsymbol{\theta}$ collects weight matrices and bias vectors
->* **Learning $\boldsymbol{\theta}$:** approximate MLE (maximize variational lower bound w.r.t. $\boldsymbol{\theta}$ and $\boldsymbol{\phi}$)
+>* <a href="https://www.codecogs.com/eqnedit.php?latex=$p(\mathbf{z})$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$p(\mathbf{z})$" title="$p(\mathbf{z})$" /></a>: prior over latent variables / typically Gaussian
+>* <a href="https://www.codecogs.com/eqnedit.php?latex=$p(\mathbf{x}\lvert\mathbf{z},\mathbf{\theta})$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$p(\mathbf{x}\lvert\mathbf{z},\mathbf{\theta})$" title="$p(\mathbf{x}\lvert\mathbf{z},\mathbf{\theta})$" /></a>: defined by DNN, <a href="https://www.codecogs.com/eqnedit.php?latex=$\mathbf{f_\theta}&space;(\mathbf{z})$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\mathbf{f_\theta}&space;(\mathbf{z})$" title="$\mathbf{f_\theta} (\mathbf{z})$" /></a>, where <a href="https://www.codecogs.com/eqnedit.php?latex=$\mathbf{\theta}$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\mathbf{\theta}$" title="$\mathbf{\theta}$" /></a> collects weight matrices and bias vectors
+>* **Learning <a href="https://www.codecogs.com/eqnedit.php?latex=$\mathbf{\theta}$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\mathbf{\theta}$" title="$\mathbf{\theta}$" /></a>:** approximate MLE (maximize variational lower bound w.r.t. <a href="https://www.codecogs.com/eqnedit.php?latex=$\mathbf{\theta}$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\mathbf{\theta}$" title="$\mathbf{\theta}$" /></a> and <a href="https://www.codecogs.com/eqnedit.php?latex=$\mathbf{\phi}$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\mathbf{\phi}$" title="$\mathbf{\phi}$" /></a>)
 
->$$\mathcal{L}_{\text{VAE}} (\boldsymbol{\theta},\boldsymbol{\phi}) = \sum^N_{n=1} \mathbb{E}_{q_\boldsymbol{\phi}(\mathbf{z}^{(n)}|\mathbf{x}^{(n)})}
-\left[ \log \frac{p(\mathbf{x}^{(n)}|\mathbf{z}^{(n)},\boldsymbol{\theta})p(\mathbf{z}^{(n)})} {q_\boldsymbol{\phi} (\mathbf{z}^{(n)}|\mathbf{x}^{(n)})} \right]$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$\mathcal{L}_{\text{VAE}}&space;(\mathbf{\theta},\mathbf{\phi})&space;=&space;\sum^N_{n=1}&space;\mathbb{E}_{q_\mathbf{\phi}(\mathbf{z}^{(n)}|\mathbf{x}^{(n)})}&space;\left[&space;\log&space;\frac{p(\mathbf{x}^{(n)}|\mathbf{z}^{(n)},\mathbf{\theta})p(\mathbf{z}^{(n)})}&space;{q_\mathbf{\phi}&space;(\mathbf{z}^{(n)}|\mathbf{x}^{(n)})}&space;\right]$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$\mathcal{L}_{\text{VAE}}&space;(\mathbf{\theta},\mathbf{\phi})&space;=&space;\sum^N_{n=1}&space;\mathbb{E}_{q_\mathbf{\phi}(\mathbf{z}^{(n)}|\mathbf{x}^{(n)})}&space;\left[&space;\log&space;\frac{p(\mathbf{x}^{(n)}|\mathbf{z}^{(n)},\mathbf{\theta})p(\mathbf{z}^{(n)})}&space;{q_\mathbf{\phi}&space;(\mathbf{z}^{(n)}|\mathbf{x}^{(n)})}&space;\right]$$" title="$$\mathcal{L}_{\text{VAE}} (\mathbf{\theta},\mathbf{\phi}) = \sum^N_{n=1} \mathbb{E}_{q_\mathbf{\phi}(\mathbf{z}^{(n)}|\mathbf{x}^{(n)})} \left[ \log \frac{p(\mathbf{x}^{(n)}|\mathbf{z}^{(n)},\mathbf{\theta})p(\mathbf{z}^{(n)})} {q_\mathbf{\phi} (\mathbf{z}^{(n)}|\mathbf{x}^{(n)})} \right]$$" /></a>
 
->* $\rightarrow$ **No parameter uncertainty estimates** (used to weight the information learned from old data)
+>* → **No parameter uncertainty estimates** (used to weight the information learned from old data)
 
 * **Formulation** - VCL approach (continual learning)
 
->* Approximate full posterior over parametrs, $q_t(\boldsymbol{\theta}) \approx p(\boldsymbol{\theta}|\mathcal{D}_{1:t})$
->* Maximize **full** variational lower bound w.r.t. $q_t$ and $\phi$
+>* Approximate full posterior over parametrs, <a href="https://www.codecogs.com/eqnedit.php?latex=$q_t(\mathbf{\theta})&space;\approx&space;p(\mathbf{\theta}|\mathcal{D}_{1:t})$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$q_t(\mathbf{\theta})&space;\approx&space;p(\mathbf{\theta}|\mathcal{D}_{1:t})$" title="$q_t(\mathbf{\theta}) \approx p(\mathbf{\theta}|\mathcal{D}_{1:t})$" /></a>
+>* Maximize **full** variational lower bound w.r.t. <a href="https://www.codecogs.com/eqnedit.php?latex=$q_t$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$q_t$" title="$q_t$" /></a> and <a href="https://www.codecogs.com/eqnedit.php?latex=$\phi$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$\phi$" title="$\phi$" /></a>
 
->$$\mathcal{L}^t_{\text{VAE}} (q_t(\boldsymbol{\theta}),\boldsymbol{\phi}) =
-\mathbb{E}_{q_t(\boldsymbol{\theta})}\left\{
-\sum^{N_t}_{n=1} \mathbb{E}_{q_\boldsymbol{\phi}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}
-\left[ \log \frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\boldsymbol{\theta})p(\mathbf{z}_t^{(n)})} {q_\boldsymbol{\phi} (\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})} \right] \right\}
--\text{KL}(q_t(\boldsymbol{\theta})||q_{t-1}(\boldsymbol{\theta}))$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$\mathcal{L}^t_{\text{VAE}}&space;(q_t(\mathbf{\theta}),\mathbf{\phi})&space;=&space;\mathbb{E}_{q_t(\mathbf{\theta})}\left\{&space;\sum^{N_t}_{n=1}&space;\mathbb{E}_{q_\mathbf{\phi}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\left[&space;\log&space;\frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\mathbf{\theta})p(\mathbf{z}_t^{(n)})}&space;{q_\mathbf{\phi}&space;(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\right]&space;\right\}&space;-\text{KL}(q_t(\mathbf{\theta})||q_{t-1}(\mathbf{\theta}))$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$\mathcal{L}^t_{\text{VAE}}&space;(q_t(\mathbf{\theta}),\mathbf{\phi})&space;=&space;\mathbb{E}_{q_t(\mathbf{\theta})}\left\{&space;\sum^{N_t}_{n=1}&space;\mathbb{E}_{q_\mathbf{\phi}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\left[&space;\log&space;\frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\mathbf{\theta})p(\mathbf{z}_t^{(n)})}&space;{q_\mathbf{\phi}&space;(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\right]&space;\right\}&space;-\text{KL}(q_t(\mathbf{\theta})||q_{t-1}(\mathbf{\theta}))$$" title="$$\mathcal{L}^t_{\text{VAE}} (q_t(\mathbf{\theta}),\mathbf{\phi}) = \mathbb{E}_{q_t(\mathbf{\theta})}\left\{ \sum^{N_t}_{n=1} \mathbb{E}_{q_\mathbf{\phi}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})} \left[ \log \frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\mathbf{\theta})p(\mathbf{z}_t^{(n)})} {q_\mathbf{\phi} (\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})} \right] \right\} -\text{KL}(q_t(\mathbf{\theta})||q_{t-1}(\mathbf{\theta}))$$" /></a>
 
->* $\boldsymbol{\phi}$: task-specific $\rightarrow$ likely to be beneficial to share (parts of) these encoder networks
+>* $\boldsymbol{\phi}$: task-specific → likely to be beneficial to share (parts of) these encoder networks
 
 * **Model Architecture**
 
-><img src = 'images/summary_2.png' width=350>
-
->* Latent variables $\mathbf{z}$ $\rightarrow$ Intermediate-level representations $\mathbf{h}$ $\rightarrow$ Observations $\mathbf{x}$
+>* Latent variables $\mathbf{z}$ → Intermediate-level representations $\mathbf{h}$ → Observations $\mathbf{x}$
 
 >* **Architecture 1:** shared bottom network - suitable when data are composed of a common set of structural primitives (e.g. strokes)
 >* **Architecture 2:** shared head network - information tend to be entirely encoded in bottom network
@@ -185,28 +165,23 @@ q_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t}(\boldsymbol{\theta}
 
 * **Continual Learning for Deep Discriminative Models** (regularized MLE)
 
->$$\mathcal{L}^t (\boldsymbol{\theta}) = \sum^{N_t}_{n=1} \log p(y_t^{(n)} | \boldsymbol{\theta},\mathbf{x}^{(n)}_t) - \frac{1}{2} \lambda_t (\boldsymbol{\theta} - \boldsymbol{\theta}_{t-1})^T \Sigma^{-1}_{t-1} (\boldsymbol{\theta} - \boldsymbol{\theta}_{t-1})$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$\mathcal{L}^t&space;(\boldsymbol{\theta})&space;=&space;\sum^{N_t}_{n=1}&space;\log&space;p(y_t^{(n)}&space;|&space;\boldsymbol{\theta},\mathbf{x}^{(n)}_t)&space;-&space;\frac{1}{2}&space;\lambda_t&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t-1})^T&space;\Sigma^{-1}_{t-1}&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t-1})$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$\mathcal{L}^t&space;(\boldsymbol{\theta})&space;=&space;\sum^{N_t}_{n=1}&space;\log&space;p(y_t^{(n)}&space;|&space;\boldsymbol{\theta},\mathbf{x}^{(n)}_t)&space;-&space;\frac{1}{2}&space;\lambda_t&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t-1})^T&space;\Sigma^{-1}_{t-1}&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t-1})$$" title="$$\mathcal{L}^t (\boldsymbol{\theta}) = \sum^{N_t}_{n=1} \log p(y_t^{(n)} | \boldsymbol{\theta},\mathbf{x}^{(n)}_t) - \frac{1}{2} \lambda_t (\boldsymbol{\theta} - \boldsymbol{\theta}_{t-1})^T \Sigma^{-1}_{t-1} (\boldsymbol{\theta} - \boldsymbol{\theta}_{t-1})$$" /></a>
 
 >* **ML Estimation** - set $\lambda_t = 0$
 
->* **MAP Estimation** - assume Gaussian prior $q(\boldsymbol{\theta}|\mathcal{D}_{1:t-1})=\mathcal{N}(\boldsymbol{\theta};\boldsymbol{\theta}_{t-1},\Sigma_{t-1}/\lambda_t)$
->  * $\Sigma_t=? \; \rightarrow \; \Sigma_t=I$ and use CV to find $\lambda_T$ $\rightarrow$ catastrophic forgetting
+>* **MAP Estimation** - assume Gaussian prior <a href="https://www.codecogs.com/eqnedit.php?latex=$q(\mathbf{\theta}|\mathcal{D}_{1:t-1})=\mathcal{N}(\mathbf{\theta};\mathbf{\theta}_{t-1},\Sigma_{t-1}/\lambda_t)$&space;>&space;*&space;$\Sigma_t=?&space;\;&space;\rightarrow&space;\;&space;\Sigma_t=I$&space;and&space;use&space;CV&space;to&space;find&space;$\lambda_T$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$q(\mathbf{\theta}|\mathcal{D}_{1:t-1})=\mathcal{N}(\mathbf{\theta};\mathbf{\theta}_{t-1},\Sigma_{t-1}/\lambda_t)$&space;>&space;*&space;$\Sigma_t=?&space;\;&space;\rightarrow&space;\;&space;\Sigma_t=I$&space;and&space;use&space;CV&space;to&space;find&space;$\lambda_T$" title="$q(\mathbf{\theta}|\mathcal{D}_{1:t-1})=\mathcal{N}(\mathbf{\theta};\mathbf{\theta}_{t-1},\Sigma_{t-1}/\lambda_t)$ > * $\Sigma_t=? \; \rightarrow \; \Sigma_t=I$ and use CV to find $\lambda_T$" /></a> → catastrophic forgetting
 
 >* **Laplace Propagation (LP)** ([Smola et al., 2004](https://papers.nips.cc/paper/2444-laplace-propagation.pdf)) - recursion for $\Sigma_t$ using Laplace's approximation
 >  * Diagonal LP: retain only the diagonal terms of $\Sigma^{-1}_t$ to avoid computing full Hessian
 
->$$\Sigma^{-1}_t = \Phi_t + \Sigma^{-1}_{t-1} \;\;\;,\;\;\; \Phi_t = - \nabla \nabla_\boldsymbol{\theta} \sum^{N_t}_{n=1} \log p(y^{(n)}_t | \boldsymbol{\theta}, \mathbf{x}^{(n)}_t) \big|_{\boldsymbol{\theta} = \boldsymbol{\theta}_t} \;\;\;,\;\;\; \lambda_t = 1$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$\Sigma^{-1}_t&space;=&space;\Phi_t&space;&plus;&space;\Sigma^{-1}_{t-1}&space;\;\;\;,\;\;\;&space;\Phi_t&space;=&space;-&space;\nabla&space;\nabla_\mathbf{\theta}&space;\sum^{N_t}_{n=1}&space;\log&space;p(y^{(n)}_t&space;|&space;\mathbf{\theta},&space;\mathbf{x}^{(n)}_t)&space;\big|_{\mathbf{\theta}&space;=&space;\mathbf{\theta}_t}&space;\;\;\;,\;\;\;&space;\lambda_t&space;=&space;1$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$\Sigma^{-1}_t&space;=&space;\Phi_t&space;&plus;&space;\Sigma^{-1}_{t-1}&space;\;\;\;,\;\;\;&space;\Phi_t&space;=&space;-&space;\nabla&space;\nabla_\mathbf{\theta}&space;\sum^{N_t}_{n=1}&space;\log&space;p(y^{(n)}_t&space;|&space;\mathbf{\theta},&space;\mathbf{x}^{(n)}_t)&space;\big|_{\mathbf{\theta}&space;=&space;\mathbf{\theta}_t}&space;\;\;\;,\;\;\;&space;\lambda_t&space;=&space;1$$" title="$$\Sigma^{-1}_t = \Phi_t + \Sigma^{-1}_{t-1} \;\;\;,\;\;\; \Phi_t = - \nabla \nabla_\mathbf{\theta} \sum^{N_t}_{n=1} \log p(y^{(n)}_t | \mathbf{\theta}, \mathbf{x}^{(n)}_t) \big|_{\mathbf{\theta} = \mathbf{\theta}_t} \;\;\;,\;\;\; \lambda_t = 1$$" /></a>
 
 >* **Elastic Weight Consolidation (EWC)** ([Kirkpatrick et al., 2017](https://arxiv.org/pdf/1612.00796.pdf)) - modified diagonal LP
 >  * Approximate the average Hessian of the likelihoods using Fisher information
->$$$$
->$$\Phi_t \approx \text{diag} \left( \sum^{N_t}_{n=1} \left( \nabla_\boldsymbol{\theta} \log p(y^{(n)}_t|\boldsymbol{\theta},\mathbf{x}^{(n)}_t) \right)^2 \;\Big|_{\boldsymbol{\theta}=\boldsymbol{\theta}_t}\right)$$
->$$$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$\Phi_t&space;\approx&space;\text{diag}&space;\left(&space;\sum^{N_t}_{n=1}&space;\left(&space;\nabla_\mathbf{\theta}&space;\log&space;p(y^{(n)}_t|\mathbf{\theta},\mathbf{x}^{(n)}_t)&space;\right)^2&space;\;\Big|_{\mathbf{\theta}=\mathbf{\theta}_t}\right)$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$\Phi_t&space;\approx&space;\text{diag}&space;\left(&space;\sum^{N_t}_{n=1}&space;\left(&space;\nabla_\mathbf{\theta}&space;\log&space;p(y^{(n)}_t|\mathbf{\theta},\mathbf{x}^{(n)}_t)&space;\right)^2&space;\;\Big|_{\mathbf{\theta}=\mathbf{\theta}_t}\right)$$" title="$$\Phi_t \approx \text{diag} \left( \sum^{N_t}_{n=1} \left( \nabla_\mathbf{\theta} \log p(y^{(n)}_t|\mathbf{\theta},\mathbf{x}^{(n)}_t) \right)^2 \;\Big|_{\mathbf{\theta}=\mathbf{\theta}_t}\right)$$" /></a>
 >  * Regularization term: introduce hyperparameter, remove prior, regularize intermediate estimates
 
->$$\frac{1}{2} (\boldsymbol{\theta} - \boldsymbol{\theta}_{t-1})^T (\Sigma^{-1}_0 + \Sigma^{t-1}_{t'=1} \Phi_{t'}) (\boldsymbol{\theta} - \boldsymbol{\theta}_{t-1})
-\rightarrow
-\frac{1}{2} \sum^{t-1}_{t'=1} \lambda_{t'} (\boldsymbol{\theta} - \boldsymbol{\theta}_{t'-1})^T \Phi_{t'} (\boldsymbol{\theta} - \boldsymbol{\theta}_{t'-1})$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$\frac{1}{2}&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t-1})^T&space;(\Sigma^{-1}_0&space;&plus;&space;\Sigma^{t-1}_{t'=1}&space;\Phi_{t'})&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t-1})&space;\rightarrow&space;\frac{1}{2}&space;\sum^{t-1}_{t'=1}&space;\lambda_{t'}&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t'-1})^T&space;\Phi_{t'}&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t'-1})$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$\frac{1}{2}&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t-1})^T&space;(\Sigma^{-1}_0&space;&plus;&space;\Sigma^{t-1}_{t'=1}&space;\Phi_{t'})&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t-1})&space;\rightarrow&space;\frac{1}{2}&space;\sum^{t-1}_{t'=1}&space;\lambda_{t'}&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t'-1})^T&space;\Phi_{t'}&space;(\boldsymbol{\theta}&space;-&space;\boldsymbol{\theta}_{t'-1})$$" title="$$\frac{1}{2} (\boldsymbol{\theta} - \boldsymbol{\theta}_{t-1})^T (\Sigma^{-1}_0 + \Sigma^{t-1}_{t'=1} \Phi_{t'}) (\boldsymbol{\theta} - \boldsymbol{\theta}_{t-1}) \rightarrow \frac{1}{2} \sum^{t-1}_{t'=1} \lambda_{t'} (\boldsymbol{\theta} - \boldsymbol{\theta}_{t'-1})^T \Phi_{t'} (\boldsymbol{\theta} - \boldsymbol{\theta}_{t'-1})$$" /></a>
 
 >* **Synaptic Intelligence (SI)** ([Zenke et al., 2017](https://arxiv.org/pdf/1703.04200.pdf)) - compute $\Sigma^{-1}_t$ using importance of each parameter to each task
 
@@ -223,19 +198,13 @@ q_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t}(\boldsymbol{\theta}
 
 * **Continual Learning for Deep Generative Models**
 
->* **Naïve approach:** apply VAE to $\mathcal{D}_t$ with parameters initialized at $\boldsymbol{\theta}_{t-1}$ $\rightarrow$ catastrophic forgetting
+>* **Naïve approach:** apply VAE to $\mathcal{D}_t$ with parameters initialized at $\boldsymbol{\theta}_{t-1}$ → catastrophic forgetting
 >* **Alternative:** add EWC regularization term to VAE objective & approximate marginal likelihood by variational lower bound
 >  * Similar approximation can be used for **Hessian matrices for LP** and **$\Sigma^{-1}_t$ for SI** (Importance sampling: [Burda et al., 2016](https://arxiv.org/pdf/1509.00519.pdf))
 
->$$\mathcal{L}^t_{EWC}
-(\boldsymbol{\theta},\boldsymbol{\phi}) = \sum^{N_t}_{n=1} \mathbb{E}_{q_\boldsymbol{\phi}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}
-\left[ \log \frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\boldsymbol{\theta})p(\mathbf{z}_t^{(n)})} {q_\boldsymbol{\phi} (\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})} \right]
-- \frac{1}{2} \sum^{t-1}_{t'=1} \lambda_{t'} (\boldsymbol{\theta} - \boldsymbol{\theta}_{t'-1})^T \Phi_{t'} (\boldsymbol{\theta} - \boldsymbol{\theta}_{t'-1})$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$\mathcal{L}^t_{EWC}&space;(\mathbf{\theta},\mathbf{\phi})&space;=&space;\sum^{N_t}_{n=1}&space;\mathbb{E}_{q_\mathbf{\phi}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\left[&space;\log&space;\frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\boldsymbol{\theta})p(\mathbf{z}_t^{(n)})}&space;{q_\mathbf{\phi}&space;(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\right]&space;-&space;\frac{1}{2}&space;\sum^{t-1}_{t'=1}&space;\lambda_{t'}&space;(\mathbf{\theta}&space;-&space;\mathbf{\theta}_{t'-1})^T&space;\Phi_{t'}&space;(\mathbf{\theta}&space;-&space;\mathbf{\theta}_{t'-1})$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$\mathcal{L}^t_{EWC}&space;(\mathbf{\theta},\mathbf{\phi})&space;=&space;\sum^{N_t}_{n=1}&space;\mathbb{E}_{q_\mathbf{\phi}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\left[&space;\log&space;\frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\boldsymbol{\theta})p(\mathbf{z}_t^{(n)})}&space;{q_\mathbf{\phi}&space;(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\right]&space;-&space;\frac{1}{2}&space;\sum^{t-1}_{t'=1}&space;\lambda_{t'}&space;(\mathbf{\theta}&space;-&space;\mathbf{\theta}_{t'-1})^T&space;\Phi_{t'}&space;(\mathbf{\theta}&space;-&space;\mathbf{\theta}_{t'-1})$$" title="$$\mathcal{L}^t_{EWC} (\mathbf{\theta},\mathbf{\phi}) = \sum^{N_t}_{n=1} \mathbb{E}_{q_\mathbf{\phi}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})} \left[ \log \frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\boldsymbol{\theta})p(\mathbf{z}_t^{(n)})} {q_\mathbf{\phi} (\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})} \right] - \frac{1}{2} \sum^{t-1}_{t'=1} \lambda_{t'} (\mathbf{\theta} - \mathbf{\theta}_{t'-1})^T \Phi_{t'} (\mathbf{\theta} - \mathbf{\theta}_{t'-1})$$" /></a>
 
->$$\Phi_t \approx \text{diag} \left( \sum^{N_t}_{n=1} \left( \nabla_\boldsymbol{\theta}
-\mathbb{E}_{q_{\boldsymbol{\phi}}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}
-\left[ \log \frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\boldsymbol{\theta})p(\mathbf{z}_t^{(n)})} {q_\boldsymbol{\phi} (\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})} \right]
-\right)^2 \;\Bigg|_{\boldsymbol{\theta}=\boldsymbol{\theta}_t}\right)$$
+><a href="https://www.codecogs.com/eqnedit.php?latex=$$\Phi_t&space;\approx&space;\text{diag}&space;\left(&space;\sum^{N_t}_{n=1}&space;\left(&space;\nabla_\mathbf{\theta}&space;\mathbb{E}_{q_{\mathbf{\phi}}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\left[&space;\log&space;\frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\mathbf{\theta})p(\mathbf{z}_t^{(n)})}&space;{q_\mathbf{\phi}&space;(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\right]&space;\right)^2&space;\;\Bigg|_{\mathbf{\theta}=\mathbf{\theta}_t}\right)$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$\Phi_t&space;\approx&space;\text{diag}&space;\left(&space;\sum^{N_t}_{n=1}&space;\left(&space;\nabla_\mathbf{\theta}&space;\mathbb{E}_{q_{\mathbf{\phi}}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\left[&space;\log&space;\frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\mathbf{\theta})p(\mathbf{z}_t^{(n)})}&space;{q_\mathbf{\phi}&space;(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})}&space;\right]&space;\right)^2&space;\;\Bigg|_{\mathbf{\theta}=\mathbf{\theta}_t}\right)$$" title="$$\Phi_t \approx \text{diag} \left( \sum^{N_t}_{n=1} \left( \nabla_\mathbf{\theta} \mathbb{E}_{q_{\mathbf{\phi}}(\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})} \left[ \log \frac{p(\mathbf{x}_t^{(n)}|\mathbf{z}_t^{(n)},\mathbf{\theta})p(\mathbf{z}_t^{(n)})} {q_\mathbf{\phi} (\mathbf{z}_t^{(n)}|\mathbf{x}_t^{(n)})} \right] \right)^2 \;\Bigg|_{\mathbf{\theta}=\mathbf{\theta}_t}\right)$$" /></a>
 
 
 ## 6. Experiments
@@ -287,7 +256,7 @@ q_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t}(\boldsymbol{\theta}
 
 >* **Experiment Setup** (model-specific)
 >  * **EWC** - Fisher info. matrices approximated using 200 random samples from current dataset
->  * **EWC** - single-head vs. multi-head $\rightarrow$ performance insensitive to $\lambda$ & multi-head is better
+>  * **EWC** - single-head vs. multi-head → performance insensitive to $\lambda$ & multi-head is better
 
 >  * **Diagonal LP** - prior $\mathcal{N}(0,\mathbf{I})$, Hessian approximated using Fisher info. matrices with 200 samples
 
@@ -296,19 +265,11 @@ q_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t}(\boldsymbol{\theta}
 |**Hyper-parameters**|N/A|N/A|$0.01,0.1,\mathbf{1},2,3$|$\mathbf{1},10,10^2,10^3,10^4$|$\mathbf{1}$|
 |**Batch Size / Epochs**|training set size / 120<br/>coreset = 40|coreset size / 120<br/>(VFE method)||||
 
->* **Results**
-
-><img src = 'images/summary_5.png' width=600>
-
 * **Split notMNIST**
 
 >* **Experiment Setup** same as Split MNIST except:
 >  * Deeper Architecture: 4 hidden layers $\times$ 150 units
 >  * $\lambda$: $0.1$ for SI, $10^4$ for multi-head EWC, $1$ for multi-head LP
-
->* **Results**
-
-><img src = 'images/summary_6.png' width=600>
 
 ### 6.2. Experiments with Deep Generative Models
 
@@ -325,11 +286,3 @@ q_t(\boldsymbol{\theta}) &= \text{proj} \left( \tilde{q}_{t}(\boldsymbol{\theta}
 |**Dataset**|10 datasets received in sequence|
 |**Metrics**|Importance sampling estimate of test-LL using 5,000 samples<br/>classifier uncertainty (KL-divergence)|
 |**Models**|VCL, naive online learning using VAE objective, LP, EWC and SI|
-
->* **Results**
-
-><img src = 'images/summary_7.png' width=600>
-
-><img src = 'images/summary_8.png' width=600>
-
-><img src = 'images/summary_9.png' width=600>
