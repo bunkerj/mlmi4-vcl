@@ -260,3 +260,30 @@ class SplitFashionMnistGen(FashionMnist):
             self.curIter += 1
 
             return next_x_train, next_y_train, next_x_test, next_y_test
+
+# Permuted FashionMnist Generator
+class PermutedFashionMnistGen(FashionMnist):
+    def __init__(self, maxIter = 10):
+        super().__init__()
+        self.maxIter = maxIter
+        self.curIter = 0
+
+    def get_dims(self):
+        return self.X_train.shape[1], 10
+
+    def next_task(self):
+        if self.curIter >= self.maxIter:
+            raise Exception('Task finished!')
+        else:
+            torch.manual_seed(self.curIter)
+            idx = torch.randperm(self.X_train.shape[1])
+
+            next_x_train = deepcopy(self.X_train)[:,idx].type(FloatTensor)
+            next_y_train = torch.eye(10)[self.Y_train].type(FloatTensor)
+
+            next_x_test = deepcopy(self.X_test)[:,idx].type(FloatTensor)
+            next_y_test = torch.eye(10)[self.Y_test].type(FloatTensor)
+
+            self.curIter += 1
+
+            return next_x_train, next_y_train, next_x_test, next_y_test
