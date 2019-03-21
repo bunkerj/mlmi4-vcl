@@ -7,19 +7,15 @@ import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 from copy import deepcopy
-from scipy.io import loadmat
 from constants import FloatTensor
-
-torchvision.datasets.FashionMNIST(root='../data/fashion_mnist', train=True, download=True, transform=None)
-torchvision.datasets.FashionMNIST(root='../data/fashion_mnist', train=False, download=True, transform=None)
 
 # Mnist Data Loader
 class Mnist():
     def __init__(self):
-        self.X_train = torch.load('../data/MNIST_X_train.pt')
-        self.Y_train = torch.load('../data/MNIST_Y_train.pt')
-        self.X_test = torch.load('../data/MNIST_X_test.pt')
-        self.Y_test = torch.load('../data/MNIST_Y_test.pt')
+        self.X_train = torch.load('../data/processed/mnist/MNIST_X_train.pt')
+        self.Y_train = torch.load('../data/processed/mnist/MNIST_Y_train.pt')
+        self.X_test = torch.load('../data/processed/mnist/MNIST_X_test.pt')
+        self.Y_test = torch.load('../data/processed/mnist/MNIST_Y_test.pt')
 
 # Mnist Generator (no split or permutation)
 class MnistGen(Mnist):
@@ -46,7 +42,7 @@ class MnistGen(Mnist):
 
 # Split Mnist Generator
 class SplitMnistGen(Mnist):
-    # use the original order unless specified
+    # ordering can be customized by defining set0 and set1 differently
     def __init__(self, set0 = [0, 2, 4, 6, 8], set1 = [1, 3, 5, 7, 9]):
         super().__init__()
         self.maxIter = len(set0)
@@ -109,10 +105,10 @@ class PermutedMnistGen(Mnist):
 # NotMnist Data Loader
 class NotMnist():
     def __init__(self):
-        self.X_train = torch.load('../data/NotMNIST_X_train.pt')
-        self.Y_train = torch.load('../data/NotMNIST_Y_train.pt')
-        self.X_test = torch.load('../data/NotMNIST_X_test.pt')
-        self.Y_test = torch.load('../data/NotMNIST_Y_test.pt')
+        self.X_train = torch.load('../data/processed/not_mnist/NotMNIST_X_train.pt')
+        self.Y_train = torch.load('../data/processed/not_mnist/NotMNIST_Y_train.pt')
+        self.X_test = torch.load('../data/processed/not_mnist/NotMNIST_X_test.pt')
+        self.Y_test = torch.load('../data/processed/not_mnist/NotMNIST_Y_test.pt')
 
 # NotMnist Generator (no split or permutation)
 class NotMnistGen(NotMnist):
@@ -139,7 +135,7 @@ class NotMnistGen(NotMnist):
 
 # Split NotMnist Generator
 class SplitNotMnistGen(NotMnist):
-    # use the original order unless specified
+    # ordering can be customized by defining set0 and set1 differently
     def __init__(self, set0 = ['A', 'B', 'C', 'D', 'E'], set1 = ['F', 'G', 'H', 'I', 'J']):
         super().__init__()
         self.maxIter = len(set0)
@@ -202,19 +198,37 @@ class PermutedNotMnistGen(NotMnist):
 # FashionMnist Data Loader
 class FashionMnist():
     def __init__(self):
-        x_train, y_train = torch.load('../data/fashion_mnist/processed/training.pt')
-        x_test, y_test = torch.load('../data/fashion_mnist/processed/test.pt')
-        length = x_train.shape[0]
-        self.X_train = x_train.view(x_train.shape[0], -1)
-        self.Y_train = y_train
-        self.X_test = x_test.view(x_test.shape[0], -1)
-        self.Y_test = y_test
+        self.X_train = torch.load('../data/processed/fashion_mnist/FashionMNIST_X_train.pt')
+        self.Y_train = torch.load('../data/processed/fashion_mnist/FashionMNIST_Y_train.pt')
+        self.X_test = torch.load('../data/processed/fashion_mnist/FashionMNIST_X_test.pt')
+        self.Y_test = torch.load('../data/processed/fashion_mnist/FashionMNIST_Y_test.pt')
 
-        plt.imshow(x_train[0].numpy().reshape(28,28), cmap = 'gray')
-
-# FashionMnist Generator
+# FashionMnist Generator (no split or permutation)
 class FashionMnistGen(FashionMnist):
-    # use the original order unless specified
+    def __init__(self):
+        super().__init__()
+        self.maxIter = 1
+        self.curIter = 0
+
+    def get_dims(self):
+        return self.X_train.shape[1], 10
+
+    def next_task(self):
+        if self.curIter >= self.maxIter:
+            raise Exception('Task finished!')
+        else:
+            next_x_train = self.X_train
+            next_y_train = torch.eye(10)[self.Y_train].type(FloatTensor)
+            next_x_test = self.X_test
+            nex_y_test = torch.eye(10)[self.Y_test].type(FloatTensor)
+
+            self.curIter += 1
+
+            return next_x_train, next_y_train, next_x_test, next_y_test
+
+# Split FashionMnist Generator
+class SplitFashionMnistGen(FashionMnist):
+    # use the default order unless specified
     def __init__(self, set0 = [0, 2, 4, 6, 8], set1 = [1, 3, 5, 7, 9]):
         super().__init__()
         self.maxIter = len(set0)
