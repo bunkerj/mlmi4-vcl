@@ -33,7 +33,7 @@ class VariationalTrainer:
 
         self.numEpochs = dictParams['numEpochs']
         self.batchSize = dictParams['batchSize']
-        self.alpha = dictParams['alpha'] # hyperparameter
+        self.alpha = dictParams['alpha']
 
         self.dataGen = dictParams['dataGen']
         self.numTasks = dictParams['numTasks']
@@ -139,14 +139,6 @@ class VariationalTrainer:
                 print("Incorporating coreset / Task ID: {} / Head ID: {}".format(taskId_, headId_))
                 q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_, t_))
 
-            # if self.coresetSize > 0:
-            #     print("Incorporating coreset / Task ID: {} / Head ID: {}".format(taskId_, headId_))
-            #     if self.numHeads == 1:
-            #         merged_x, merged_y = self.mergeCoresets(x_coresets, y_coresets)
-            #         q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, merged_x, merged_y, headId_, t_))
-            #     else:
-            #         q_pred.overwrite(self.maximizeVariationalLowerBound(q_pred, x_coresets[taskId_], y_coresets[taskId_], headId_, t_))
-
             self.accuracy[taskId_][t] = self.testAccuracy(x_testsets[taskId_], y_testsets[taskId_], q_pred, headId_)
             print('Accuracy of task {} at time {} is {}'.format(taskId_, t, self.accuracy[taskId_][t]))
 
@@ -161,13 +153,6 @@ class VariationalTrainer:
             y_pred_batch = torch.eye(self.dataGen.get_dims()[1])[y_pred_batch].type(FloatTensor)
             acc += torch.sum(torch.mul(y_pred_batch, y_test_batch)).item()
         return acc / y_test.shape[0]
-
-    def mergeCoresets(self, x_coresets, y_coresets):
-        x_coresets_list = list(x_coresets.values())
-        y_coresets_list = list(y_coresets.values())
-        merged_x = torch.cat(x_coresets_list, dim=0)
-        merged_y = torch.cat(y_coresets_list, dim=0)
-        return merged_x, merged_y
 
     def getNumBatches(self, data):
         if self.batchSize == None:
