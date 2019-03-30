@@ -12,7 +12,6 @@ dictParams = getAllExpParameters(dictUpdate)
 for taskOrder in getAdversarialPermutationList():
     dictUpdate = {'taskOrder' : taskOrder}
     dictParams = getAllExpParameters(dictUpdate)
-    # for iter in range(0,5):
-        # trainer = VariationalTrainer(dictParams)
-        # accuracy = trainer.train()
-    print(getName(dictParams, 'taskOrder'))
+    for iter in range(0,5):
+        trainer = VariationalTrainer(dictParams)
+        accuracy = trainer.train()
