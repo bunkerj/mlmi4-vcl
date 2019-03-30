@@ -3,9 +3,6 @@ import torch
 sys.path.append('../')
 sys.path.append('../src/')
 
-from data_gen import *
-from coreset import *
-
 FloatTensor = (
     torch.cuda.FloatTensor
     if torch.cuda.is_available()
@@ -28,14 +25,14 @@ DEFAULT_PARAMETERS = {
 'numEpochs' : 120,
 'batchSize' : None,
 'alpha' : 1,
-'dataGen' : SplitMnistGen(),
+'dataGen' : None,
 'numTasks' : 5,
 'numHeads' : 5,
 'numLayers' : (2,1),
 'hiddenSize' : 256,
 'taskOrder' : [],
 'headOrder' : [],
-'coresetMethod' = coreset_rand, 
+'coresetMethod': None,
 'coresetOnly': False,
 'coresetSize': 0
 }
