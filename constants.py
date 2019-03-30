@@ -1,4 +1,10 @@
+import sys
 import torch
+sys.path.append('../')
+sys.path.append('../src/')
+
+from data_gen import *
+from coreset import *
 
 FloatTensor = (
     torch.cuda.FloatTensor
@@ -29,6 +35,7 @@ DEFAULT_PARAMETERS = {
 'hiddenSize' : 256,
 'taskOrder' : [],
 'headOrder' : [],
+'coresetMethod' = coreset_rand, 
 'coresetOnly': False,
 'coresetSize': 0
 }
