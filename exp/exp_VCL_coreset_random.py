@@ -30,4 +30,4 @@ for idx, dataGen in enumerate([SplitMnistGen(), SplitNotMnistGen()]):
         resultAverager.add(accuracy)
     filename = ('splitMNIST' if idx == 0 else 'SplitNotMnist')
     writePerformanceRecordAccuracyAvg(directory, filename, resultAverager)
-    print('Time for single task: {}'.format((time() - startTime) / 60))
+    print('Time for single iteration: {}'.format((time() - startTime) / 60))

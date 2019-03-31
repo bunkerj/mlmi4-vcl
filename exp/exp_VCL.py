@@ -10,12 +10,12 @@ from constants import DEFAULT_PARAMETERS
 from result_averager import ResultAverager
 from variational_trainer import VariationalTrainer
 
-directory = "../exp/final_experiments/VCL_coreset_k_centered"
+directory = "../exp/final_experiments/VCL"
 
 dictUpdate = {
-    'coresetMethod': coreset_k,
+    'coresetMethod': None,
     'numLayers' : (2,1),
-    'coresetSize': 40,
+    'coresetSize': 0,
     'numEpochs' : 120
 }
 
