@@ -49,7 +49,7 @@ def convert(n, base):
     else:
         return convert(q, base) + T[r]
 
-def headOrderList(num_heads, num_tasks):
+def getHeadOrderList(num_heads, num_tasks):
 
     head_order_list = []
     for i in range(num_heads ** num_tasks):
