@@ -21,15 +21,15 @@ dictUpdate = {
     'taskOrder': list(range(5))
 }
 
-for taskOrder in headOrderList():
+for headOrder in getHeadOrderList():
     startTime = time()
     resultAverager = ResultAverager()
-    dictUpdate['taskOrder'] = taskOrder
+    dictUpdate['headOrder'] = headOrder
     dictParams = getAllExpParameters(dictUpdate)
     for iter in range(0,5):
         trainer = VariationalTrainer(dictParams)
         accuracy = trainer.train()
         resultAverager.add(accuracy)
-    filename = getName(dictParams, 'taskOrder')
+    filename = getName(dictParams, 'headOrder')
     writePerformanceRecordAccuracyAvg(directory, filename, resultAverager)
     print('Time for single iteration: {}'.format((time() - startTime) / 60))
