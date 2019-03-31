@@ -5,7 +5,7 @@ sys.path.append('../src/')
 from time import time
 from data_gen import *
 from coreset import *
-from utils_exp import *
+from utils import *
 from constants import DEFAULT_PARAMETERS
 from result_averager import ResultAverager
 from variational_trainer import VariationalTrainer
@@ -17,7 +17,7 @@ dictUpdate = {
     'coresetMethod': coreset_rand,
     'numLayers' : (1,2),
     'coresetSize': 40,
-    'numEpochs' : 120
+    'numEpochs' : 3
 }
 
 for taskOrder in getAdversarialPermutationList():
@@ -31,5 +31,5 @@ for taskOrder in getAdversarialPermutationList():
         resultAverager.add(accuracy)
     filename = getName(dictParams, 'taskOrder')
     writePerformanceRecordAccuracyAvg(directory, filename, resultAverager)
-    print('Time for 1 task: {}'.format((time() - startTime) / 60))
+    print('Time for single task: {}'.format((time() - startTime) / 60))
     break
