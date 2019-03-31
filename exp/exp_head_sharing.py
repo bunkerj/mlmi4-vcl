@@ -10,7 +10,7 @@ from constants import DEFAULT_PARAMETERS
 from result_averager import ResultAverager
 from variational_trainer import VariationalTrainer
 
-directory = "../exp/final_experiments/adversarial_ordering"
+directory = "../exp/final_experiments/head_sharing"
 
 dictUpdate = {
     'dataGen':SplitMnistGen(),
