@@ -40,3 +40,39 @@ def writePerformanceRecordAccuracyAvg(directory, filename, resultAverager):
     averagePRaverage = resultAverager.getAveragePerformanceRecordAverage()
     filenameWithAverageSuffix = '{}_average_{}'.format(filename, averagePRaverage)
     writeToFile(averagePR, directory, filenameWithAverageSuffix)
+
+def convert(n, base):
+    T = "0123456789ABCDEF"
+    q, r = divmod(n, base)
+    if q == 0:
+        return T[r]
+    else:
+        return convert(q, base) + T[r]
+
+def headOrderList(num_heads, num_tasks):
+
+    head_order_list = []
+    for i in range(num_heads ** num_tasks):
+
+        head_order = list('%0{}d'.format(num_tasks) % int(convert(i, num_heads)))
+
+        if len(set(head_order)) == num_heads:
+            head_order_list.append(head_order)
+
+    head_order_list2 = []
+    for head_order in head_order_list:
+        head_mapping = {}
+
+        idx = 0
+        for head in head_order:
+            if head not in head_mapping.keys():
+                head_mapping[head] = idx
+                idx += 1
+
+        for j in range(len(head_order)):
+            head_order[j] = head_mapping[head_order[j]]
+
+        if head_order not in head_order_list2:
+            head_order_list2.append(head_order)
+
+    return head_order_list2
