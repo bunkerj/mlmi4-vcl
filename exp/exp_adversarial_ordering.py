@@ -31,4 +31,4 @@ for taskOrder in getAdversarialPermutationList():
         resultAverager.add(accuracy)
     filename = getName(dictParams, 'taskOrder')
     writePerformanceRecordAccuracyAvg(directory, filename, resultAverager)
-    print('Time for single task: {}'.format((time() - startTime) / 60))
+    print('Time for single iteration: {}'.format((time() - startTime) / 60))
