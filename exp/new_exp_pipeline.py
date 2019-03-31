@@ -9,11 +9,10 @@ from constants import DEFAULT_PARAMETERS
 from result_averager import ResultAverager
 from variational_trainer import VariationalTrainer
 
-dictUpdate = {'dataGen':SplitMnistGen(),'coresetMethod': coreset_rand,'numLayers' : (1,2), 'coresetSize': 40}
-dictParams = getAllExpParameters(dictUpdate)
+
 for taskOrder in getAdversarialPermutationList():
     resultAverager = ResultAverager()
-    dictUpdate = {'taskOrder' : taskOrder}
+    dictUpdate = {'dataGen':SplitMnistGen(),'coresetMethod': coreset_rand,'numLayers' : (1,2), 'coresetSize': 40, 'taskOrder' : taskOrder}
     dictParams = getAllExpParameters(dictUpdate)
     for iter in range(0,5):
         trainer = VariationalTrainer(dictParams)
