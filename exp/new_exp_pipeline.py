@@ -17,7 +17,7 @@ dictUpdate = {
     'coresetMethod': coreset_rand,
     'numLayers' : (1,2),
     'coresetSize': 40,
-    'numEpochs' : 1
+    'numEpochs' : 120
 }
 
 for taskOrder in getAdversarialPermutationList():
