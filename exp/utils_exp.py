@@ -2,6 +2,8 @@ import sys
 sys.path.append('../')
 sys.path.append('../src/')
 import itertools
+import pickle
+import pathlib
 from copy import deepcopy
 from constants import DEFAULT_PARAMETERS
 
@@ -23,3 +25,17 @@ def getAdversarialPermutationList():
 
 def getName(dictionary, dictEntry):
     return dictEntry+'_'+str(dictionary[dictEntry]).replace('[', '').replace(']', '').replace(', ', '_')
+
+def getPath(directory, dictionary, dictEntry):
+    filename = getName(dictionary, dictEntry)
+    return '{}/{}'.format(directory, filename)
+
+def writeToFile(obj, path):
+    pathlib.Path(resultsDir).mkdir(parents=True, exist_ok=True)
+    pickle.dump(obj, open(filename, "wb"))
+
+def writePerformanceRecordAccuracyAvg(path, resultAverager):
+    averagePR = resultAverager.getAveragePerformanceRecord()
+    averagePRaverage = resultAverager.getAveragePerformanceRecordAverage()
+    pathWithAverageSuffix = '{}_average_{}'.format(path, averagePRaverage)
+    writeToFile(accuracy, pathWithAverageSuffix)
