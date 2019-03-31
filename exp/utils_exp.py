@@ -38,5 +38,5 @@ def writeToFile(obj, directory, filename):
 def writePerformanceRecordAccuracyAvg(directory, filename, resultAverager):
     averagePR = resultAverager.getAveragePerformanceRecord()
     averagePRaverage = resultAverager.getAveragePerformanceRecordAverage()
-    pathWithAverageSuffix = '{}_average_{}'.format(filename, averagePRaverage)
-    writeToFile(averagePR, directory, filename)
+    filenameWithAverageSuffix = '{}_average_{}'.format(filename, averagePRaverage)
+    writeToFile(averagePR, directory, filenameWithAverageSuffix)
