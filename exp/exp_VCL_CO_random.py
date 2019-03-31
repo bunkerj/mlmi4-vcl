@@ -16,7 +16,7 @@ dictUpdate = {
     'coresetMethod': coreset_rand,
     'coresetOnly': True,
     'numLayers' : (2,1),
-    'coresetSize': 40,
+    'coresetSize': 160,
     'numEpochs' : 120
 }
 

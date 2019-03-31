@@ -17,7 +17,7 @@ dictUpdate = {
     'coresetMethod': coreset_rand,
     'numLayers' : (2,1),
     'coresetSize': 0,
-    'numEpochs' : 5,
+    'numEpochs' : 120,
     'taskOrder': list(range(5))
 }
 
@@ -37,4 +37,3 @@ for headCount in headCounts:
         filename = '{}_headcount_{}'.format(getName(dictParams, 'headOrder'), headCount)
         writePerformanceRecordAccuracyAvg(directory, filename, resultAverager)
         print('Time for single iteration: {}'.format((time() - startTime) / 60))
-        break
