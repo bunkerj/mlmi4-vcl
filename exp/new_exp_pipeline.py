@@ -11,16 +11,25 @@ from result_averager import ResultAverager
 from variational_trainer import VariationalTrainer
 
 directory = "../exp/test"
+
+dictUpdate = {
+    'dataGen':SplitMnistGen(),
+    'coresetMethod': coreset_rand,
+    'numLayers' : (1,2),
+    'coresetSize': 40,
+    'numEpochs' : 1
+}
+
 for taskOrder in getAdversarialPermutationList():
     startTime = time()
     resultAverager = ResultAverager()
-    dictUpdate = {'dataGen':SplitMnistGen(),'coresetMethod': coreset_rand,'numLayers' : (1,2), 'coresetSize': 40, 'taskOrder' : taskOrder}
+    dictUpdate['taskOrder'] = taskOrder
     dictParams = getAllExpParameters(dictUpdate)
     for iter in range(0,5):
         trainer = VariationalTrainer(dictParams)
         accuracy = trainer.train()
         resultAverager.add(accuracy)
-    path = getPath(directory, dictionary, dictEntry)
-    writePerformanceRecordAccuracyAvg(path, resultAverager)
-    print('Time for 1 task: {}'.format((time() - startTime)/60))
+    filename = getName(dictParams, 'taskOrder')
+    writePerformanceRecordAccuracyAvg(directory, filename, resultAverager)
+    print('Time for 1 task: {}'.format((time() - startTime) / 60))
     break

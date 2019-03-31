@@ -30,12 +30,13 @@ def getPath(directory, dictionary, dictEntry):
     filename = getName(dictionary, dictEntry)
     return '{}/{}'.format(directory, filename)
 
-def writeToFile(obj, path):
-    pathlib.Path(resultsDir).mkdir(parents=True, exist_ok=True)
-    pickle.dump(obj, open(filename, "wb"))
+def writeToFile(obj, directory, filename):
+    pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
+    fullPath = '{}/{}'.format(directory, filename)
+    pickle.dump(obj, open(fullPath, "wb"))
 
-def writePerformanceRecordAccuracyAvg(path, resultAverager):
+def writePerformanceRecordAccuracyAvg(directory, filename, resultAverager):
     averagePR = resultAverager.getAveragePerformanceRecord()
     averagePRaverage = resultAverager.getAveragePerformanceRecordAverage()
-    pathWithAverageSuffix = '{}_average_{}'.format(path, averagePRaverage)
-    writeToFile(accuracy, pathWithAverageSuffix)
+    pathWithAverageSuffix = '{}_average_{}'.format(filename, averagePRaverage)
+    writeToFile(averagePR, directory, filename)
