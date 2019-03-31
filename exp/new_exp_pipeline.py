@@ -9,7 +9,7 @@ from constants import DEFAULT_PARAMETERS
 from result_averager import ResultAverager
 from variational_trainer import VariationalTrainer
 
-
+directory = "../exp/test"
 for taskOrder in getAdversarialPermutationList():
     resultAverager = ResultAverager()
     dictUpdate = {'dataGen':SplitMnistGen(),'coresetMethod': coreset_rand,'numLayers' : (1,2), 'coresetSize': 40, 'taskOrder' : taskOrder}
@@ -18,5 +18,6 @@ for taskOrder in getAdversarialPermutationList():
         trainer = VariationalTrainer(dictParams)
         accuracy = trainer.train()
         resultAverager.add(accuracy)
-        path = getPath(dictionary, dictEntry)
-        writePerformanceRecordAccuracyAvg(path, resultAverager)
+    path = getPath(directory, dictionary, dictEntry)
+    writePerformanceRecordAccuracyAvg(path, resultAverager)
+    break
