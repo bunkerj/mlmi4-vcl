@@ -10,14 +10,14 @@ from constants import DEFAULT_PARAMETERS
 from result_averager import ResultAverager
 from variational_trainer import VariationalTrainer
 
-directory = "../exp/test"
+directory = "../exp/final_experiments/adversarial_ordering"
 
 dictUpdate = {
     'dataGen':SplitMnistGen(),
     'coresetMethod': coreset_rand,
-    'numLayers' : (1,2),
-    'coresetSize': 40,
-    'numEpochs' : 3
+    'numLayers' : (2,1),
+    'coresetSize': 0,
+    'numEpochs' : 120
 }
 
 for taskOrder in getAdversarialPermutationList():
