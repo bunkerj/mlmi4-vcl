@@ -16,7 +16,8 @@ dictUpdate = {
     'coresetMethod': coreset_rand,
     'coresetOnly': True,
     'numLayers' : (2,1),
-    'numEpochs' : 120
+    'numEpochs' : 120,
+    'dataGen': SplitMnistGen()
 }
 
 for size in [40, 80, 160, 320, 640]:
